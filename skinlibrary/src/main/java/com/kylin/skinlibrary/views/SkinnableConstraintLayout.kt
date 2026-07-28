@@ -2,9 +2,7 @@ package com.kylin.skinlibrary.views
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.util.AttributeSet
-import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.kylin.skinlibrary.R
@@ -17,36 +15,29 @@ class SkinnableConstraintLayout @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), ViewsMatch {
-    private val attrsBean: AttrsBean = AttrsBean()
+    private val attrsBean = AttrsBean()
 
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun skinnableView() {
-        val key =
-            R.styleable.SkinnableConstraintLayout[R.styleable.SkinnableConstraintLayout_android_background]
-        val backgroundResourceId = attrsBean.getViewResource(key)
-        if (backgroundResourceId > 0) {
-            if (SkinManager.instance!!.isDefaultSkin) {
-                val drawable = ContextCompat.getDrawable(context, backgroundResourceId)
+        val manager = SkinManager.instance ?: return
+
+        val key = R.styleable.SkinnableConstraintLayout[R.styleable.SkinnableConstraintLayout_android_background]
+        val resourceId = attrsBean.getViewResource(key)
+        if (resourceId > 0) {
+            if (manager.isDefaultSkin) {
+                val drawable = ContextCompat.getDrawable(context, resourceId)
                 background = drawable
             } else {
-                val skinResourceId: Any =
-                    SkinManager.instance!!.getBackgroundOrSrc(backgroundResourceId)!!
-                if (skinResourceId is Int) {
-                    setBackgroundColor(skinResourceId)
-                } else {
-                    val drawable = skinResourceId as Drawable
-                    background = drawable
+                val skinResource = manager.getBackgroundOrSrc(resourceId)
+                when (skinResource) {
+                    is Int -> setBackgroundColor(skinResource)
+                    is Drawable -> background = skinResource
                 }
             }
         }
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(
-            attrs,
-            R.styleable.SkinnableConstraintLayout,
-            defStyleAttr, 0
-        )
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableConstraintLayout, defStyleAttr, 0)
         attrsBean.saveViewResource(typedArray, R.styleable.SkinnableConstraintLayout)
         typedArray.recycle()
     }

@@ -2,14 +2,12 @@ package com.netease.skin.library.base
 
 import android.content.Context
 import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.LayoutInflaterCompat
 import com.kylin.skinlibrary.SkinManager
@@ -91,7 +89,6 @@ abstract class SkinActivity : AppCompatActivity() {
      *
      * @param isDarkMode true=暗黑模式, false=浅色模式
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     protected open fun onDarkModeChanged(isDarkMode: Boolean) {
         Log.d(TAG, "onDarkModeChanged(isDarkMode=$isDarkMode) — 默认空实现，子类可重写")
     }
@@ -129,28 +126,30 @@ abstract class SkinActivity : AppCompatActivity() {
         return true
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     fun defaultSkin(themeColorId: Int) {
         Log.d(TAG, "defaultSkin(themeColorId=$themeColorId) — ${this.javaClass.simpleName}")
         skinDynamic(null, themeColorId)
     }
 
     /**
-     * 动态换肤（api限制：5.0版本）
+     * 动态换肤
      * public 可见性：供 DialogFragment 等外部组件调用
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     fun skinDynamic(skinPath: String?, themeColorId: Int) {
         Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         Log.d(TAG, "skinDynamic() — ${this.javaClass.simpleName}")
         Log.d(TAG, "  skinPath     = $skinPath")
         Log.d(TAG, "  themeColorId = $themeColorId")
 
-        // 统一通过 SkinManager.loadSkin() 管理皮肤状态，确保生命周期感知一致性
-        SkinManager.instance?.loadSkin(skinPath, themeColorId)
+        // 统一通过 SkinManager.loadSkin() 管理皮肤状态
+        val manager = SkinManager.instance ?: run {
+            Log.w(TAG, "skinDynamic → SkinManager 未初始化，跳过")
+            return
+        }
+        manager.loadSkin(skinPath, themeColorId)
 
         if (themeColorId != 0) {
-            val themeColor: Int = SkinManager.instance!!.getColor(themeColorId)
+            val themeColor = manager.getColor(themeColorId)
             Log.d(TAG, "  解析主题色 = #${Integer.toHexString(themeColor)}")
             Log.d(TAG, "  → StatusBar/Navigation/ActionBar 换肤")
             StatusBarUtils.forStatusBar(this, themeColor)
@@ -168,7 +167,6 @@ abstract class SkinActivity : AppCompatActivity() {
      * 自动应用当前皮肤状态
      * 由 onPostCreate 触发，无需 Activity 手动调用
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     fun applyCurrentSkin() {
         val currentPath = SkinManager.instance?.currentSkinPath
         val themeColorId = SkinManager.instance?.currentThemeColorId ?: 0
