@@ -63,8 +63,48 @@ class CustomAppCompatViewInflater(  // 上下文
                 view = SkinnableButton(context, attrs)
                 verifyNotNull(view, name)
             }
-            SystemViewName.APPCOMPAT_EDIT_TEXT -> {
+            SystemViewName.APPCOMPAT_EDIT_TEXT, SystemViewName.EDIT_TEXT -> {
                 view = SkinnableEditText(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.FRAME_LAYOUT -> {
+                view = SkinnableFrameLayout(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.SCROLL_VIEW -> {
+                view = SkinnableScrollView(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.MATERIAL_CARD_VIEW, SystemViewName.CARD_VIEW -> {
+                view = SkinnableCardView(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.IMAGE_BUTTON -> {
+                view = SkinnableImageButton(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.CHECK_BOX -> {
+                view = SkinnableCheckBox(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.RADIO_BUTTON -> {
+                view = SkinnableRadioButton(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.SWITCH_COMPAT, SystemViewName.SWITCH -> {
+                view = SkinnableSwitchCompat(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.TOGGLE_BUTTON -> {
+                view = SkinnableToggleButton(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.CHECKED_TEXT_VIEW -> {
+                view = SkinnableCheckedTextView(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.APPCOMPAT_AUTO_COMPLETE_TEXT_VIEW, SystemViewName.AUTO_COMPLETE_TEXT_VIEW -> {
+                view = SkinnableAutoCompleteTextView(context, attrs)
                 verifyNotNull(view, name)
             }
         }

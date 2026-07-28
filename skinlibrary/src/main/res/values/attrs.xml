@@ -44,6 +44,61 @@
     <declare-styleable name="SkinnableConstraintLayout">
         <attr name="android:background" />
     </declare-styleable>
-    <!-- 后续架构师拓展………………………………………………………………………… -->
+    <!-- SkinnableFrameLayout控件 -->
+    <declare-styleable name="SkinnableFrameLayout">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableScrollView控件 -->
+    <declare-styleable name="SkinnableScrollView">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableCardView控件 -->
+    <declare-styleable name="SkinnableCardView">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableImageButton控件 -->
+    <declare-styleable name="SkinnableImageButton">
+        <attr name="android:background" />
+        <attr name="android:src" />
+    </declare-styleable>
+
+    <!-- SkinnableCheckBox控件 -->
+    <declare-styleable name="SkinnableCheckBox">
+        <attr name="android:background" />
+        <attr name="android:textColor" />
+    </declare-styleable>
+
+    <!-- SkinnableRadioButton控件 -->
+    <declare-styleable name="SkinnableRadioButton">
+        <attr name="android:background" />
+        <attr name="android:textColor" />
+    </declare-styleable>
+
+    <!-- SkinnableSwitchCompat控件 -->
+    <declare-styleable name="SkinnableSwitchCompat">
+        <attr name="android:background" />
+        <attr name="android:textColor" />
+    </declare-styleable>
+
+    <!-- SkinnableToggleButton控件 -->
+    <declare-styleable name="SkinnableToggleButton">
+        <attr name="android:background" />
+        <attr name="android:textColor" />
+    </declare-styleable>
+
+    <!-- SkinnableCheckedTextView控件 -->
+    <declare-styleable name="SkinnableCheckedTextView">
+        <attr name="android:background" />
+        <attr name="android:textColor" />
+    </declare-styleable>
+
+    <!-- SkinnableAutoCompleteTextView控件 -->
+    <declare-styleable name="SkinnableAutoCompleteTextView">
+        <attr name="android:background" />
+        <attr name="android:textColor" />
+    </declare-styleable>
 
 </resources>
