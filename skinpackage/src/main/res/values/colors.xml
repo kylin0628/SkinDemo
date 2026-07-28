@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ===== 皮肤包主题色（与宿主同名，值不同） ===== -->
+    <color name="colorPrimary">#0D47A1</color>
+    <color name="colorPrimaryDark">#002171</color>
+    <color name="colorAccent">#FF6F00</color>
+    <color name="skin_item_color">#00BCD4</color>
+
+    <!-- ===== 基础色 ===== -->
+    <color name="color_black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="color_effect_btn_bg">#08000000</color>
+    <color name="color_FFFFFFFF">#FFFFFFFF</color>
+    <color name="color_99000000">#99000000</color>
+
+    <!-- ===== 背景 ===== -->
+    <color name="bg_content_area">#F6F7F8</color>
+    <color name="bg_page">@color/bg_content_area</color>
+    <color name="bg_player_area_down">#F7F9FC</color>
+    <color name="bg_player_area_top">#E7EAF0</color>
+    <color name="bg_back_area">#1A000000</color>
+    <color name="bg_mini_bar_color">#8055575C</color>
+
+    <!-- ===== Banner ===== -->
+    <color name="banner_default_grad_start">#1A1A2E</color>
+    <color name="banner_default_grad_end">#16213E</color>
+    <color name="banner_vip_title_text">#ff461717</color>
+    <color name="banner_vip_sub_text">#b3461717</color>
+    <color name="banner_child_vip_title_text">#ff523400</color>
+    <color name="banner_child_vip_sub_text">#b3461717</color>
+    <color name="banner_master_vip_title_text">#ff333949</color>
+    <color name="banner_master_vip_sub_text">#b3333949</color>
+
+    <!-- ===== VIP 主题 ===== -->
+    <color name="vip_channel_tab_vip_selected">#F79B7C</color>
+    <color name="vip_channel_tab_vip_unselected">#ACACAF</color>
+    <color name="vip_channel_tab_vip_child_selected">#FFB50A</color>
+    <color name="vip_channel_tab_vip_child_unselected">#80FFFFFF</color>
+    <color name="vip_channel_tab_svip_selected">#5A7EA7</color>
+    <color name="vip_channel_tab_svip_unselected">#ACACAF</color>
+    <color name="vip_personal_guest_text_primary">#FFFFFF</color>
+    <color name="vip_personal_guest_text_secondary">#ACACAF</color>
+    <color name="vip_personal_normal_name">#ff461717</color>
+    <color name="vip_personal_normal_secondary">#b3461717</color>
+    <color name="vip_personal_child_name">#ff523400</color>
+    <color name="vip_personal_child_secondary">#b3461717</color>
+    <color name="vip_personal_master_name">#ff333949</color>
+    <color name="vip_personal_master_secondary">#b3333949</color>
+    <color name="vip_gradient_inactive">#1AFFFFFF</color>
+    <color name="vip_gradient_normal_start">#F79B7C</color>
+    <color name="vip_gradient_normal_end">#FF7561</color>
+    <color name="vip_gradient_child_start">#FFB50A</color>
+    <color name="vip_gradient_child_end">#FF9F19</color>
+    <color name="vip_gradient_master_start">#5A7EA7</color>
+    <color name="vip_gradient_master_end">#43A0FC</color>
+    <color name="vip_gradient_else">#FFFFFFFF</color>
+    <color name="vip_button_normal">#F79B7C</color>
+    <color name="vip_button_child">#FFB50A</color>
+    <color name="vip_button_master_start">#5A7EA7</color>
+    <color name="vip_button_master_end">#43A0FC</color>
+    <color name="vip_button_text_normal">#461717</color>
+    <color name="vip_button_text_child">#523400</color>
+    <color name="vip_button_text_master">#333949</color>
+
+    <!-- ===== 音效按钮 ===== -->
+    <color name="sound_effect_btn_use_background">#ACACAF</color>
+    <color name="sound_effect_btn_cancel_background">#1AFFFFFF</color>
+
+    <!-- ===== 设计 Token：融合主题 ===== -->
+    <color name="sys_fusion_color_default">#FFFFFFFF</color>
+    <color name="sys_fusion_color_tertiary">#80FFFFFF</color>
+    <color name="sys_fusion_inverse_color_default">#FF000000</color>
+    <color name="sys_fusion_inverse_color_tertiary">#80000000</color>
+    <color name="sys_fusion_color_function">#43A0FC</color>
+    <color name="sys_fusion_color_abnormal">#FF9F19</color>
+    <color name="sys_fusion_pressed_bg">#1AFFFFFF</color>
+    <color name="sys_fusion_listen_default_bg">#1E1E1F80</color>
+
+    <!-- ===== 设计规范：业务辅助色 ===== -->
+    <color name="sys_color_aux_vip_gold">#F79B7C</color>
+    <color name="sys_color_aux_master_blue">#75809E</color>
+    <color name="sys_color_aux_child_yellow">#FFB50A</color>
+    <color name="sys_color_aux_free_green">#1CC5A9</color>
+    <color name="sys_color_aux_podcast_orange">#FF7561</color>
+
+    <!-- ===== 链接色 ===== -->
+    <color name="sys_color_link">#5A7EA7</color>
+
+    <!-- ===== 品牌强调色 ===== -->
+    <color name="sys_color_brand_accent_blue">#FF3388FF</color>
+    <color name="sys_color_brand_accent_blue_alpha_70">#B33388FF</color>
+    <color name="sys_color_banner_indicator">#FF2D82D7</color>
+
+    <!-- ===== 文本色 ===== -->
+    <color name="text_title">#ce3533</color>
+    <color name="text_primary">#ce3533</color>
+    <color name="text_secondary">#4883f6</color>
+    <color name="text_hint">#ACACAF</color>
+
+    <!-- ===== 设计规范：文字色 ===== -->
+    <color name="sys_design_text_title_light">#E6000000</color>
+    <color name="sys_design_bg_overlay_white_10">#1AFFFFFF</color>
+    <color name="sys_design_btn_bg">#14FFFFFF</color>
+
+    <!-- ===== Dialog ===== -->
+    <color name="dialog_button_bg">#EBEDF0</color>
+    <color name="dialog_action_btn_primary">#296DCC</color>
+    <color name="dialog_action_btn_primary_pressed">#24559F</color>
+    <color name="dialog_action_btn_secondary">@color/dialog_button_bg</color>
+    <color name="dialog_action_btn_secondary_pressed">#D5D8DE</color>
+    <color name="dialog_action_btn_secondary_text">#ce3533</color>
+
+    <!-- ===== 媒体按钮 ===== -->
+    <color name="media_button_default">#E6000000</color>
+</resources>
