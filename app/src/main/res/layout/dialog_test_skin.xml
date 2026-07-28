@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/skin_item_color"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- 标题 -->
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="🎨 换肤测试 Dialog"
+        android:textColor="@color/colorAccent"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:padding="12dp"
+        android:background="@color/colorPrimary" />
+
+    <!-- 描述 -->
+    <TextView
+        android:id="@+id/tv_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="此 Dialog 中所有控件均使用 Skinnable* 控件，验证 Dialog 内外换肤一致性。"
+        android:textColor="@color/colorAccent"
+        android:textSize="14sp"
+        android:padding="8dp"
+        android:background="@color/colorPrimaryDark" />
+
+    <!-- 当前皮肤状态 -->
+    <TextView
+        android:id="@+id/tv_skin_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="当前：默认皮肤"
+        android:textColor="@color/skin_item_color"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:background="@color/colorAccent" />
+
+    <!-- 操作按钮区域 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <!-- 关闭 Dialog 按钮 -->
+        <Button
+            android:id="@+id/btn_close"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="关闭"
+            android:textColor="@color/skin_item_color"
+            android:textSize="16sp"
+            android:background="@color/colorAccent" />
+
+        <!-- 切换默认皮肤按钮 -->
+        <Button
+            android:id="@+id/btn_default"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="默认主题"
+            android:textColor="@color/skin_item_color"
+            android:textSize="16sp"
+            android:background="@color/colorAccent" />
+
+    </LinearLayout>
+
+    <!-- 切换动态皮肤按钮 -->
+    <Button
+        android:id="@+id/btn_dynamic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="切换动态主题"
+        android:textColor="@color/skin_item_color"
+        android:textSize="16sp"
+        android:background="@color/colorAccent" />
+
+</LinearLayout>

@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,8 @@ import com.kylin.skinlibrary.utils.SystemViewName
 /**
  * 换肤Activity父类
  *
+ * 内建生命周期感知：onPostCreate 自动应用当前皮肤状态，
+ * 子 Activity 只需继承此类，无需手动处理换肤逻辑。
  *
  * 用法：
  * 1、继承此类
@@ -28,10 +31,30 @@ import com.kylin.skinlibrary.utils.SystemViewName
  */
 abstract class SkinActivity : AppCompatActivity() {
     private var viewInflater: CustomAppCompatViewInflater? = null
+
+    companion object {
+        private const val TAG = "[Skin] SkinActivity"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "onCreate() — ${this.javaClass.simpleName}")
         val layoutInflater = LayoutInflater.from(this)
         LayoutInflaterCompat.setFactory2(layoutInflater, this)
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate() — ${this.javaClass.simpleName} Factory2 设置完成")
+    }
+
+    /**
+     * 在子类 setContentView() 之后自动触发皮肤应用
+     * 此时视图树已完整建立，确保换肤生效
+     */
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        Log.d(TAG, "onPostCreate() — ${this.javaClass.simpleName} | openChangeSkin=${openChangeSkin()}")
+        if (openChangeSkin()) {
+            Log.d(TAG, "onPostCreate() → 触发自动换肤 applyCurrentSkin()")
+            applyCurrentSkin()
+        }
     }
 
     override fun onCreateView(
@@ -46,7 +69,9 @@ abstract class SkinActivity : AppCompatActivity() {
             }
             viewInflater!!.setName(name)
             viewInflater!!.setAttrs(attrs)
-            return viewInflater!!.autoMatch()
+            val view = viewInflater!!.autoMatch()
+            Log.d(TAG, "onCreateView() → $name → ${view?.javaClass?.simpleName ?: "null"}")
+            return view
         }
         return super.onCreateView(parent, name, context, attrs)
     }
@@ -66,31 +91,62 @@ abstract class SkinActivity : AppCompatActivity() {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    protected fun defaultSkin(themeColorId: Int) {
+    fun defaultSkin(themeColorId: Int) {
+        Log.d(TAG, "defaultSkin(themeColorId=$themeColorId) — ${this.javaClass.simpleName}")
         skinDynamic(null, themeColorId)
     }
 
     /**
      * 动态换肤（api限制：5.0版本）
+     * public 可见性：供 DialogFragment 等外部组件调用
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    protected fun skinDynamic(skinPath: String?, themeColorId: Int) {
-        SkinManager.instance?.loaderSkinResources(skinPath)
+    fun skinDynamic(skinPath: String?, themeColorId: Int) {
+        Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        Log.d(TAG, "skinDynamic() — ${this.javaClass.simpleName}")
+        Log.d(TAG, "  skinPath     = $skinPath")
+        Log.d(TAG, "  themeColorId = $themeColorId")
+
+        // 统一通过 SkinManager.loadSkin() 管理皮肤状态，确保生命周期感知一致性
+        SkinManager.instance?.loadSkin(skinPath, themeColorId)
+
         if (themeColorId != 0) {
             val themeColor: Int = SkinManager.instance!!.getColor(themeColorId)
+            Log.d(TAG, "  解析主题色 = #${Integer.toHexString(themeColor)}")
+            Log.d(TAG, "  → StatusBar/Navigation/ActionBar 换肤")
             StatusBarUtils.forStatusBar(this, themeColor)
             NavigationUtils.forNavigation(this, themeColor)
             ActionBarUtils.forActionBar(this, themeColor)
         }
+
+        Log.d(TAG, "  → 开始递归遍历 View 树 applyViews(decorView)")
         applyViews(window.decorView)
+        Log.d(TAG, "skinDynamic() 完成 — ${this.javaClass.simpleName}")
+        Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    }
+
+    /**
+     * 自动应用当前皮肤状态
+     * 由 onPostCreate 触发，无需 Activity 手动调用
+     */
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    fun applyCurrentSkin() {
+        val currentPath = SkinManager.instance?.currentSkinPath
+        val themeColorId = SkinManager.instance?.currentThemeColorId ?: 0
+        Log.d(TAG, "applyCurrentSkin() — ${this.javaClass.simpleName}")
+        Log.d(TAG, "  当前 skinPath=$currentPath, themeColorId=$themeColorId")
+        skinDynamic(currentPath, themeColorId)
     }
 
     /**
      * 控件回调监听，匹配上则给控件执行换肤方法
+     * public 可见性：供 DialogFragment 等外部组件调用，实现跨窗口换肤
      */
-    protected fun applyViews(view: View?) {
+    fun applyViews(view: View?) {
+        if (view == null) return
         if (view is ViewsMatch) {
             val viewsMatch = view as ViewsMatch
+            Log.v(TAG, "applyViews → ${view.javaClass.simpleName}.skinnableView()")
             viewsMatch.skinnableView()
         }
         if (view is ViewGroup) {

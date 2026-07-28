@@ -25,29 +25,94 @@ class SkinManager private constructor(private val application: Application) {
     var isDefaultSkin = true // 应用默认皮肤（app内置）(需要注意这个代表的是每个颜色值的选取，不仅仅代表整个项目选择，具体看下方todo注释)
     private val cacheSkin: MutableMap<String?, SkinCache?> by lazy { mutableMapOf<String?, SkinCache?>() }
 
+    companion object {
+        private const val TAG = "[Skin] SkinManager"
+        var instance: SkinManager? = null
+            private set
+        private const val ADD_ASSET_PATH = "addAssetPath" // 方法名
+
+        /**
+         * 单例方法，目的是初始化app内置资源（越早越好，用户的操作可能是：换肤后的第2次冷启动）
+         */
+        fun init(application: Application) {
+            if (instance == null) {
+                synchronized(SkinManager::class.java) {
+                    if (instance == null) {
+                        instance = SkinManager(application)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 当前加载的皮肤包路径（null 表示使用默认皮肤）
+     * 通过此字段统一管理皮肤状态，避免依赖 SharedPreferences 分散判断
+     */
+    var currentSkinPath: String? = null
+        private set
+
+    /**
+     * 当前主题色资源 ID
+     */
+    var currentThemeColorId: Int = 0
+        private set
+
+    /**
+     * 统一加载皮肤入口
+     * 每次切换主题时调用此方法，自动更新内部状态
+     *
+     * @param skinPath 皮肤包路径，为 null 则恢复默认皮肤
+     * @param themeColorId 主题色资源 ID
+     */
+    fun loadSkin(skinPath: String?, themeColorId: Int) {
+        Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        Log.d(TAG, "loadSkin() 入口")
+        Log.d(TAG, "  skinPath     = $skinPath")
+        Log.d(TAG, "  themeColorId = $themeColorId (0x${Integer.toHexString(themeColorId)})")
+        Log.d(TAG, "  旧 currentSkinPath = $currentSkinPath")
+        Log.d(TAG, "  旧 isDefaultSkin   = $isDefaultSkin")
+
+        val isSame = currentSkinPath == skinPath
+        currentSkinPath = skinPath
+        currentThemeColorId = themeColorId
+        loaderSkinResources(skinPath)
+
+        Log.d(TAG, "  新 currentSkinPath = $currentSkinPath")
+        Log.d(TAG, "  新 isDefaultSkin   = $isDefaultSkin")
+        Log.d(TAG, "loadSkin() 完成 ${if (isSame) "(相同皮肤，跳过)" else "(皮肤已切换!)"}")
+        Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    }
+
     /**
      * 加载皮肤包资源
      *
      * @param skinPath 皮肤包路径，为空则加载app内置资源
      */
     fun loaderSkinResources(skinPath: String?) {
+        Log.d(TAG, "  loaderSkinResources('$skinPath') 开始")
+
         // 优化：如果没有皮肤包或者没做换肤动作，方法不执行直接返回！
         if (TextUtils.isEmpty(skinPath)) {
+            Log.d(TAG, "  loaderSkinResources → skinPath 为空，使用默认皮肤")
             isDefaultSkin = true
             return
         }
 
         // 优化：app冷启动、热启动可以取缓存对象
         if (cacheSkin.containsKey(skinPath)) {
+            Log.d(TAG, "  loaderSkinResources → 命中缓存: $skinPath")
             isDefaultSkin = false
             val skinCache = cacheSkin[skinPath]
             if (null != skinCache) {
                 skinResources = skinCache.skinResources
                 skinPackageName = skinCache.skinPackageName
+                Log.d(TAG, "  loaderSkinResources → 缓存加载完成, packageName=$skinPackageName")
                 return
             }
         }
         try {
+            Log.d(TAG, "  loaderSkinResources → 缓存未命中，开始反射加载皮肤包...")
             // 创建资源管理器（此处不能用：application.getAssets()）
             val assetManager = AssetManager::class.java.newInstance()
             // 由于AssetManager中的addAssetPath和setApkAssets方法都被@hide，目前只能通过反射去执行方法
@@ -57,6 +122,7 @@ class SkinManager private constructor(private val application: Application) {
             addAssetPath.isAccessible = true
             // 执行addAssetPath方法
             addAssetPath.invoke(assetManager, skinPath)
+            Log.d(TAG, "  loaderSkinResources → 反射 addAssetPath 成功")
             //==============================================================================
             // 如果还是担心@hide限制，可以反射addAssetPathInternal()方法，参考源码366行 + 387行
             //==============================================================================
@@ -66,6 +132,7 @@ class SkinManager private constructor(private val application: Application) {
                 assetManager,
                 appResources.displayMetrics, appResources.configuration
             )
+            Log.d(TAG, "  loaderSkinResources → Resources 创建成功")
 
             // 根据apk文件路径（皮肤包也是apk文件），获取该应用的包名。兼容5.0 - 9.0（亲测）
             skinPackageName = application.packageManager.getPackageArchiveInfo(
@@ -73,13 +140,18 @@ class SkinManager private constructor(private val application: Application) {
                 PackageManager.GET_ACTIVITIES
             ).packageName
 
+            Log.d(TAG, "  loaderSkinResources → 皮肤包 packageName=$skinPackageName")
+
             // 无法获取皮肤包应用的包名，则加载app内置资源
             isDefaultSkin = TextUtils.isEmpty(skinPackageName)
             if (!isDefaultSkin) {
                 cacheSkin[skinPath] = SkinCache(skinResources!!, skinPackageName)
+                Log.d(TAG, "  loaderSkinResources → 已缓存皮肤: $skinPath")
+            } else {
+                Log.w(TAG, "  loaderSkinResources → ⚠️ 无法获取皮肤包包名，回退默认皮肤!")
             }
-            Log.e("skinPackageName >>> ", skinPackageName)
         } catch (e: Exception) {
+            Log.e(TAG, "  loaderSkinResources → ❌ 加载异常!", e)
             e.printStackTrace()
             // 发生异常，预判：通过skinPath获取skinPacakageName失败！
             isDefaultSkin = true
@@ -178,24 +250,5 @@ class SkinManager private constructor(private val application: Application) {
         ) else Typeface.createFromAsset(
             skinResources!!.assets, skinTypefacePath
         )
-    }
-
-    companion object {
-        var instance: SkinManager? = null
-            private set
-        private const val ADD_ASSET_PATH = "addAssetPath" // 方法名
-
-        /**
-         * 单例方法，目的是初始化app内置资源（越早越好，用户的操作可能是：换肤后的第2次冷启动）
-         */
-        fun init(application: Application) {
-            if (instance == null) {
-                synchronized(SkinManager::class.java) {
-                    if (instance == null) {
-                        instance = SkinManager(application)
-                    }
-                }
-            }
-        }
     }
 }
