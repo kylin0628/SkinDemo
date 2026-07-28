@@ -89,5 +89,27 @@ class MainActivity : SkinActivity() {
         Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     }
 
+    /**
+     * 系统暗黑模式切换时自动换肤
+     * 演示场景：
+     * - 切换到暗黑模式 → 自动应用动态皮肤 (skindemo.skin)
+     * - 切换到浅色模式 → 自动恢复默认皮肤
+     */
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    override fun onDarkModeChanged(isDarkMode: Boolean) {
+        Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        Log.d(TAG, "onDarkModeChanged(isDarkMode=$isDarkMode)")
+        if (isDarkMode) {
+            Log.d(TAG, "  → 暗黑模式：切换到动态皮肤")
+            skinDynamic(skinPath, R.color.skin_item_color)
+            PreferencesUtils.putString(this, "currentSkin", "skindemo")
+        } else {
+            Log.d(TAG, "  → 浅色模式：恢复到默认皮肤")
+            defaultSkin(R.color.colorPrimary)
+            PreferencesUtils.putString(this, "currentSkin", "default")
+        }
+        Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    }
+
 
 }

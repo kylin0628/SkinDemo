@@ -1,6 +1,7 @@
 package com.netease.skin.library.base
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.AttributeSet
@@ -55,6 +56,44 @@ abstract class SkinActivity : AppCompatActivity() {
             Log.d(TAG, "onPostCreate() → 触发自动换肤 applyCurrentSkin()")
             applyCurrentSkin()
         }
+    }
+
+    /**
+     * 监听系统 Configuration 变化（如暗黑模式切换）
+     * 注意：需在 AndroidManifest 中为该 Activity 添加 android:configChanges="uiMode"
+     * 否则系统会重建 Activity 而非回调此方法
+     *
+     * 子类可重写 onDarkModeChanged(isDarkMode: Boolean) 来响应暗黑模式切换
+     */
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        Log.d(TAG, "onConfigurationChanged() — ${this.javaClass.simpleName}")
+
+        val currentNightMode = newConfig.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        when (currentNightMode) {
+            Configuration.UI_MODE_NIGHT_YES -> {
+                Log.d(TAG, "  → 系统切换到 暗黑模式 (UI_MODE_NIGHT_YES)")
+                onDarkModeChanged(true)
+            }
+            Configuration.UI_MODE_NIGHT_NO -> {
+                Log.d(TAG, "  → 系统切换到 浅色模式 (UI_MODE_NIGHT_NO)")
+                onDarkModeChanged(false)
+            }
+            Configuration.UI_MODE_NIGHT_UNDEFINED -> {
+                Log.d(TAG, "  → 系统模式未定义 (UI_MODE_NIGHT_UNDEFINED)，忽略")
+            }
+        }
+    }
+
+    /**
+     * 暗黑模式切换回调
+     * 子类重写此方法以实现暗黑/浅色模式下的皮肤自动切换
+     *
+     * @param isDarkMode true=暗黑模式, false=浅色模式
+     */
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    protected open fun onDarkModeChanged(isDarkMode: Boolean) {
+        Log.d(TAG, "onDarkModeChanged(isDarkMode=$isDarkMode) — 默认空实现，子类可重写")
     }
 
     override fun onCreateView(
