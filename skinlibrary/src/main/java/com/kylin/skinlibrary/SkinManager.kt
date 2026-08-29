@@ -131,11 +131,17 @@ class SkinManager private constructor(private val application: Application) {
 
         val resourceName = appResources.getResourceEntryName(resourceId)
         val resourceType = appResources.getResourceTypeName(resourceId)
-        return skinResources!!.getIdentifier(resourceName, resourceType, skinPackageName)
+        val ids = skinResources!!.getIdentifier(resourceName, resourceType, skinPackageName)
+        // [DIAG] 临时诊断:名映射 + 真实 useHost 决策(修复后应 ids≠0→useHost=false→用皮肤暗)
+        Log.d(TAG, "[DIAG] $resourceType/$resourceName skinId=$ids hostId=$resourceId useHost=${useHost(ids, resourceId)}")
+        return ids
     }
 
-    /** 判断该资源应由宿主还是皮肤包提供 */
-    private fun useHost(ids: Int, resourceId: Int) = ids == 0 || ids == resourceId
+    /** 判断该资源应由宿主还是皮肤包提供。
+     *  仅当皮肤按名查不到(ids==0)才用宿主;去掉 ids==resourceId 误判——
+     *  皮肤与宿主同名资源 ID 数值会碰撞(皮肤色板派生自宿主、前段排序一致),
+     *  该启发式会把皮肤里实际存在的暗色误判为"用宿主",导致基底/卡片背景永远浅色。 */
+    private fun useHost(ids: Int, resourceId: Int) = ids == 0
 
     fun getColor(resourceId: Int): Int {
         val ids = getSkinResourceIds(resourceId)

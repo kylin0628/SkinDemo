@@ -47,6 +47,10 @@ class CustomAppCompatViewInflater(  // 上下文
                 view = SkinnableLinearLayout(context, attrs)
                 verifyNotNull(view, name)
             }
+            SystemViewName.LINEAR_LAYOUT_COMPAT -> {
+                view = SkinnableLinearLayoutCompat(context, attrs)
+                verifyNotNull(view, name)
+            }
             SystemViewName.RELATIVE_LAYOUT -> {
                 view = SkinnableRelativeLayout(context, attrs)
                 verifyNotNull(view, name)
@@ -105,6 +109,138 @@ class CustomAppCompatViewInflater(  // 上下文
             }
             SystemViewName.APPCOMPAT_AUTO_COMPLETE_TEXT_VIEW, SystemViewName.AUTO_COMPLETE_TEXT_VIEW -> {
                 view = SkinnableAutoCompleteTextView(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.TAB_LAYOUT -> {
+                view = SkinnableTabLayout(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.VIEW -> {
+                view = SkinnableView(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.RECYCLER_VIEW -> {
+                view = SkinnableRecyclerView(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.VIEW_PAGER -> {
+                view = SkinnableViewPager(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.HORIZONTAL_SCROLL_VIEW -> {
+                view = SkinnableHorizontalScrollView(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.SHAPEABLE_IMAGE_VIEW -> {
+                view = SkinnableShapeableImageView(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.TEXT_SWITCHER -> {
+                view = SkinnableTextSwitcher(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.VIEW_SWITCHER -> {
+                view = SkinnableViewSwitcher(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.VIEW_FLIPPER -> {
+                view = SkinnableViewFlipper(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.PROGRESS_BAR -> {
+                view = SkinnableProgressBar(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.SEEK_BAR -> {
+                view = SkinnableSeekBar(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.RATING_BAR -> {
+                view = SkinnableRatingBar(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.RADIO_GROUP -> {
+                view = SkinnableRadioGroup(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.SPINNER -> {
+                view = SkinnableSpinner(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.LIST_VIEW -> {
+                view = SkinnableListView(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.GRID_VIEW -> {
+                view = SkinnableGridView(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.EXPANDABLE_LIST_VIEW -> {
+                view = SkinnableExpandableListView(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.GRID_LAYOUT -> {
+                view = SkinnableGridLayout(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.TABLE_LAYOUT -> {
+                view = SkinnableTableLayout(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.MULTI_AUTO_COMPLETE_TEXT_VIEW -> {
+                view = SkinnableMultiAutoCompleteTextView(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.TEXT_CLOCK -> {
+                view = SkinnableTextClock(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.COORDINATOR_LAYOUT -> {
+                view = SkinnableCoordinatorLayout(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.APP_BAR_LAYOUT -> {
+                view = SkinnableAppBarLayout(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.COLLAPSING_TOOLBAR_LAYOUT -> {
+                view = SkinnableCollapsingToolbarLayout(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.DRAWER_LAYOUT -> {
+                view = SkinnableDrawerLayout(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.TOOLBAR -> {
+                view = SkinnableToolbar(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.BOTTOM_NAVIGATION_VIEW -> {
+                view = SkinnableBottomNavigationView(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.FLOATING_ACTION_BUTTON -> {
+                view = SkinnableFloatingActionButton(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.CHIP -> {
+                view = SkinnableChip(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.CHIP_GROUP -> {
+                view = SkinnableChipGroup(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.TEXT_INPUT_LAYOUT -> {
+                view = SkinnableTextInputLayout(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.TEXT_INPUT_EDIT_TEXT -> {
+                view = SkinnableTextInputEditText(context, attrs)
+                verifyNotNull(view, name)
+            }
+            SystemViewName.MATERIAL_DIVIDER -> {
+                view = SkinnableMaterialDivider(context, attrs)
                 verifyNotNull(view, name)
             }
         }

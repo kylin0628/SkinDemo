@@ -106,6 +106,10 @@ abstract class SkinActivity : AppCompatActivity() {
             viewInflater!!.setName(name)
             viewInflater!!.setAttrs(attrs)
             val view = viewInflater!!.autoMatch()
+            // 自换肤:视图 inflate 即刻按当前皮肤换肤,覆盖 onPostCreate 之后才创建的视图
+            // (RecyclerView 列表项 / ViewPager Fragment 内容 / ViewStub / 弹框内容)——
+            // 它们被 Factory2 包成 Skinnable* 并记录属性,但等不到 applyViews 的一次性遍历。
+            (view as? ViewsMatch)?.skinnableView()
             Log.d(TAG, "onCreateView() → $name → ${view?.javaClass?.simpleName ?: "null"}")
             return view
         }
@@ -159,6 +163,9 @@ abstract class SkinActivity : AppCompatActivity() {
 
         Log.d(TAG, "  → 开始递归遍历 View 树 applyViews(decorView)")
         applyViews(window.decorView)
+        // 弹框跟随:遍历已打开的 DialogFragment,对其 window.decorView 换肤。
+        // 弹框窗口独立于 Activity 的 decorView,切主题时不会被 applyViews(window.decorView) 覆盖。
+        applyViewsToDialogs()
         Log.d(TAG, "skinDynamic() 完成 — ${this.javaClass.simpleName}")
         Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     }
@@ -173,6 +180,31 @@ abstract class SkinActivity : AppCompatActivity() {
         Log.d(TAG, "applyCurrentSkin() — ${this.javaClass.simpleName}")
         Log.d(TAG, "  当前 skinPath=$currentPath, themeColorId=$themeColorId")
         skinDynamic(currentPath, themeColorId)
+    }
+
+    /**
+     * 遍历当前已打开的 DialogFragment，对其 window.decorView 换肤。
+     * DialogFragment 拥有独立 Window，内容不受 applyViews(window.decorView) 覆盖，
+     * 故切主题时需单独遍历，使已打开弹框跟随皮肤变化。
+     *
+     * 递归遍历所有 FragmentManager 层级：弹框可能挂在 childFragmentManager（如
+     * Fragment 内部 `DialogFragment().show(childFragmentManager, ...)`），只遍历顶层
+     * supportFragmentManager 会漏掉这类弹框，导致切主题时它们不跟随换肤。
+     */
+    private fun applyViewsToDialogs() {
+        applyViewsToDialogs(supportFragmentManager)
+    }
+
+    private fun applyViewsToDialogs(fragmentManager: androidx.fragment.app.FragmentManager) {
+        for (fragment in fragmentManager.fragments) {
+            val dialogFragment = fragment as? androidx.fragment.app.DialogFragment
+            dialogFragment?.dialog?.window?.decorView?.let { decorView ->
+                Log.d(TAG, "applyViewsToDialogs() → ${dialogFragment.javaClass.simpleName}.decorView")
+                applyViews(decorView)
+            }
+            // 递归子 FragmentManager（子 Fragment 或子 Fragment 内弹框）
+            applyViewsToDialogs(fragment.childFragmentManager)
+        }
     }
 
     /**

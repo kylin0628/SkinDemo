@@ -42,6 +42,18 @@ class AttrsBean {
         return resourcesMap[styleable]
     }
 
+    /**
+     * 更新控件某属性的 resourceId。
+     *
+     * 背景：业务代码运行时 `setBackgroundResource(resId)` 会覆盖 XML 里 `android:background` 的
+     * 资源（如 SceneCardViewHolder 按横竖屏/TRACK 动态切卡片背景）。若 attrsBean 仍记录 inflate 时的
+     * 旧资源 ID，切肤遍历 skinnableView() 会用旧值把背景"换回"来，导致动态背景偶现不随主题变化。
+     * 故在 setBackgroundResource 时同步记录最新 resourceId，使切肤遍历始终作用于当前背景。
+     */
+    fun updateViewResource(styleable: Int, resourceId: Int) {
+        resourcesMap.put(styleable, resourceId)
+    }
+
     companion object {
         private const val DEFAULT_VALUE = -1
     }

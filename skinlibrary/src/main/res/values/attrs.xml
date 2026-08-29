@@ -5,6 +5,7 @@
     <declare-styleable name="SkinnableTextView">
         <attr name="android:background" />
         <attr name="android:textColor" />
+        <attr name="android:textColorHint" />
         <!-- 字体属性 -->
     </declare-styleable>
 
@@ -25,10 +26,16 @@
     <!-- ImageView控件特有属性 -->
     <declare-styleable name="SkinnableImageView">
         <attr name="android:src" />
+        <attr name="android:background" />
     </declare-styleable>
 
     <!-- SkinnableLinearLayout控件 -->
     <declare-styleable name="SkinnableLinearLayout">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableLinearLayoutCompat控件 -->
+    <declare-styleable name="SkinnableLinearLayoutCompat">
         <attr name="android:background" />
     </declare-styleable>
 
@@ -99,6 +106,178 @@
     <declare-styleable name="SkinnableAutoCompleteTextView">
         <attr name="android:background" />
         <attr name="android:textColor" />
+    </declare-styleable>
+
+    <!-- SkinnableView控件（普通 <View/>） -->
+    <declare-styleable name="SkinnableView">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableTabLayout控件 -->
+    <declare-styleable name="SkinnableTabLayout">
+        <attr name="android:background" />
+        <attr name="tabTextColor" />
+        <attr name="tabSelectedTextColor" />
+    </declare-styleable>
+
+    <!-- SkinnableAppBarLayout控件 -->
+    <declare-styleable name="SkinnableAppBarLayout">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableRecyclerView控件 -->
+    <declare-styleable name="SkinnableRecyclerView">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableViewPager控件 -->
+    <declare-styleable name="SkinnableViewPager">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableHorizontalScrollView控件 -->
+    <declare-styleable name="SkinnableHorizontalScrollView">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableShapeableImageView控件 -->
+    <declare-styleable name="SkinnableShapeableImageView">
+        <attr name="android:background" />
+        <attr name="android:src" />
+    </declare-styleable>
+
+    <!-- SkinnableTextSwitcher控件 -->
+    <declare-styleable name="SkinnableTextSwitcher">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableViewSwitcher控件 -->
+    <declare-styleable name="SkinnableViewSwitcher">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableViewFlipper控件 -->
+    <declare-styleable name="SkinnableViewFlipper">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableProgressBar控件 -->
+    <declare-styleable name="SkinnableProgressBar">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableSeekBar控件 -->
+    <declare-styleable name="SkinnableSeekBar">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableRatingBar控件 -->
+    <declare-styleable name="SkinnableRatingBar">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableRadioGroup控件 -->
+    <declare-styleable name="SkinnableRadioGroup">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableSpinner控件 -->
+    <declare-styleable name="SkinnableSpinner">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableListView控件 -->
+    <declare-styleable name="SkinnableListView">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableGridView控件 -->
+    <declare-styleable name="SkinnableGridView">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableExpandableListView控件 -->
+    <declare-styleable name="SkinnableExpandableListView">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableGridLayout控件 -->
+    <declare-styleable name="SkinnableGridLayout">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableTableLayout控件 -->
+    <declare-styleable name="SkinnableTableLayout">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableMultiAutoCompleteTextView控件 -->
+    <declare-styleable name="SkinnableMultiAutoCompleteTextView">
+        <attr name="android:background" />
+        <attr name="android:textColor" />
+    </declare-styleable>
+
+    <!-- SkinnableTextClock控件 -->
+    <declare-styleable name="SkinnableTextClock">
+        <attr name="android:background" />
+        <attr name="android:textColor" />
+    </declare-styleable>
+
+    <!-- SkinnableCoordinatorLayout控件 -->
+    <declare-styleable name="SkinnableCoordinatorLayout">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableCollapsingToolbarLayout控件 -->
+    <declare-styleable name="SkinnableCollapsingToolbarLayout">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableDrawerLayout控件 -->
+    <declare-styleable name="SkinnableDrawerLayout">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableToolbar控件 -->
+    <declare-styleable name="SkinnableToolbar">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableBottomNavigationView控件 -->
+    <declare-styleable name="SkinnableBottomNavigationView">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableFloatingActionButton控件 -->
+    <declare-styleable name="SkinnableFloatingActionButton">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableChip控件 -->
+    <declare-styleable name="SkinnableChip">
+        <attr name="android:background" />
+        <attr name="android:textColor" />
+    </declare-styleable>
+
+    <!-- SkinnableChipGroup控件 -->
+    <declare-styleable name="SkinnableChipGroup">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableTextInputLayout控件 -->
+    <declare-styleable name="SkinnableTextInputLayout">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableTextInputEditText控件 -->
+    <declare-styleable name="SkinnableTextInputEditText">
+        <attr name="android:background" />
+        <attr name="android:textColor" />
+    </declare-styleable>
+
+    <!-- SkinnableMaterialDivider控件 -->
+    <declare-styleable name="SkinnableMaterialDivider">
+        <attr name="android:background" />
     </declare-styleable>
 
 </resources>
