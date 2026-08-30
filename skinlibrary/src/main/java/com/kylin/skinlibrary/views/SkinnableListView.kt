@@ -9,6 +9,7 @@ import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
 import com.netease.skin.library.core.ViewsMatch
 import com.kylin.skinlibrary.model.AttrsBean
+import androidx.core.content.withStyledAttributes
 
 open class SkinnableListView @JvmOverloads constructor(
     context: Context,
@@ -58,12 +59,12 @@ open class SkinnableListView @JvmOverloads constructor(
         super.onAttachedToWindow()
         // 延迟换肤兜底:RecyclerView 缓存/离屏复用持有的 holder,
         // 切主题时不在 applyViews 遍历范围内,attach 时按当前皮肤重刷一次
-        skinnableView()
+        SkinManager.instance?.applySkinIfChanged(this)
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableListView, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableListView)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableListView, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableListView)
+        }
     }
 }

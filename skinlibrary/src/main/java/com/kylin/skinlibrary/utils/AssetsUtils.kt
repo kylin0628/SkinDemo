@@ -1,7 +1,6 @@
 package com.kylin.skinlibrary.utils
 
 import android.content.Context
-import android.util.Log
 import java.io.*
 
 /**
@@ -10,6 +9,8 @@ import java.io.*
  * CreateTime: 2020/8/21.
  */
 object AssetsUtils {
+    private const val TAG = "AssetsUtils"
+
     @Throws(IOException::class)
     fun doCopy(context: Context, assetsPath: String, desPath: String) {
         val srcFiles = context.assets.list(assetsPath) //for directory
@@ -19,10 +20,7 @@ object AssetsUtils {
             if (assetsPath == "") { // for first time
                 inFileName = srcFileName
             }
-            Log.e(
-                "tag",
-                "========= assets: $assetsPath  filename: $srcFileName infile: $inFileName outFile: $outFileName"
-            )
+            SkinLog.d(TAG, "复制 asset → assets: $assetsPath  filename: $srcFileName  outFile: $outFileName")
             try {
                 val inputStream = context.assets.open(inFileName)
                 copyAndClose(inputStream, FileOutputStream(outFileName))

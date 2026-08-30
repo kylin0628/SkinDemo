@@ -58,7 +58,7 @@ open class SkinnableCardView @JvmOverloads constructor(
         super.onAttachedToWindow()
         // 延迟换肤兜底:RecyclerView 缓存/离屏复用持有的 holder,
         // 切主题时不在 applyViews 遍历范围内,attach 时按当前皮肤重刷一次
-        skinnableView()
+        SkinManager.instance?.applySkinIfChanged(this)
     }
 
     init {

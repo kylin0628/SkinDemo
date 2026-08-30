@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.AttributeSet
-import android.util.Log
+import com.kylin.skinlibrary.utils.SkinLog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,15 +32,15 @@ abstract class SkinActivity : AppCompatActivity() {
     private var viewInflater: CustomAppCompatViewInflater? = null
 
     companion object {
-        private const val TAG = "[Skin] SkinActivity"
+        private const val TAG = "SkinActivity"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG, "onCreate() — ${this.javaClass.simpleName}")
+        SkinLog.d(TAG, "onCreate() — ${this.javaClass.simpleName}")
         val layoutInflater = LayoutInflater.from(this)
         LayoutInflaterCompat.setFactory2(layoutInflater, this)
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate() — ${this.javaClass.simpleName} Factory2 设置完成")
+        SkinLog.d(TAG, "onCreate() — ${this.javaClass.simpleName} Factory2 设置完成")
     }
 
     /**
@@ -49,9 +49,9 @@ abstract class SkinActivity : AppCompatActivity() {
      */
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        Log.d(TAG, "onPostCreate() — ${this.javaClass.simpleName} | openChangeSkin=${openChangeSkin()}")
+        SkinLog.d(TAG, "onPostCreate() — ${this.javaClass.simpleName} | openChangeSkin=${openChangeSkin()}")
         if (openChangeSkin()) {
-            Log.d(TAG, "onPostCreate() → 触发自动换肤 applyCurrentSkin()")
+            SkinLog.d(TAG, "onPostCreate() → 触发自动换肤 applyCurrentSkin()")
             applyCurrentSkin()
         }
     }
@@ -65,20 +65,20 @@ abstract class SkinActivity : AppCompatActivity() {
      */
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        Log.d(TAG, "onConfigurationChanged() — ${this.javaClass.simpleName}")
+        SkinLog.d(TAG, "onConfigurationChanged() — ${this.javaClass.simpleName}")
 
         val currentNightMode = newConfig.uiMode and Configuration.UI_MODE_NIGHT_MASK
         when (currentNightMode) {
             Configuration.UI_MODE_NIGHT_YES -> {
-                Log.d(TAG, "  → 系统切换到 暗黑模式 (UI_MODE_NIGHT_YES)")
+                SkinLog.d(TAG, "  → 系统切换到 暗黑模式 (UI_MODE_NIGHT_YES)")
                 onDarkModeChanged(true)
             }
             Configuration.UI_MODE_NIGHT_NO -> {
-                Log.d(TAG, "  → 系统切换到 浅色模式 (UI_MODE_NIGHT_NO)")
+                SkinLog.d(TAG, "  → 系统切换到 浅色模式 (UI_MODE_NIGHT_NO)")
                 onDarkModeChanged(false)
             }
             Configuration.UI_MODE_NIGHT_UNDEFINED -> {
-                Log.d(TAG, "  → 系统模式未定义 (UI_MODE_NIGHT_UNDEFINED)，忽略")
+                SkinLog.d(TAG, "  → 系统模式未定义 (UI_MODE_NIGHT_UNDEFINED)，忽略")
             }
         }
     }
@@ -90,7 +90,7 @@ abstract class SkinActivity : AppCompatActivity() {
      * @param isDarkMode true=暗黑模式, false=浅色模式
      */
     protected open fun onDarkModeChanged(isDarkMode: Boolean) {
-        Log.d(TAG, "onDarkModeChanged(isDarkMode=$isDarkMode) — 默认空实现，子类可重写")
+        SkinLog.d(TAG, "onDarkModeChanged(isDarkMode=$isDarkMode) — 默认空实现，子类可重写")
     }
 
     override fun onCreateView(
@@ -99,6 +99,25 @@ abstract class SkinActivity : AppCompatActivity() {
         context: Context,
         attrs: AttributeSet
     ): View? {
+        // 1) 第三方 Factory 责任链：始终最先尝试，实现多库经 Factory 拦截控件的兼用。
+        //    约定：每个 Factory 对不关心的 View 必须返回 null 放行，谁命中谁返回。
+        for (factory in LayoutFactoryRegistry.snapshot()) {
+            val view = try {
+                factory.onCreateView(parent, name, context, attrs)
+            } catch (e: Exception) {
+                // 单个第三方 Factory 异常不应拖垮整条链，跳过并留痕，交下一个节点
+                SkinLog.e(TAG, "注册 Factory 拦截 $name 异常，已跳过: ${factory.javaClass.name}", e)
+                null
+            }
+            if (view != null) {
+                // 第三方返回的 View 若也实现 ViewsMatch，补一次换肤初始化
+                (view as? ViewsMatch)?.skinnableView()
+                SkinLog.d(TAG, "onCreateView() → $name → 命中第三方 Factory ${factory.javaClass.simpleName}")
+                return view
+            }
+        }
+
+        // 2) 主题库自身换肤匹配（受 openChangeSkin + ignoreView 门控）
         if (openChangeSkin() && !ignoreView(name)) {
             if (viewInflater == null) {
                 viewInflater = CustomAppCompatViewInflater(context)
@@ -110,9 +129,10 @@ abstract class SkinActivity : AppCompatActivity() {
             // (RecyclerView 列表项 / ViewPager Fragment 内容 / ViewStub / 弹框内容)——
             // 它们被 Factory2 包成 Skinnable* 并记录属性,但等不到 applyViews 的一次性遍历。
             (view as? ViewsMatch)?.skinnableView()
-            Log.d(TAG, "onCreateView() → $name → ${view?.javaClass?.simpleName ?: "null"}")
+            SkinLog.d(TAG, "onCreateView() → $name → ${view?.javaClass?.simpleName ?: "null"}")
             return view
         }
+        // 3) AppCompat 兜底（Fragment/FragmentContainerView，或 openChangeSkin 关闭时）
         return super.onCreateView(parent, name, context, attrs)
     }
 
@@ -131,7 +151,7 @@ abstract class SkinActivity : AppCompatActivity() {
     }
 
     fun defaultSkin(themeColorId: Int) {
-        Log.d(TAG, "defaultSkin(themeColorId=$themeColorId) — ${this.javaClass.simpleName}")
+        SkinLog.d(TAG, "defaultSkin(themeColorId=$themeColorId) — ${this.javaClass.simpleName}")
         skinDynamic(null, themeColorId)
     }
 
@@ -140,34 +160,29 @@ abstract class SkinActivity : AppCompatActivity() {
      * public 可见性：供 DialogFragment 等外部组件调用
      */
     fun skinDynamic(skinPath: String?, themeColorId: Int) {
-        Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        Log.d(TAG, "skinDynamic() — ${this.javaClass.simpleName}")
-        Log.d(TAG, "  skinPath     = $skinPath")
-        Log.d(TAG, "  themeColorId = $themeColorId")
+        SkinLog.i(TAG, "skinDynamic() → ${this.javaClass.simpleName} | skinPath=$skinPath, themeColorId=$themeColorId")
 
         // 统一通过 SkinManager.loadSkin() 管理皮肤状态
         val manager = SkinManager.instance ?: run {
-            Log.w(TAG, "skinDynamic → SkinManager 未初始化，跳过")
+            SkinLog.w(TAG, "skinDynamic → SkinManager 未初始化，跳过")
             return
         }
         manager.loadSkin(skinPath, themeColorId)
 
         if (themeColorId != 0) {
             val themeColor = manager.getColor(themeColorId)
-            Log.d(TAG, "  解析主题色 = #${Integer.toHexString(themeColor)}")
-            Log.d(TAG, "  → StatusBar/Navigation/ActionBar 换肤")
+            SkinLog.d(TAG, "解析主题色 = #${Integer.toHexString(themeColor)} → StatusBar/Navigation/ActionBar 换肤")
             StatusBarUtils.forStatusBar(this, themeColor)
             NavigationUtils.forNavigation(this, themeColor)
             ActionBarUtils.forActionBar(this, themeColor)
         }
 
-        Log.d(TAG, "  → 开始递归遍历 View 树 applyViews(decorView)")
+        SkinLog.d(TAG, "开始遍历 View 树 applyViews(decorView) + 弹框")
         applyViews(window.decorView)
         // 弹框跟随:遍历已打开的 DialogFragment,对其 window.decorView 换肤。
         // 弹框窗口独立于 Activity 的 decorView,切主题时不会被 applyViews(window.decorView) 覆盖。
         applyViewsToDialogs()
-        Log.d(TAG, "skinDynamic() 完成 — ${this.javaClass.simpleName}")
-        Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        SkinLog.i(TAG, "skinDynamic() 完成 → ${this.javaClass.simpleName}")
     }
 
     /**
@@ -177,8 +192,8 @@ abstract class SkinActivity : AppCompatActivity() {
     fun applyCurrentSkin() {
         val currentPath = SkinManager.instance?.currentSkinPath
         val themeColorId = SkinManager.instance?.currentThemeColorId ?: 0
-        Log.d(TAG, "applyCurrentSkin() — ${this.javaClass.simpleName}")
-        Log.d(TAG, "  当前 skinPath=$currentPath, themeColorId=$themeColorId")
+        SkinLog.d(TAG, "applyCurrentSkin() — ${this.javaClass.simpleName}")
+        SkinLog.d(TAG, "  当前 skinPath=$currentPath, themeColorId=$themeColorId")
         skinDynamic(currentPath, themeColorId)
     }
 
@@ -199,7 +214,7 @@ abstract class SkinActivity : AppCompatActivity() {
         for (fragment in fragmentManager.fragments) {
             val dialogFragment = fragment as? androidx.fragment.app.DialogFragment
             dialogFragment?.dialog?.window?.decorView?.let { decorView ->
-                Log.d(TAG, "applyViewsToDialogs() → ${dialogFragment.javaClass.simpleName}.decorView")
+                SkinLog.d(TAG, "applyViewsToDialogs() → ${dialogFragment.javaClass.simpleName}.decorView")
                 applyViews(decorView)
             }
             // 递归子 FragmentManager（子 Fragment 或子 Fragment 内弹框）
@@ -215,7 +230,6 @@ abstract class SkinActivity : AppCompatActivity() {
         if (view == null) return
         if (view is ViewsMatch) {
             val viewsMatch = view as ViewsMatch
-            Log.v(TAG, "applyViews → ${view.javaClass.simpleName}.skinnableView()")
             viewsMatch.skinnableView()
         }
         if (view is ViewGroup) {

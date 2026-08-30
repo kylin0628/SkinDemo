@@ -1,7 +1,6 @@
 package com.kylin.skinlibrary.model
 
 import android.content.res.TypedArray
-import android.util.Log
 import android.util.SparseIntArray
 
 /**
@@ -25,10 +24,6 @@ class AttrsBean {
             val key = styleable[i]
             val resourceId = typedArray.getResourceId(i, DEFAULT_VALUE)
             resourcesMap.put(key, resourceId)
-            Log.e(
-                "tag",
-                "value = " + resourceId + "   key = " + key + " ----typedArray。lengh:" + typedArray.length() + "  styleable:" + styleable.size
-            )
         }
     }
 
