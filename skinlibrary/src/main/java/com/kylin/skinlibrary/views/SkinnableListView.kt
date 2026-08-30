@@ -4,12 +4,12 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import android.widget.ListView
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
 import com.netease.skin.library.core.ViewsMatch
 import com.kylin.skinlibrary.model.AttrsBean
-import androidx.core.content.withStyledAttributes
 
 open class SkinnableListView @JvmOverloads constructor(
     context: Context,

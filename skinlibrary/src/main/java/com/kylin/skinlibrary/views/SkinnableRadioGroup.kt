@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import android.widget.RadioGroup
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
@@ -61,8 +62,8 @@ open class SkinnableRadioGroup @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableRadioGroup, 0, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableRadioGroup)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableRadioGroup, 0, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableRadioGroup)
+        }
     }
 }

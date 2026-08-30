@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import android.widget.TextSwitcher
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
@@ -61,8 +62,8 @@ open class SkinnableTextSwitcher @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableTextSwitcher, 0, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableTextSwitcher)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableTextSwitcher, 0, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableTextSwitcher)
+        }
     }
 }

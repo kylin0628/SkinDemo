@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import com.google.android.material.divider.MaterialDivider
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
@@ -61,8 +62,8 @@ open class SkinnableMaterialDivider @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableMaterialDivider, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableMaterialDivider)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableMaterialDivider, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableMaterialDivider)
+        }
     }
 }

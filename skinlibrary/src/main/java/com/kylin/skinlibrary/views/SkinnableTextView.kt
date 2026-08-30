@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import androidx.annotation.ColorRes
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.model.AttrsBean
 import com.kylin.skinlibrary.SkinManager
@@ -113,8 +114,8 @@ open class SkinnableTextView @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableTextView, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableTextView)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableTextView, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableTextView)
+        }
     }
 }

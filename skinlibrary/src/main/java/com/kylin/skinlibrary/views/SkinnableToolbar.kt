@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import androidx.appcompat.widget.Toolbar
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
@@ -62,8 +63,8 @@ open class SkinnableToolbar @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableToolbar, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableToolbar)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableToolbar, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableToolbar)
+        }
     }
 }

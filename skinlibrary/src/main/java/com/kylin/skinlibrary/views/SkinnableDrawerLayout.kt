@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import androidx.drawerlayout.widget.DrawerLayout
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
@@ -62,8 +63,8 @@ open class SkinnableDrawerLayout @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableDrawerLayout, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableDrawerLayout)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableDrawerLayout, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableDrawerLayout)
+        }
     }
 }

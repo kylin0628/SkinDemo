@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
 import com.netease.skin.library.core.ViewsMatch
@@ -62,8 +63,8 @@ open class SkinnableFrameLayout @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableFrameLayout, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableFrameLayout)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableFrameLayout, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableFrameLayout)
+        }
     }
 }

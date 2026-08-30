@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import com.google.android.material.tabs.TabLayout
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
@@ -90,8 +91,8 @@ open class SkinnableTabLayout @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableTabLayout, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableTabLayout)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableTabLayout, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableTabLayout)
+        }
     }
 }

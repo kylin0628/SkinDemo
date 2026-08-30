@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import android.widget.Spinner
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
@@ -62,8 +63,8 @@ open class SkinnableSpinner @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableSpinner, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableSpinner)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableSpinner, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableSpinner)
+        }
     }
 }

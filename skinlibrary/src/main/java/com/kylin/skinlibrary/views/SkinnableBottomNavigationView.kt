@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
@@ -62,8 +63,8 @@ open class SkinnableBottomNavigationView @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableBottomNavigationView, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableBottomNavigationView)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableBottomNavigationView, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableBottomNavigationView)
+        }
     }
 }

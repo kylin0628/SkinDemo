@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.widget.CheckedTextView
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
 import com.netease.skin.library.core.ViewsMatch
@@ -77,8 +78,8 @@ open class SkinnableCheckedTextView @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableCheckedTextView, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableCheckedTextView)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableCheckedTextView, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableCheckedTextView)
+        }
     }
 }

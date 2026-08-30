@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import android.widget.GridView
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
@@ -62,8 +63,8 @@ open class SkinnableGridView @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableGridView, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableGridView)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableGridView, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableGridView)
+        }
     }
 }

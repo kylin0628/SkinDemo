@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
 import com.netease.skin.library.core.ViewsMatch
@@ -67,8 +68,8 @@ open class SkinnableLinearLayoutCompat @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableLinearLayoutCompat, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableLinearLayoutCompat)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableLinearLayoutCompat, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableLinearLayoutCompat)
+        }
     }
 }

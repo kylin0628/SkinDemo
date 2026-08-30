@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import com.google.android.material.button.MaterialButton
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
@@ -77,8 +78,8 @@ open class SkinnableButton @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableButton, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableButton)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableButton, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableButton)
+        }
     }
 }

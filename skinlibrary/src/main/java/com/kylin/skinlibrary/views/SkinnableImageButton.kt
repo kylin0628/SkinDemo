@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
 import com.netease.skin.library.core.ViewsMatch
@@ -79,8 +80,8 @@ open class SkinnableImageButton @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableImageButton, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableImageButton)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableImageButton, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableImageButton)
+        }
     }
 }

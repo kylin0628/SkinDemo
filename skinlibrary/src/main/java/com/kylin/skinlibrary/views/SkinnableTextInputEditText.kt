@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import com.google.android.material.textfield.TextInputEditText
 import com.kylin.skinlibrary.R
 import com.kylin.skinlibrary.SkinManager
@@ -73,8 +74,8 @@ open class SkinnableTextInputEditText @JvmOverloads constructor(
     }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SkinnableTextInputEditText, defStyleAttr, 0)
-        attrsBean.saveViewResource(typedArray, R.styleable.SkinnableTextInputEditText)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.SkinnableTextInputEditText, defStyleAttr, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableTextInputEditText)
+        }
     }
 }
