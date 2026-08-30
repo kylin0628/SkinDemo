@@ -259,6 +259,59 @@ class SkinManager private constructor(private val application: Application) {
         else skinResources!!.getString(ids)
     }
 
+    /** 字符串（带格式化参数）。语言跟随系统 locale：宿主回退走 appResources（原生 locale 感知）。 */
+    fun getString(resourceId: Int, vararg formatArgs: Any): String {
+        val ids = getSkinResourceIds(resourceId)
+        return if (useHost(ids, resourceId)) appResources.getString(resourceId, *formatArgs)
+        else skinResources!!.getString(ids, *formatArgs)
+    }
+
+    fun getText(resourceId: Int): CharSequence {
+        val ids = getSkinResourceIds(resourceId)
+        return if (useHost(ids, resourceId)) appResources.getText(resourceId)
+        else skinResources!!.getText(ids)
+    }
+
+    fun getDimension(resourceId: Int): Float {
+        val ids = getSkinResourceIds(resourceId)
+        return if (useHost(ids, resourceId)) appResources.getDimension(resourceId)
+        else skinResources!!.getDimension(ids)
+    }
+
+    fun getDimensionPixelSize(resourceId: Int): Int {
+        val ids = getSkinResourceIds(resourceId)
+        return if (useHost(ids, resourceId)) appResources.getDimensionPixelSize(resourceId)
+        else skinResources!!.getDimensionPixelSize(ids)
+    }
+
+    fun getInteger(resourceId: Int): Int {
+        val ids = getSkinResourceIds(resourceId)
+        return if (useHost(ids, resourceId)) appResources.getInteger(resourceId)
+        else skinResources!!.getInteger(ids)
+    }
+
+    fun getBoolean(resourceId: Int): Boolean {
+        val ids = getSkinResourceIds(resourceId)
+        return if (useHost(ids, resourceId)) appResources.getBoolean(resourceId)
+        else skinResources!!.getBoolean(ids)
+    }
+
+    /**
+     * 宿主资源 ID → 皮肤包资源 ID 的公开映射入口。
+     *
+     * 供 Compose 侧 [SkinnableResources.getValue]/[getXml] 等「非标准 getter」复用，
+     * 避免把 getIdentifier 映射逻辑复制到业务侧。返回 0 表示皮肤包缺同名资源（应回退宿主）。
+     */
+    fun resolveSkinId(resourceId: Int): Int = getSkinResourceIds(resourceId)
+
+    /**
+     * 皮肤包 Resources（非默认皮肤才非空）。
+     *
+     * 供 Compose 侧 [SkinnableResources.getValue]/[getXml] 直接读皮肤包资源（这些方法无法用
+     * 单一 getter 封装，需拿到 Resources 实例）。业务侧一般无需调用。
+     */
+    fun getSkinResourcesOrNull(): Resources? = skinResources
+
     /** color / drawable / mipmap 统一获取入口 */
     fun getBackgroundOrSrc(resourceId: Int): Any? {
         return when (appResources.getResourceTypeName(resourceId)) {
