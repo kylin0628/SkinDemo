@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
+import androidx.annotation.ColorRes
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import com.kylin.skinlibrary.R
@@ -33,6 +34,28 @@ open class SkinnableTextView @JvmOverloads constructor(
             }
         } else {
             super.setBackgroundResource(resId)
+        }
+    }
+
+    /**
+     * 按资源 ID 设置文字颜色并纳入换肤管理。
+     *
+     * 背景：业务代码 `setTextColor(int)` 接收的是已解析的 ARGB 值（资源 ID 在 getColor() 那一刻已丢失），
+     * 无法像 setBackgroundResource 那样靠 override 反推映射。改用本方法传资源 ID，
+     * 记录到 attrsBean 供 skinnableView() 遍历重刷，并即时按当前皮肤映射颜色。
+     *
+     * 用法：`skinnableTextView.setTextColorRes(R.color.xxx)`，替代 `setTextColor(context.getColor(R.color.xxx))`。
+     */
+    fun setTextColorRes(@ColorRes resId: Int) {
+        attrsBean.updateViewResource(
+            R.styleable.SkinnableTextView[R.styleable.SkinnableTextView_android_textColor],
+            resId
+        )
+        val manager = SkinManager.instance
+        if (manager != null && !manager.isDefaultSkin) {
+            setTextColor(manager.getColor(resId))
+        } else {
+            setTextColor(ContextCompat.getColor(context, resId))
         }
     }
 

@@ -8,8 +8,13 @@ import android.content.res.Resources
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import com.kylin.skinlibrary.model.SkinCache
+import com.netease.skin.library.core.ViewsMatch
+import java.util.WeakHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * 皮肤管理器
@@ -28,6 +33,69 @@ class SkinManager private constructor(private val application: Application) {
     /** 当前主题色资源 ID */
     var currentThemeColorId: Int = 0
         private set
+
+    /**
+     * 皮肤版本号：每次 loadSkin 成功加载（含切默认皮肤）后自增。
+     * Compose 侧用它在 `skinnedColor()` 里作为重组触发信号（remember(key = skinVersion)）。
+     */
+    @Volatile
+    var skinVersion: Int = 0
+        private set
+
+    /** 换肤监听器（纯 Kotlin，无 Compose 依赖；供 Compose/原生侧订阅皮肤变化） */
+    private val skinChangeListeners = CopyOnWriteArrayList<() -> Unit>()
+
+    /** 独立窗口根视图注册表：切肤时自动对其遍历换肤（WeakReference，视图回收即失效） */
+    private val registeredWindows = WeakHashMap<View, Boolean>()
+
+    /** 订阅皮肤变化；返回 true 表示注册成功（同一监听器不重复注册） */
+    fun addSkinChangeListener(listener: () -> Unit): Boolean {
+        return skinChangeListeners.addIfAbsent(listener)
+    }
+
+    fun removeSkinChangeListener(listener: () -> Unit) {
+        skinChangeListeners.remove(listener)
+    }
+
+    /**
+     * 注册一个独立窗口（PopupWindow / Dialog 等）的根视图，切肤时自动遍历换肤。
+     *
+     * 独立窗口（PopupWindow.contentView / Dialog.setContentView 的 View）拥有自己的 Window，
+     * 不在 SkinActivity.applyViews(decorView) 与 applyViewsToDialogs(DialogFragment) 覆盖范围内。
+     * 业务侧只需在弹框显示后调用一次本方法，此后每次 loadSkin 都会自动对其 applySkin()。
+     *
+     * 用途：把「独立窗口跟随换肤」下沉到主题库，业务代码无需自行管理监听器。
+     * 未注册（弱引用被回收）的视图自动失效，无需显式反注册。
+     */
+    fun registerWindow(rootView: View) {
+        synchronized(registeredWindows) {
+            registeredWindows[rootView] = true
+        }
+    }
+
+    private fun notifySkinChange() {
+        for (listener in skinChangeListeners) {
+            try {
+                listener.invoke()
+            } catch (e: Exception) {
+                Log.e(TAG, "notifySkinChange 监听器异常", e)
+            }
+        }
+        // 独立窗口（PopupWindow / Dialog）跟随换肤：切肤时遍历注册的根视图。
+        // 快照后遍历，避免与 registerWindow 并发修改 WeakHashMap 抛 ConcurrentModificationException，
+        // 且不在持锁状态下执行耗时遍历 applySkin。
+        val roots: List<View>
+        synchronized(registeredWindows) {
+            roots = registeredWindows.keys.toList()
+        }
+        for (root in roots) {
+            try {
+                applySkin(root)
+            } catch (e: Exception) {
+                Log.e(TAG, "registerWindow 视图换肤异常", e)
+            }
+        }
+    }
 
     private val cacheSkin: MutableMap<String, SkinCache> by lazy { mutableMapOf() }
 
@@ -63,11 +131,16 @@ class SkinManager private constructor(private val application: Application) {
         currentSkinPath = skinPath
         currentThemeColorId = themeColorId
         loaderSkinResources(skinPath)
+        skinVersion++
 
         Log.d(TAG, "  新 currentSkinPath = $currentSkinPath")
         Log.d(TAG, "  新 isDefaultSkin   = $isDefaultSkin")
+        Log.d(TAG, "  skinVersion        = $skinVersion")
         Log.d(TAG, "loadSkin() 完成 ${if (isSame) "(相同皮肤，跳过)" else "(皮肤已切换!)"}")
         Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+        // 皮肤加载完成后通知监听者（Compose 重组 / 原生侧刷肤）
+        notifySkinChange()
     }
 
     fun loaderSkinResources(skinPath: String?) {
@@ -183,6 +256,22 @@ class SkinManager private constructor(private val application: Application) {
             "color" -> getColor(resourceId)
             "mipmap", "drawable" -> getDrawableOrMipMap(resourceId)
             else -> null
+        }
+    }
+
+    /**
+     * 对任意 View 树执行换肤遍历，供独立 Window（PopupWindow / Dialog）等在切肤时刷新。
+     * 与 SkinActivity.applyViews(view) 等价，但下沉到 SkinManager，便于非 Activity 组件直接调用。
+     */
+    fun applySkin(view: View?) {
+        if (view == null) return
+        if (view is ViewsMatch) {
+            view.skinnableView()
+        }
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                applySkin(view.getChildAt(i))
+            }
         }
     }
 
