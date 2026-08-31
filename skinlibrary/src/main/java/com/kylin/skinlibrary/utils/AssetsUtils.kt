@@ -58,7 +58,7 @@ object AssetsUtils {
     @Throws(IOException::class)
     private fun copy(`is`: InputStream, out: OutputStream) {
         val buffer = ByteArray(1024)
-        var n = 0
+        var n: Int
         while (-1 != `is`.read(buffer).also { n = it }) {
             out.write(buffer, 0, n)
         }

@@ -295,7 +295,6 @@ object PreferencesUtils {
     fun removeSomeThing(context: Context, vararg keys: String?): Boolean {
         val settings = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
         val editor = settings.edit()
-        if (keys == null) return false
         for (k in keys) {
             editor.remove(k)
         }

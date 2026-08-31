@@ -45,12 +45,12 @@ open class SkinnableImageView @JvmOverloads constructor(
         if (bgResourceId > 0) {
             if (manager.isDefaultSkin) {
                 val drawable = ContextCompat.getDrawable(context, bgResourceId)
-                setBackgroundDrawable(drawable)
+                setBackground(drawable!!)
             } else {
                 val skinResource = manager.getBackgroundOrSrc(bgResourceId)
                 when (skinResource) {
                     is Int -> setBackgroundColor(skinResource)
-                    is Drawable -> setBackgroundDrawable(skinResource)
+                    is Drawable -> setBackground(skinResource)
                 }
             }
         }

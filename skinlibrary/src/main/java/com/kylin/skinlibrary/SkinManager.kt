@@ -179,6 +179,7 @@ class SkinManager private constructor(private val application: Application) {
             addAssetPath.isAccessible = true
             addAssetPath.invoke(assetManager, skinPath)
 
+            @Suppress("DEPRECATION")
             skinResources = Resources(assetManager, appResources.displayMetrics, appResources.configuration)
 
             skinPackageName = application.packageManager
@@ -223,11 +224,11 @@ class SkinManager private constructor(private val application: Application) {
      *  仅当皮肤按名查不到(ids==0)才用宿主;去掉 ids==resourceId 误判——
      *  皮肤与宿主同名资源 ID 数值会碰撞(皮肤色板派生自宿主、前段排序一致),
      *  该启发式会把皮肤里实际存在的暗色误判为"用宿主",导致基底/卡片背景永远浅色。 */
-    private fun useHost(ids: Int, resourceId: Int) = ids == 0
+    private fun useHost(ids: Int) = ids == 0
 
     fun getColor(resourceId: Int): Int {
         val ids = getSkinResourceIds(resourceId)
-        return if (useHost(ids, resourceId)) {
+        return if (useHost(ids)) {
             ContextCompat.getColor(application, resourceId)
         } else {
             // Resources#getColor(int, Theme) — minSdk=23 可用，非 deprecated
@@ -237,7 +238,7 @@ class SkinManager private constructor(private val application: Application) {
 
     fun getColorStateList(resourceId: Int): ColorStateList {
         val ids = getSkinResourceIds(resourceId)
-        return if (useHost(ids, resourceId)) {
+        return if (useHost(ids)) {
             ContextCompat.getColorStateList(application, resourceId)!!
         } else {
             skinResources!!.getColorStateList(ids, null)
@@ -246,7 +247,7 @@ class SkinManager private constructor(private val application: Application) {
 
     fun getDrawableOrMipMap(resourceId: Int): Drawable {
         val ids = getSkinResourceIds(resourceId)
-        return if (useHost(ids, resourceId)) {
+        return if (useHost(ids)) {
             ContextCompat.getDrawable(application, resourceId)!!
         } else {
             skinResources!!.getDrawable(ids, null)
@@ -255,44 +256,44 @@ class SkinManager private constructor(private val application: Application) {
 
     fun getString(resourceId: Int): String {
         val ids = getSkinResourceIds(resourceId)
-        return if (useHost(ids, resourceId)) appResources.getString(resourceId)
+        return if (useHost(ids)) appResources.getString(resourceId)
         else skinResources!!.getString(ids)
     }
 
     /** 字符串（带格式化参数）。语言跟随系统 locale：宿主回退走 appResources（原生 locale 感知）。 */
     fun getString(resourceId: Int, vararg formatArgs: Any): String {
         val ids = getSkinResourceIds(resourceId)
-        return if (useHost(ids, resourceId)) appResources.getString(resourceId, *formatArgs)
+        return if (useHost(ids)) appResources.getString(resourceId, *formatArgs)
         else skinResources!!.getString(ids, *formatArgs)
     }
 
     fun getText(resourceId: Int): CharSequence {
         val ids = getSkinResourceIds(resourceId)
-        return if (useHost(ids, resourceId)) appResources.getText(resourceId)
+        return if (useHost(ids)) appResources.getText(resourceId)
         else skinResources!!.getText(ids)
     }
 
     fun getDimension(resourceId: Int): Float {
         val ids = getSkinResourceIds(resourceId)
-        return if (useHost(ids, resourceId)) appResources.getDimension(resourceId)
+        return if (useHost(ids)) appResources.getDimension(resourceId)
         else skinResources!!.getDimension(ids)
     }
 
     fun getDimensionPixelSize(resourceId: Int): Int {
         val ids = getSkinResourceIds(resourceId)
-        return if (useHost(ids, resourceId)) appResources.getDimensionPixelSize(resourceId)
+        return if (useHost(ids)) appResources.getDimensionPixelSize(resourceId)
         else skinResources!!.getDimensionPixelSize(ids)
     }
 
     fun getInteger(resourceId: Int): Int {
         val ids = getSkinResourceIds(resourceId)
-        return if (useHost(ids, resourceId)) appResources.getInteger(resourceId)
+        return if (useHost(ids)) appResources.getInteger(resourceId)
         else skinResources!!.getInteger(ids)
     }
 
     fun getBoolean(resourceId: Int): Boolean {
         val ids = getSkinResourceIds(resourceId)
-        return if (useHost(ids, resourceId)) appResources.getBoolean(resourceId)
+        return if (useHost(ids)) appResources.getBoolean(resourceId)
         else skinResources!!.getBoolean(ids)
     }
 

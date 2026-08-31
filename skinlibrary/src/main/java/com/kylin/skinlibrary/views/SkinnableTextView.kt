@@ -69,12 +69,12 @@ open class SkinnableTextView @JvmOverloads constructor(
         if (backgroundResourceId > 0) {
             if (manager.isDefaultSkin) {
                 val drawable = ContextCompat.getDrawable(context, backgroundResourceId)
-                setBackgroundDrawable(drawable)
+                setBackground(drawable!!)
             } else {
                 val skinResource = manager.getBackgroundOrSrc(backgroundResourceId)
                 when (skinResource) {
                     is Int -> setBackgroundColor(skinResource)
-                    is Drawable -> setBackgroundDrawable(skinResource)
+                    is Drawable -> setBackground(skinResource)
                 }
             }
         }
