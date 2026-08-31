@@ -68,6 +68,17 @@ open class SkinnableRadioButton @JvmOverloads constructor(
                 setTextColor(color)
             }
         }
+
+        // buttonTint（单选按钮图标着色，随主题切换）
+        key = R.styleable.SkinnableRadioButton[R.styleable.SkinnableRadioButton_android_buttonTint]
+        val buttonTintResourceId = attrsBean.getViewResource(key)
+        if (buttonTintResourceId > 0) {
+            if (manager.isDefaultSkin) {
+                setButtonTintList(ContextCompat.getColorStateList(context, buttonTintResourceId))
+            } else {
+                setButtonTintList(manager.getColorStateList(buttonTintResourceId))
+            }
+        }
     }
 
     override fun onAttachedToWindow() {

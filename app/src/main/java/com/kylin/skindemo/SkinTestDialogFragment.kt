@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.core.view.LayoutInflaterCompat
 import androidx.fragment.app.DialogFragment
 import com.kylin.skinlibrary.SkinManager
@@ -53,6 +54,10 @@ class SkinTestDialogFragment : DialogFragment(), LayoutInflater.Factory2 {
         val activity = requireActivity()
         if (activity is SkinActivity) {
             activity.applyViews(view)
+        }
+        // 弹框内注入悬浮切肤入口（独立 Window 会遮挡 Activity 的悬浮按钮）
+        (dialog?.window?.decorView as? FrameLayout)?.let {
+            ThemeSwitcher.installFabInto(it, requireContext())
         }
         updateSkinStatusLabel(view)
         setupButtons(view)

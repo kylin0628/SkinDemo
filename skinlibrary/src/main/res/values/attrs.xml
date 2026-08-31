@@ -76,18 +76,22 @@
     <declare-styleable name="SkinnableCheckBox">
         <attr name="android:background" />
         <attr name="android:textColor" />
+        <attr name="android:buttonTint" />
     </declare-styleable>
 
     <!-- SkinnableRadioButton控件 -->
     <declare-styleable name="SkinnableRadioButton">
         <attr name="android:background" />
         <attr name="android:textColor" />
+        <attr name="android:buttonTint" />
     </declare-styleable>
 
     <!-- SkinnableSwitchCompat控件 -->
     <declare-styleable name="SkinnableSwitchCompat">
         <attr name="android:background" />
         <attr name="android:textColor" />
+        <attr name="android:thumbTint" />
+        <attr name="android:trackTint" />
     </declare-styleable>
 
     <!-- SkinnableToggleButton控件 -->

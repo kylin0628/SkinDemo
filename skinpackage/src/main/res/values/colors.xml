@@ -226,4 +226,25 @@
     <color name="sound_effect_selected_background_color">#343434</color>
     <color name="color_navigation_bar">#000000</color>
     <color name="color_bg_item_radio">#00000000</color>
+
+    <!-- ============ 补齐宿主同名颜色（暗色高对比） ============ -->
+    <!-- 页面背景：宿主浅灰蓝 #FFEBEDF0 → 皮肤深黑，切肤立即可见 -->
+    <color name="bg_page">#121212</color>
+    <!-- 主题色：宿主蓝 #4883F6 → 皮肤橙，状态栏/导航栏/按钮背景高区分 -->
+    <color name="skin_item_color">#FF6D00</color>
+    <!-- 弹框按钮底：宿主浅灰 #FFF5F5F5 → 皮肤深灰 -->
+    <color name="dialog_button_bg">#2C2C2E</color>
+    <!-- 表面遮罩：宿主浅灰 → 皮肤半透明黑 -->
+    <color name="bg_surface_overlay">#66121212</color>
+    <!-- 三级文本：宿主半透明黑 → 皮肤半透明白 -->
+    <color name="color_third">#59FFFFFF</color>
+    <!-- 媒体按钮：宿主近黑 → 皮肤白 -->
+    <color name="media_button_default">#E6FFFFFF</color>
+    <color name="media_button_tint">#99FFFFFF</color>
+    <!-- 设计系统按钮底：宿主浅灰 → 皮肤深灰 -->
+    <color name="sys_design_btn_bg">#FF2A2D31</color>
+    <!-- 对话框主按钮：宿主蓝 #FF2781DB → 皮肤绿 -->
+    <color name="dialog_action_btn_primary">#FF4CAF50</color>
+    <!-- 按压背景：宿主浅灰 → 皮肤深灰 -->
+    <color name="sys_fusion_pressed_bg">#FF2A2D31</color>
 </resources>

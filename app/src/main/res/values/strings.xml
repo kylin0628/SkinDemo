@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">SkinDemo</string>
+
+    <!-- Compose 案例页 -->
+    <string name="compose_demo_title">Compose 组件换肤案例</string>
+    <string name="compose_demo_desc">以下组件颜色均通过 colorResource 按资源 ID 取色，切主题后自动跟随。</string>
+    <string name="compose_icon">图标（painterResource 同名 drawable 换肤）</string>
+    <string name="compose_card_title">卡片标题</string>
+    <string name="compose_card_body">这是一段卡片正文，颜色来自 text_hint，切肤时跟随变化。</string>
+    <string name="compose_button">Compose 按钮</string>
+    <string name="compose_switch">Compose 开关</string>
+    <string name="compose_checkbox">Compose 复选框</string>
+    <string name="compose_slider">Compose 滑块</string>
+    <string name="compose_textfield">Compose 输入框</string>
+    <string name="compose_accent">强调色块（main_style）</string>
 </resources>

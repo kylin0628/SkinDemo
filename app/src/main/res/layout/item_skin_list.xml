@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 列表 item：用 SkinnableTextView，textColor/background 均为资源 ID，切肤时自动映射 -->
+<com.kylin.skinlibrary.views.SkinnableTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tv_item_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/dialog_bg"
+    android:gravity="center_vertical"
+    android:padding="14dp"
+    android:text="列表项"
+    android:textColor="@color/text_primary"
+    android:textSize="15sp" />

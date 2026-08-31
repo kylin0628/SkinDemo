@@ -221,10 +221,11 @@ class SkinManager private constructor(private val application: Application) {
     }
 
     /** 判断该资源应由宿主还是皮肤包提供。
-     *  仅当皮肤按名查不到(ids==0)才用宿主;去掉 ids==resourceId 误判——
-     *  皮肤与宿主同名资源 ID 数值会碰撞(皮肤色板派生自宿主、前段排序一致),
-     *  该启发式会把皮肤里实际存在的暗色误判为"用宿主",导致基底/卡片背景永远浅色。 */
-    private fun useHost(ids: Int) = ids == 0
+     *  1) 默认皮肤恒用宿主（此时 skinResources 为 null，不可访问）。
+     *  2) 非默认皮肤：仅当皮肤包按名查不到(ids==0)才回退宿主；去掉 ids==resourceId 误判——
+     *     皮肤与宿主同名资源 ID 数值会碰撞(皮肤色板派生自宿主、前段排序一致),
+     *     该启发式会把皮肤里实际存在的暗色误判为"用宿主",导致基底/卡片背景永远浅色。 */
+    private fun useHost(ids: Int) = isDefaultSkin || ids == 0
 
     fun getColor(resourceId: Int): Int {
         val ids = getSkinResourceIds(resourceId)

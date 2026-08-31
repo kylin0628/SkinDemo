@@ -5,12 +5,14 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.util.AttributeSet
 import com.kylin.skinlibrary.utils.SkinLog
+import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.LayoutInflaterCompat
 import com.kylin.skinlibrary.SkinManager
+import com.kylin.skinlibrary.SkinnableResources
 import com.kylin.skinlibrary.core.CustomAppCompatViewInflater
 import com.netease.skin.library.core.ViewsMatch
 import com.kylin.skinlibrary.utils.ActionBarUtils
@@ -31,8 +33,33 @@ import com.kylin.skinlibrary.utils.SystemViewName
 abstract class SkinActivity : AppCompatActivity() {
     private var viewInflater: CustomAppCompatViewInflater? = null
 
+    /** 皮肤感知的 Resources 缓存（默认皮肤返回 null → 走 super.getResources()） */
+    private var skinnableResources: SkinnableResources? = null
+
     companion object {
         private const val TAG = "SkinActivity"
+    }
+
+    /**
+     * 皮肤感知的 [Resources]：暗色皮肤时返回 [SkinnableResources]，使 Compose 的
+     * `colorResource`/`painterResource`/`stringResource`/`dimensionResource`（内部都是
+     * `LocalContext.current.resources.getXxx(id)`）自动按皮肤包同名资源取值。
+     *
+     * 关键：这里只换 `getResources()`，不换 `LocalContext` 本身，故
+     * `LocalContext.current as ComponentActivity` 之类强转不受影响（LocalContext 仍是 Activity）。
+     * 默认皮肤返回 `super.getResources()`，行为与原生完全一致。
+     */
+    override fun getResources(): Resources {
+        val manager = SkinManager.instance
+        if (manager == null || manager.isDefaultSkin) {
+            return super.getResources()
+        }
+        var res = skinnableResources
+        if (res == null) {
+            res = SkinnableResources(super.getResources())
+            skinnableResources = res
+        }
+        return res
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

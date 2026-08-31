@@ -68,6 +68,17 @@ open class SkinnableCheckBox @JvmOverloads constructor(
                 setTextColor(color)
             }
         }
+
+        // buttonTint（复选框勾选图标着色，随主题切换）
+        key = R.styleable.SkinnableCheckBox[R.styleable.SkinnableCheckBox_android_buttonTint]
+        val buttonTintResourceId = attrsBean.getViewResource(key)
+        if (buttonTintResourceId > 0) {
+            if (manager.isDefaultSkin) {
+                setButtonTintList(ContextCompat.getColorStateList(context, buttonTintResourceId))
+            } else {
+                setButtonTintList(manager.getColorStateList(buttonTintResourceId))
+            }
+        }
     }
 
     override fun onAttachedToWindow() {

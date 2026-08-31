@@ -34,6 +34,12 @@ class MainActivity : SkinActivity() {
         Log.d(TAG, "onCreate() 完成，等待 onPostCreate 自动换肤...")
     }
 
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        // 全局主题切换悬浮按钮：右下角入口，任何页面都能切肤看效果
+        ThemeSwitcher.installFab(this)
+    }
+
     /** 切换动态主题按钮 */
     fun skinDynamic(view: View) {
         Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -74,6 +80,30 @@ class MainActivity : SkinActivity() {
         SkinTestDialogFragment.newInstance().show(supportFragmentManager, "SkinTestDialog")
         Log.d(TAG, "  → SkinTestDialogFragment 已显示")
         Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    }
+
+    /** 打开 Compose 组件案例页 */
+    fun openComposeDemo(view: View) {
+        Log.d(TAG, "=== 打开 Compose 组件案例页 ===")
+        startActivity(android.content.Intent(this, ComposeDemoActivity::class.java))
+    }
+
+    /** 弹 PopupWindow */
+    fun openPopupWindow(view: View) {
+        Log.d(TAG, "=== 弹 PopupWindow ===")
+        PopupWindowDemo.show(this, view)
+    }
+
+    /** 弹原生 Dialog */
+    fun openNativeDialog(view: View) {
+        Log.d(TAG, "=== 弹原生 Dialog ===")
+        SkinTestDialog(this).showWithSkin()
+    }
+
+    /** 弹多层弹框（列表） */
+    fun openMultiLevelDialog(view: View) {
+        Log.d(TAG, "=== 弹多层弹框（列表） ===")
+        MultiLevelDialogFragment.newInstance(1).show(supportFragmentManager, "MultiLevel_1")
     }
 
     /** 暗黑模式 → 动态皮肤 / 浅色模式 → 默认皮肤 */

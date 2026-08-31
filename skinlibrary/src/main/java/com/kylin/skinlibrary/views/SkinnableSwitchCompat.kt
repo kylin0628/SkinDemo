@@ -68,6 +68,28 @@ open class SkinnableSwitchCompat @JvmOverloads constructor(
                 setTextColor(color)
             }
         }
+
+        // thumbTint（开关滑块着色，随主题切换）
+        key = R.styleable.SkinnableSwitchCompat[R.styleable.SkinnableSwitchCompat_android_thumbTint]
+        val thumbTintResourceId = attrsBean.getViewResource(key)
+        if (thumbTintResourceId > 0) {
+            if (manager.isDefaultSkin) {
+                setThumbTintList(ContextCompat.getColorStateList(context, thumbTintResourceId))
+            } else {
+                setThumbTintList(manager.getColorStateList(thumbTintResourceId))
+            }
+        }
+
+        // trackTint（开关轨道着色，随主题切换）
+        key = R.styleable.SkinnableSwitchCompat[R.styleable.SkinnableSwitchCompat_android_trackTint]
+        val trackTintResourceId = attrsBean.getViewResource(key)
+        if (trackTintResourceId > 0) {
+            if (manager.isDefaultSkin) {
+                setTrackTintList(ContextCompat.getColorStateList(context, trackTintResourceId))
+            } else {
+                setTrackTintList(manager.getColorStateList(trackTintResourceId))
+            }
+        }
     }
 
     override fun onAttachedToWindow() {
