@@ -1,6 +1,7 @@
 package com.kylin.skinlibrary.views
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
@@ -40,8 +41,8 @@ open class SkinnableProgressBar @JvmOverloads constructor(
         val manager = SkinManager.instance ?: return
 
         // background
-        var key = R.styleable.SkinnableProgressBar[R.styleable.SkinnableProgressBar_android_background]
-        val resourceId = attrsBean.getViewResource(key)
+        val bgKey = R.styleable.SkinnableProgressBar[R.styleable.SkinnableProgressBar_android_background]
+        val resourceId = attrsBean.getViewResource(bgKey)
         if (resourceId > 0) {
             if (manager.isDefaultSkin) {
                 background = ContextCompat.getDrawable(context, resourceId)
@@ -53,6 +54,39 @@ open class SkinnableProgressBar @JvmOverloads constructor(
             }
         }
 
+        // 进度条四类 tint 都随主题切换（ProgressBar 本身只有进度没有文字，主要靠着色体现变化）
+        applyTint(
+            manager,
+            R.styleable.SkinnableProgressBar[R.styleable.SkinnableProgressBar_android_progressTint]
+        ) { setProgressTintList(it) }
+        applyTint(
+            manager,
+            R.styleable.SkinnableProgressBar[R.styleable.SkinnableProgressBar_android_progressBackgroundTint]
+        ) { setProgressBackgroundTintList(it) }
+        applyTint(
+            manager,
+            R.styleable.SkinnableProgressBar[R.styleable.SkinnableProgressBar_android_secondaryProgressTint]
+        ) { setSecondaryProgressTintList(it) }
+        applyTint(
+            manager,
+            R.styleable.SkinnableProgressBar[R.styleable.SkinnableProgressBar_android_indeterminateTint]
+        ) { setIndeterminateTintList(it) }
+    }
+
+    private fun applyTint(
+        manager: SkinManager,
+        styleableKey: Int,
+        apply: (ColorStateList) -> Unit
+    ) {
+        val resourceId = attrsBean.getViewResource(styleableKey)
+        if (resourceId <= 0) return
+        apply(
+            if (manager.isDefaultSkin) {
+                ContextCompat.getColorStateList(context, resourceId)!!
+            } else {
+                manager.getColorStateList(resourceId)
+            }
+        )
     }
 
     override fun onAttachedToWindow() {

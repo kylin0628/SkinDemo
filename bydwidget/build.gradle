@@ -2,26 +2,19 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    namespace 'com.kylin.skinlibrary'
+    namespace 'com.kylin.bydwidget'
     compileSdkVersion 34
     buildToolsVersion "34.0.0"
 
     defaultConfig {
-        minSdkVersion 23
+        // 比亚迪官方 widget-tluc / animation 要求 minSdk 28
+        minSdkVersion 28
         targetSdkVersion 34
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
-    }
-
-    buildFeatures {
-        compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.8"
     }
 
     buildTypes {
@@ -33,14 +26,14 @@ android {
 }
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'com.google.android.material:material:1.9.0'
 
-    // Compose 换肤支持：LocalSkinVersion + skinnedColor/.../skinnedPainter，
-    // 让 Compose 资源读取在皮肤切换时局部重组、不销毁页面状态。
-    implementation platform('androidx.compose:compose-bom:2023.06.01')
-    implementation 'androidx.compose.ui:ui'
-    implementation 'androidx.compose.runtime:runtime'
+    // 比亚迪官方 UI SDK：控件替换（按压/缩放/白蒙层）+ 动画（过滚动、回弹）
+    api 'com.byd.uikit:widget-tluc:1.10.4'
+    api 'com.byd.uikit:animation:1.2.0-20260623212440'
+
+    // 主题库：BydThemeBridge 借 SkinManager 取当前皮肤色刷到比亚迪控件上
+    implementation project(':skinlibrary')
 }

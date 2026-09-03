@@ -13,4 +13,5 @@
     <string name="compose_slider">Compose 滑块</string>
     <string name="compose_textfield">Compose 输入框</string>
     <string name="compose_accent">强调色块（main_style）</string>
+    <string name="compose_radio">Compose 单选</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.kylin.skinlibrary.views
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
@@ -40,8 +41,8 @@ open class SkinnableRatingBar @JvmOverloads constructor(
         val manager = SkinManager.instance ?: return
 
         // background
-        var key = R.styleable.SkinnableRatingBar[R.styleable.SkinnableRatingBar_android_background]
-        val resourceId = attrsBean.getViewResource(key)
+        val bgKey = R.styleable.SkinnableRatingBar[R.styleable.SkinnableRatingBar_android_background]
+        val resourceId = attrsBean.getViewResource(bgKey)
         if (resourceId > 0) {
             if (manager.isDefaultSkin) {
                 background = ContextCompat.getDrawable(context, resourceId)
@@ -53,6 +54,35 @@ open class SkinnableRatingBar @JvmOverloads constructor(
             }
         }
 
+        // RatingBar 星星着色（progressTint / secondaryProgressTint / progressBackgroundTint）随主题切换
+        applyTint(
+            manager,
+            R.styleable.SkinnableRatingBar[R.styleable.SkinnableRatingBar_android_progressTint]
+        ) { progressTintList = it }
+        applyTint(
+            manager,
+            R.styleable.SkinnableRatingBar[R.styleable.SkinnableRatingBar_android_secondaryProgressTint]
+        ) { secondaryProgressTintList = it }
+        applyTint(
+            manager,
+            R.styleable.SkinnableRatingBar[R.styleable.SkinnableRatingBar_android_progressBackgroundTint]
+        ) { progressBackgroundTintList = it }
+    }
+
+    private fun applyTint(
+        manager: SkinManager,
+        styleableKey: Int,
+        apply: (ColorStateList) -> Unit
+    ) {
+        val resourceId = attrsBean.getViewResource(styleableKey)
+        if (resourceId <= 0) return
+        apply(
+            if (manager.isDefaultSkin) {
+                ContextCompat.getColorStateList(context, resourceId)!!
+            } else {
+                manager.getColorStateList(resourceId)
+            }
+        )
     }
 
     override fun onAttachedToWindow() {

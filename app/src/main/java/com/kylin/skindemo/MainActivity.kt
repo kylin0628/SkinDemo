@@ -88,6 +88,12 @@ class MainActivity : SkinActivity() {
         startActivity(android.content.Intent(this, ComposeDemoActivity::class.java))
     }
 
+    /** 打开比亚迪官方控件演示页 */
+    fun openBydWidgetDemo(view: View) {
+        Log.d(TAG, "=== 打开比亚迪官方控件演示页 ===")
+        startActivity(android.content.Intent(this, com.kylin.bydwidget.BydWidgetDemoActivity::class.java))
+    }
+
     /** 弹 PopupWindow */
     fun openPopupWindow(view: View) {
         Log.d(TAG, "=== 弹 PopupWindow ===")

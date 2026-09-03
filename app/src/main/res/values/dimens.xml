@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Compose 尺寸换肤示例：皮肤包同名覆盖（8dp ↔ 16dp） -->
+    <dimen name="skin_demo_gap">8dp</dimen>
+</resources>

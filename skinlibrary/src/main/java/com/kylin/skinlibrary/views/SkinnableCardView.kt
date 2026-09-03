@@ -39,8 +39,9 @@ open class SkinnableCardView @JvmOverloads constructor(
     override fun skinnableView() {
         val manager = SkinManager.instance ?: return
 
-        val key = R.styleable.SkinnableCardView[R.styleable.SkinnableCardView_android_background]
-        val resourceId = attrsBean.getViewResource(key)
+        // background
+        val bgKey = R.styleable.SkinnableCardView[R.styleable.SkinnableCardView_android_background]
+        val resourceId = attrsBean.getViewResource(bgKey)
         if (resourceId > 0) {
             if (manager.isDefaultSkin) {
                 val drawable = ContextCompat.getDrawable(context, resourceId)
@@ -52,6 +53,19 @@ open class SkinnableCardView @JvmOverloads constructor(
                     is Drawable -> background = skinResource
                 }
             }
+        }
+
+        // app:cardBackgroundColor（MaterialCardView 卡片底色，随主题切换）
+        val cardBgKey = R.styleable.SkinnableCardView[R.styleable.SkinnableCardView_cardBackgroundColor]
+        val cardBgResourceId = attrsBean.getViewResource(cardBgKey)
+        if (cardBgResourceId > 0) {
+            setCardBackgroundColor(
+                if (manager.isDefaultSkin) {
+                    ContextCompat.getColor(context, cardBgResourceId)
+                } else {
+                    manager.getColor(cardBgResourceId)
+                }
+            )
         }
     }
 

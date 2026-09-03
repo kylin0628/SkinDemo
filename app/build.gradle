@@ -8,7 +8,8 @@ android {
 
     defaultConfig {
         applicationId "com.kylin.skindemo"
-        minSdkVersion 23
+        // 比亚迪官方 SDK 要求 minSdk 28
+        minSdkVersion 28
         targetSdkVersion 34
         versionCode 1
         versionName "1.0"
@@ -53,4 +54,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     implementation project(':skinlibrary')
+    // 比亚迪官方控件演示模块
+    implementation project(':bydwidget')
 }

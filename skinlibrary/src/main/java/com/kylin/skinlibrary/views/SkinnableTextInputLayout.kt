@@ -40,8 +40,8 @@ open class SkinnableTextInputLayout @JvmOverloads constructor(
         val manager = SkinManager.instance ?: return
 
         // background
-        var key = R.styleable.SkinnableTextInputLayout[R.styleable.SkinnableTextInputLayout_android_background]
-        val resourceId = attrsBean.getViewResource(key)
+        val bgKey = R.styleable.SkinnableTextInputLayout[R.styleable.SkinnableTextInputLayout_android_background]
+        val resourceId = attrsBean.getViewResource(bgKey)
         if (resourceId > 0) {
             if (manager.isDefaultSkin) {
                 background = ContextCompat.getDrawable(context, resourceId)
@@ -53,6 +53,18 @@ open class SkinnableTextInputLayout @JvmOverloads constructor(
             }
         }
 
+        // hintTextColor（输入框 hint 文字颜色，随主题切换）
+        val hintKey = R.styleable.SkinnableTextInputLayout[R.styleable.SkinnableTextInputLayout_hintTextColor]
+        val hintResourceId = attrsBean.getViewResource(hintKey)
+        if (hintResourceId > 0) {
+            setHintTextColor(
+                if (manager.isDefaultSkin) {
+                    ContextCompat.getColorStateList(context, hintResourceId)
+                } else {
+                    manager.getColorStateList(hintResourceId)
+                }
+            )
+        }
     }
 
     override fun onAttachedToWindow() {

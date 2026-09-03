@@ -36,6 +36,9 @@ abstract class SkinActivity : AppCompatActivity() {
     /** 皮肤感知的 Resources 缓存（默认皮肤返回 null → 走 super.getResources()） */
     private var skinnableResources: SkinnableResources? = null
 
+    /** 首帧 onResume 跳过兜底：onPostCreate 已做过一次 applyCurrentSkin()，避免重复刷 */
+    private var firstResumeSkipped = false
+
     companion object {
         private const val TAG = "SkinActivity"
     }
@@ -74,6 +77,21 @@ abstract class SkinActivity : AppCompatActivity() {
      * 在子类 setContentView() 之后自动触发皮肤应用
      * 此时视图树已完整建立，确保换肤生效
      */
+    override fun onResume() {
+        super.onResume()
+        // 首帧 onResume 紧跟 onPostCreate（已做过 applyCurrentSkin），跳过避免重复。
+        if (!firstResumeSkipped) {
+            firstResumeSkipped = true
+            return
+        }
+        // 跨页切肤一致性兜底：在第三方页面（如比亚迪演示页）切肤后返回本页时，
+        // 本页 Skinnable* 控件不会自动重刷，这里按当前皮肤重刷一遍。
+        if (openChangeSkin()) {
+            SkinLog.d(TAG, "onResume() — ${this.javaClass.simpleName} 兜底 applyCurrentSkin()")
+            applyCurrentSkin()
+        }
+    }
+
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         SkinLog.d(TAG, "onPostCreate() — ${this.javaClass.simpleName} | openChangeSkin=${openChangeSkin()}")
@@ -146,12 +164,7 @@ abstract class SkinActivity : AppCompatActivity() {
 
         // 2) 主题库自身换肤匹配（受 openChangeSkin + ignoreView 门控）
         if (openChangeSkin() && !ignoreView(name)) {
-            if (viewInflater == null) {
-                viewInflater = CustomAppCompatViewInflater(context)
-            }
-            viewInflater!!.setName(name)
-            viewInflater!!.setAttrs(attrs)
-            val view = viewInflater!!.autoMatch()
+            val view = createSkinnableView(name, context, attrs)
             // 自换肤:视图 inflate 即刻按当前皮肤换肤,覆盖 onPostCreate 之后才创建的视图
             // (RecyclerView 列表项 / ViewPager Fragment 内容 / ViewStub / 弹框内容)——
             // 它们被 Factory2 包成 Skinnable* 并记录属性,但等不到 applyViews 的一次性遍历。
@@ -168,6 +181,25 @@ abstract class SkinActivity : AppCompatActivity() {
             SystemViewName.FRAGMENT_CONTAINER_VIEW, SystemViewName.FRAGMENT -> return true
         }
         return false
+    }
+
+    /**
+     * 换肤控件工厂钩子：把 XML 标签名替换成实现 [ViewsMatch] 的换肤控件。
+     *
+     * 默认走 [CustomAppCompatViewInflater]（原生/AppCompat/Material 控件 → Skinnable*）。
+     * 子类可重写以替换成第三方控件（如比亚迪页用 SkinnableByd*），使其进入主题库统一的
+     * `applyViews → skinnableView()` 换肤遍历，而非另起桥接。重写方对「不关心的控件」
+     * 应回落 `super.createSkinnableView(...)` 或返回 null 放行。
+     *
+     * @return 返回 null 表示本 Activity 不拦截该控件（交给 AppCompat 兜底创建普通控件）。
+     */
+    protected open fun createSkinnableView(name: String, context: Context, attrs: AttributeSet): View? {
+        if (viewInflater == null) {
+            viewInflater = CustomAppCompatViewInflater(context)
+        }
+        viewInflater!!.setName(name)
+        viewInflater!!.setAttrs(attrs)
+        return viewInflater!!.autoMatch()
     }
 
     /**

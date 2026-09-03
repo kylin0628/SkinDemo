@@ -1,5 +1,6 @@
 package com.kylin.skindemo
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.ContextWrapper
@@ -34,7 +35,7 @@ object ThemeSwitcher {
     private const val TAG_FAB = "theme_switcher_fab"
 
     /** 在 Activity 的 content 区安装悬浮按钮（幂等） */
-    fun installFab(activity: SkinActivity) {
+    fun installFab(activity: Activity) {
         val content = activity.window.decorView
             .findViewById<ViewGroup>(android.R.id.content) ?: return
         installFabInto(content, activity)
@@ -47,7 +48,7 @@ object ThemeSwitcher {
     fun installFabInto(host: ViewGroup, context: Context) {
         if (host !is FrameLayout) return
         if (host.findViewWithTag<View>(TAG_FAB) != null) return
-        val activity = findSkinActivity(context) ?: return
+        val activity = findActivity(context) ?: return
         val fab = createFab(context) { show(activity) }
         host.addView(fab)
         refreshFab(fab)
@@ -75,7 +76,7 @@ object ThemeSwitcher {
     }
 
     /** 弹出全局主题切换弹框 */
-    fun show(activity: SkinActivity) {
+    fun show(activity: Activity) {
         ThemeSwitcherDialog(activity).showWithSkin()
     }
 
@@ -99,18 +100,21 @@ object ThemeSwitcher {
     }
 
     /**
-     * 从任意 Context（Dialog 的 ContextThemeWrapper / 弹框 context）递归解包出宿主 [SkinActivity]。
-     * 修复「原生 Dialog 里 context as? SkinActivity 失效」：Dialog 构造会包一层 ContextThemeWrapper，
+     * 从任意 Context（Dialog 的 ContextThemeWrapper / 弹框 context）递归解包出宿主 [Activity]。
+     * 修复「原生 Dialog 里 context as? Activity 失效」：Dialog 构造会包一层 ContextThemeWrapper，
      * 直接强转拿不到 Activity，导致弹框内切换按钮静默失效。
      */
-    fun findSkinActivity(context: Context?): SkinActivity? {
+    fun findActivity(context: Context?): Activity? {
         var ctx = context
         while (ctx != null) {
-            if (ctx is SkinActivity) return ctx
+            if (ctx is Activity) return ctx
             ctx = if (ctx is ContextWrapper) ctx.baseContext else null
         }
         return null
     }
+
+    /** 保留兼容别名：老调用点（SkinActivity 场景）仍可用 */
+    fun findSkinActivity(context: Context?): SkinActivity? = findActivity(context) as? SkinActivity
 }
 
 /**
@@ -123,8 +127,8 @@ class ThemeSwitcherDialog(context: Context) : Dialog(context), LayoutInflater.Fa
 
     private var viewInflater: CustomAppCompatViewInflater? = null
 
-    private val activity: SkinActivity?
-        get() = ThemeSwitcher.findSkinActivity(context)
+    private val activity: Activity?
+        get() = ThemeSwitcher.findActivity(context)
 
     init {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -143,7 +147,7 @@ class ThemeSwitcherDialog(context: Context) : Dialog(context), LayoutInflater.Fa
         setContentView(root)
 
         // 立即按当前皮肤刷一遍 + 注册独立窗口，切肤时自动跟随
-        activity?.applyViews(root)
+        SkinManager.instance?.applySkin(root)
         SkinManager.instance?.registerWindow(root)
         updateStatus(root)
 
@@ -151,20 +155,32 @@ class ThemeSwitcherDialog(context: Context) : Dialog(context), LayoutInflater.Fa
         (window?.decorView as? FrameLayout)?.let { ThemeSwitcher.installFabInto(it, context) }
 
         root.findViewById<View>(R.id.btn_theme_default)?.setOnClickListener {
-            val act = activity ?: return@setOnClickListener
-            act.defaultSkin(R.color.colorPrimary)
-            PreferencesUtils.putString(context, "currentSkin", "default")
-            act.applyViews(root)
-            updateStatus(root)
+            applySkin(null, R.color.colorPrimary, "default", root)
         }
         root.findViewById<View>(R.id.btn_theme_dynamic)?.setOnClickListener {
-            val act = activity ?: return@setOnClickListener
             val skinPath = "${context.applicationContext.getExternalFilesDir("skindemo")?.absolutePath}/skindemo.skin"
-            act.skinDynamic(skinPath, R.color.skin_item_color)
-            PreferencesUtils.putString(context, "currentSkin", "skindemo")
-            act.applyViews(root)
-            updateStatus(root)
+            applySkin(skinPath, R.color.skin_item_color, "skindemo", root)
         }
+    }
+
+    /**
+     * 统一切肤入口：宿主为 [SkinActivity] 走其完整换肤（含 StatusBar/Navigation/ActionBar +
+     * applyViews 遍历）；普通 Activity 直接 loadSkin，靠 SkinManager.notifySkinChange 触发监听器。
+     * 比亚迪页继承 SkinActivity，走的是前者（完整换肤链路）。
+     */
+    private fun applySkin(skinPath: String?, themeColorId: Int, prefValue: String, root: View) {
+        when (val act = activity) {
+            is SkinActivity -> {
+                if (skinPath == null) act.defaultSkin(themeColorId) else act.skinDynamic(skinPath, themeColorId)
+            }
+            else -> {
+                SkinManager.instance?.loadSkin(skinPath, themeColorId)
+            }
+        }
+        PreferencesUtils.putString(context, "currentSkin", prefValue)
+        // 弹框自身内容（Skinnable* 控件）按新皮肤重刷
+        SkinManager.instance?.applySkin(root)
+        updateStatus(root)
     }
 
     private fun updateStatus(root: View) {

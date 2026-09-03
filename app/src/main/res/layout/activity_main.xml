@@ -14,7 +14,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- ============ 一、主题切换 ============ -->
+        <!-- ============ ① 主题切换 ============ -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -49,27 +49,53 @@
                 android:textColor="@color/text_primary" />
         </LinearLayout>
 
-        <!-- ============ 二、原生组件展示 ============ -->
+        <!-- ============ ② 基础文本/按钮组件 ============ -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="② 原生组件展示"
+            android:text="② 基础组件（背景 + 文字颜色）"
             android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold" />
 
+        <!-- TextView：背景 + 文字颜色 + 提示色（textColorHint 在可编辑/可提示场景生效） -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:background="@color/dialog_bg"
             android:padding="12dp"
-            android:text="TextView 示例文本"
+            android:text="TextView 示例文本（背景 + 文字颜色）"
             android:textColor="@color/text_primary"
             android:textSize="16sp" />
 
-        <!-- 图标换肤：同名 drawable，切肤时自动切换颜色 -->
+        <!-- 普通 View：只有背景，切肤时仅背景变化 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/main_style" />
+
+        <!-- Button：背景 + 文字颜色 -->
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/main_style"
+            android:text="Button 按钮（背景 + 文字）"
+            android:textColor="@color/text_primary" />
+
+        <!-- ============ ② 图片组件 ============ -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="图片组件（src 图标 + 背景）"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -78,31 +104,45 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@color/dialog_bg"
+                android:padding="6dp"
                 android:src="@drawable/ic_skin_demo" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:text="图标（同名 drawable 换肤）"
+                android:text="ImageView（同名 drawable 换肤）"
                 android:textColor="@color/text_primary"
                 android:textSize="15sp" />
         </LinearLayout>
 
-        <Button
-            android:layout_width="match_parent"
+        <ImageButton
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="@color/main_style"
-            android:text="Button 按钮"
-            android:textColor="@color/text_primary" />
+            android:background="@color/dialog_button_bg"
+            android:padding="8dp"
+            android:src="@drawable/ic_skin_demo" />
 
+        <!-- ============ ② 选择/开关组件 ============ -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="选择/开关组件（文字 + 图标着色）"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- CheckBox：文字颜色 + 勾选图标 buttonTint -->
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="@color/dialog_bg"
             android:buttonTint="@color/skin_item_color"
             android:checked="true"
             android:text="CheckBox 复选框"
@@ -112,6 +152,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="@color/dialog_bg"
             android:orientation="horizontal">
 
             <RadioButton
@@ -131,6 +172,7 @@
                 android:textColor="@color/text_primary" />
         </RadioGroup>
 
+        <!-- Switch：滑块 thumbTint + 轨道 trackTint + 文字颜色 -->
         <Switch
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -141,28 +183,97 @@
             android:thumbTint="@color/skin_item_color"
             android:trackTint="@color/color_third" />
 
+        <!-- ToggleButton：背景 + 文字颜色 -->
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/dialog_button_bg"
+            android:checked="true"
+            android:textOff="关"
+            android:textOn="开"
+            android:textColor="@color/text_primary" />
+
+        <!-- CheckedTextView：背景 + 文字颜色 -->
+        <CheckedTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/dialog_bg"
+            android:checkMark="@android:drawable/btn_radio"
+            android:checked="true"
+            android:padding="8dp"
+            android:text="CheckedTextView 选中项"
+            android:textColor="@color/text_primary" />
+
+        <!-- ============ ② 进度组件 ============ -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="进度组件（进度/轨道/滑块/星星着色）"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- ProgressBar（水平）：进度 + 二级进度 + 轨道三色随主题切换 -->
         <ProgressBar
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="@color/dialog_bg"
             android:max="100"
-            android:progress="60" />
+            android:progress="60"
+            android:progressBackgroundTint="@color/color_third"
+            android:progressTint="@color/main_style"
+            android:secondaryProgress="80"
+            android:secondaryProgressTint="@color/dialog_action_btn_primary" />
 
+        <!-- ProgressBar（不确定）：indeterminateTint 随主题切换 -->
+        <ProgressBar
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:indeterminateTint="@color/main_style" />
+
+        <!-- SeekBar：滑块 + 进度 + 轨道 + 刻度着色随主题切换 -->
         <SeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="@color/dialog_bg"
             android:max="100"
-            android:progress="40" />
+            android:progress="40"
+            android:progressBackgroundTint="@color/color_third"
+            android:progressTint="@color/main_style"
+            android:thumbTint="@color/skin_item_color"
+            android:tickMarkTint="@color/color_third" />
 
+        <!-- RatingBar：星星着色随主题切换 -->
         <RatingBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="@color/dialog_bg"
             android:numStars="5"
-            android:rating="3" />
+            android:progressBackgroundTint="@color/color_third"
+            android:progressTint="@color/main_style"
+            android:rating="3"
+            android:secondaryProgressTint="@color/dialog_action_btn_primary" />
 
+        <!-- ============ ② 输入/时间组件 ============ -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="输入/时间组件（背景 + 文字 + 提示色）"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- EditText：背景 + 文字颜色 + 提示文字颜色 -->
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -172,6 +283,47 @@
             android:textColor="@color/text_primary"
             android:textColorHint="@color/text_hint" />
 
+        <!-- AutoCompleteTextView：背景 + 文字颜色 -->
+        <AutoCompleteTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/dialog_bg"
+            android:completionThreshold="1"
+            android:hint="AutoCompleteTextView 自动补全"
+            android:textColor="@color/text_primary" />
+
+        <!-- MultiAutoCompleteTextView：背景 + 文字颜色 -->
+        <MultiAutoCompleteTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/dialog_bg"
+            android:hint="MultiAutoCompleteTextView 多项补全"
+            android:textColor="@color/text_primary" />
+
+        <!-- TextClock：背景 + 文字颜色 -->
+        <TextClock
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/dialog_bg"
+            android:format24Hour="HH:mm:ss"
+            android:padding="12dp"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp" />
+
+        <!-- ============ ② Material 组件 ============ -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Material 组件（卡片/标签/输入框/下拉）"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- MaterialCardView：cardBackgroundColor 卡片底色随主题切换 -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -182,11 +334,68 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
-                android:text="CardView 卡片"
+                android:text="MaterialCardView 卡片（cardBackgroundColor）"
                 android:textColor="@color/text_primary" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ============ 三、弹框入口 ============ -->
+        <!-- Chip：背景 + 文字颜色 -->
+        <com.google.android.material.chip.Chip
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/dialog_button_bg"
+            android:text="Chip 标签"
+            android:textColor="@color/text_primary" />
+
+        <!-- TabLayout：tab 文字颜色（未选中/选中）随主题切换 -->
+        <com.google.android.material.tabs.TabLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/dialog_bg"
+            app:tabIndicatorColor="@color/main_style"
+            app:tabSelectedTextColor="@color/text_primary"
+            app:tabTextColor="@color/text_hint">
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="标签 1" />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="标签 2" />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="标签 3" />
+        </com.google.android.material.tabs.TabLayout>
+
+        <!-- TextInputLayout + TextInputEditText：输入框组合随主题切换 -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/dialog_bg"
+            android:hint="TextInputLayout 输入框"
+            app:hintTextColor="@color/text_hint">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Spinner：背景随主题切换 -->
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/dialog_bg" />
+
+        <!-- ============ ③ 弹框入口 ============ -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -203,6 +412,15 @@
             android:background="@color/main_style"
             android:onClick="openComposeDemo"
             android:text="Compose 组件案例页"
+            android:textColor="@color/text_primary" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/main_style"
+            android:onClick="openBydWidgetDemo"
+            android:text="比亚迪官方控件演示页"
             android:textColor="@color/text_primary" />
 
         <Button

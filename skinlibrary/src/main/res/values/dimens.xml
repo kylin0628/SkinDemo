@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 比亚迪 widget-tluc AAR 大量 drawable 引用 @dimen/sys_border_radius_s，须保留 -->
+    <dimen name="sys_border_radius_s">12dp</dimen>
+</resources>

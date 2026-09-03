@@ -68,6 +68,17 @@ open class SkinnableEditText @JvmOverloads constructor(
                 setTextColor(color)
             }
         }
+
+        // textColorHint（输入框提示文字颜色，随主题切换）
+        key = R.styleable.SkinnableEditText[R.styleable.SkinnableEditText_android_textColorHint]
+        val textColorHintResourceId = attrsBean.getViewResource(key)
+        if (textColorHintResourceId > 0) {
+            if (manager.isDefaultSkin) {
+                setHintTextColor(ContextCompat.getColorStateList(context, textColorHintResourceId))
+            } else {
+                setHintTextColor(manager.getColorStateList(textColorHintResourceId))
+            }
+        }
     }
 
     override fun onAttachedToWindow() {

@@ -247,4 +247,14 @@
     <color name="dialog_action_btn_primary">#FF4CAF50</color>
     <!-- 按压背景：宿主浅灰 → 皮肤深灰 -->
     <color name="sys_fusion_pressed_bg">#FF2A2D31</color>
+
+    <!-- ============ 比亚迪控件换肤桥同名色（暗色 / 主题橙） ============ -->
+    <!-- 一级文本：宿主近黑 → 皮肤白 -->
+    <color name="skin_bridge_text_primary">#FFFFFFFF</color>
+    <!-- 二级文本：宿主半透明黑 → 皮肤半透明白 -->
+    <color name="skin_bridge_text_secondary">#B3FFFFFF</color>
+    <!-- 卡片底色：宿主白 → 皮肤深灰 -->
+    <color name="skin_bridge_card_bg">#1E1E1E</color>
+    <!-- 主题强调色：宿主蓝 → 皮肤橙（与 skin_item_color 一致，凸显动态主题） -->
+    <color name="skin_bridge_primary">#FF6D00</color>
 </resources>

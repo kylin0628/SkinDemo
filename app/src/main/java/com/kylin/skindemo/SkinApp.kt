@@ -3,6 +3,7 @@ package com.kylin.skindemo
 import android.app.Application
 import android.util.Log
 import com.kylin.skinlibrary.SkinManager
+import com.kylin.skinlibrary.SkinUiHost
 import com.kylin.skinlibrary.utils.AssetsUtils
 import com.kylin.skinlibrary.utils.PreferencesUtils
 import java.io.File
@@ -29,6 +30,11 @@ class SkinApp : Application() {
         Log.d(TAG, "步骤1: 初始化 SkinManager")
         SkinManager.init(this)
         Log.d(TAG, "步骤1: SkinManager 初始化完成, instance=${SkinManager.instance}")
+
+        // 1.5 注册宿主切肤入口钩子，供第三方模块（比亚迪演示页）挂载切肤悬浮按钮
+        SkinUiHost.installThemeSwitcher = { activity ->
+            ThemeSwitcher.installFab(activity)
+        }
 
         // 2. 从持久化存储恢复上次的皮肤状态，注入 SkinManager
         restoreSkinState()

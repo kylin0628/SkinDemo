@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ============ 比亚迪控件换肤桥颜色（换肤颜色契约） ============
+         比亚迪官方控件（com.byd.widget.*，AAR 预编译）取色走 widget-tluc 内置 token，
+         不经过 SkinManager。为让它跟随「动态皮肤包/默认主题」切换，BydThemeBridge
+         按这些语义颜色 ID 经 SkinManager.getColor() 按名映射取色后，用公开 setter 刷到
+         比亚迪控件上。
+
+         为什么放 bydwidget 而不是 skinlibrary：skinlibrary 是通用换肤库，不做业务适配；
+         这些是比亚迪控件的专属语义色，属于 bydwidget 业务层。SkinManager 的同名映射用
+         appResources.getResourceEntryName 取资源名，本模块资源同样可被正确映射，
+         无需占用主题库。
+
+         皮肤包（skinpackage）需提供同名颜色，缺名则回退宿主（本模块）默认值。 -->
+    <!-- 一级文本色：浅色近黑 -->
+    <color name="skin_bridge_text_primary">#E6000000</color>
+    <!-- 二级文本色：浅色半透明黑 -->
+    <color name="skin_bridge_text_secondary">#88888888</color>
+    <!-- 卡片底色：浅色白 -->
+    <color name="skin_bridge_card_bg">#FFFFFFFF</color>
+    <!-- 主题强调色（进度/开关/按钮 tint）：浅色蓝 -->
+    <color name="skin_bridge_primary">#FF3388FF</color>
+</resources>

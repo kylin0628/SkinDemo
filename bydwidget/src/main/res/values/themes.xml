@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 比亚迪官方控件演示页主题。
+         关键：必须用 widget-tluc AAR 自带的 MaterialComponents.Byd 系列主题，
+         ——它同时继承 MaterialComponents（满足 MaterialCardView 的组件校验）
+         和比亚迪 token（满足 BydSwitch/BydButton 的 bydSwitchStyle 等）。
+         若用 AppCompat.Byd 系列，MaterialCardView 会抛 "requires Theme.MaterialComponents"。 -->
+    <style name="Theme.BydWidgetDemo" parent="Theme.MaterialComponents.Byd.DayNight.NoActionBar">
+        <!-- MaterialCardView / BydCardView 的 ThemeEnforcement 强校验：
+             Sys.CardView -> Widget.MaterialComponents.CardView 设了 enforceMaterialTheme=true，
+             要求当前主题 isMaterialTheme=true（或 colorPrimaryVariant 有值）。
+             这里在叶子主题显式补上，避免车机 ROM 注入系统主题（themeId 覆盖）或
+             DayNight 深链解析异常时被判为"非 Material 主题"而崩溃。 -->
+        <item name="isMaterialTheme">true</item>
+        <item name="colorPrimaryVariant">@color/byd_colorPrimaryVariant</item>
+    </style>
+
+    <!-- colorPrimaryVariant 兜底值（与 Material 默认 primary variant 一致） -->
+    <color name="byd_colorPrimaryVariant">#3700B3</color>
+</resources>

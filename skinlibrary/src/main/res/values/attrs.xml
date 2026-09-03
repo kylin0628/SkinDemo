@@ -20,6 +20,7 @@
     <declare-styleable name="SkinnableEditText">
         <attr name="android:background" />
         <attr name="android:textColor" />
+        <attr name="android:textColorHint" />
         <!-- 字体属性 -->
     </declare-styleable>
 
@@ -64,6 +65,7 @@
     <!-- SkinnableCardView控件 -->
     <declare-styleable name="SkinnableCardView">
         <attr name="android:background" />
+        <attr name="cardBackgroundColor" format="color" />
     </declare-styleable>
 
     <!-- SkinnableImageButton控件 -->
@@ -77,6 +79,7 @@
         <attr name="android:background" />
         <attr name="android:textColor" />
         <attr name="android:buttonTint" />
+        <attr name="android:textColorHint" />
     </declare-styleable>
 
     <!-- SkinnableRadioButton控件 -->
@@ -168,16 +171,27 @@
     <!-- SkinnableProgressBar控件 -->
     <declare-styleable name="SkinnableProgressBar">
         <attr name="android:background" />
+        <attr name="android:progressTint" />
+        <attr name="android:progressBackgroundTint" />
+        <attr name="android:secondaryProgressTint" />
+        <attr name="android:indeterminateTint" />
     </declare-styleable>
 
     <!-- SkinnableSeekBar控件 -->
     <declare-styleable name="SkinnableSeekBar">
         <attr name="android:background" />
+        <attr name="android:progressTint" />
+        <attr name="android:progressBackgroundTint" />
+        <attr name="android:thumbTint" />
+        <attr name="android:tickMarkTint" />
     </declare-styleable>
 
     <!-- SkinnableRatingBar控件 -->
     <declare-styleable name="SkinnableRatingBar">
         <attr name="android:background" />
+        <attr name="android:progressTint" />
+        <attr name="android:secondaryProgressTint" />
+        <attr name="android:progressBackgroundTint" />
     </declare-styleable>
 
     <!-- SkinnableRadioGroup控件 -->
@@ -271,6 +285,7 @@
     <!-- SkinnableTextInputLayout控件 -->
     <declare-styleable name="SkinnableTextInputLayout">
         <attr name="android:background" />
+        <attr name="hintTextColor" format="color" />
     </declare-styleable>
 
     <!-- SkinnableTextInputEditText控件 -->
