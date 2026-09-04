@@ -21,6 +21,30 @@ import com.kylin.skinlibrary.utils.StatusBarUtils
 import com.kylin.skinlibrary.utils.SystemViewName
 
 /**
+ * 换肤控件工厂：接收 LayoutInflater 传来的控件标签名与属性，返回构造好的换肤 View；
+ * 返回 null 表示不关心该控件，交后续 Factory 处理。
+ *
+ * 供第三方控件库（如比亚迪 widget）以「参数注册」方式接入主题库换肤链路，无需重写
+ * [SkinActivity.createSkinnableView]。
+ */
+typealias SkinnableViewFactory = (name: String, context: Context, attrs: AttributeSet) -> View?
+
+/**
+ * 换肤控件绑定：声明一个第三方换肤控件接管的 XML 标签名集合 + 其构造器引用。
+ *
+ * 第三方模块把「控件类 + 标签名」打包成列表，经 [SkinActivity.registerSkinnableViews]
+ * 一次性接入主题库换肤链路，无需手写 `when(name)` 工厂。
+ *
+ * @param names   该控件接管的 XML 标签名集合（如 [SystemViewName.TEXT_VIEW] 与
+ *                [SystemViewName.ANDROID_TEXT_VIEW]）。命中任一名字即用 [creator] 构造。
+ * @param creator 构造器引用，签名 `(Context, AttributeSet?) -> View`，如 `::SkinnableBydTextView`。
+ */
+class SkinnableViewBinder(
+    val names: Set<String>,
+    val creator: (Context, AttributeSet?) -> View
+)
+
+/**
  * 换肤Activity父类
  *
  * 内建生命周期感知：onPostCreate 自动应用当前皮肤状态，
@@ -38,6 +62,9 @@ abstract class SkinActivity : AppCompatActivity() {
 
     /** 首帧 onResume 跳过兜底：onPostCreate 已做过一次 applyCurrentSkin()，避免重复刷 */
     private var firstResumeSkipped = false
+
+    /** Activity 实例级换肤工厂注册表：一个 Factory 只作用于当前 Activity，实例销毁即回收 */
+    private val skinnableViewFactories = java.util.concurrent.CopyOnWriteArrayList<SkinnableViewFactory>()
 
     companion object {
         private const val TAG = "SkinActivity"
@@ -187,19 +214,64 @@ abstract class SkinActivity : AppCompatActivity() {
      * 换肤控件工厂钩子：把 XML 标签名替换成实现 [ViewsMatch] 的换肤控件。
      *
      * 默认走 [CustomAppCompatViewInflater]（原生/AppCompat/Material 控件 → Skinnable*）。
-     * 子类可重写以替换成第三方控件（如比亚迪页用 SkinnableByd*），使其进入主题库统一的
-     * `applyViews → skinnableView()` 换肤遍历，而非另起桥接。重写方对「不关心的控件」
-     * 应回落 `super.createSkinnableView(...)` 或返回 null 放行。
+     * 子类有两种接入方式：
+     *  1. 重写本方法（如比亚迪页用 SkinnableByd*）；
+     *  2. 在 onCreate 前通过 [registerSkinnableViewFactories] 以列表形式注册多个 [SkinnableViewFactory]，
+     *     免去子类化重写。两条路对「不关心的控件」都应回落 `super.createSkinnableView(...)`
+     *     或返回 null 放行。
      *
      * @return 返回 null 表示本 Activity 不拦截该控件（交给 AppCompat 兜底创建普通控件）。
      */
     protected open fun createSkinnableView(name: String, context: Context, attrs: AttributeSet): View? {
+        // 参数注册的工厂优先（后注册者先尝试，允许覆盖内置映射）；未命中回落内置映射
+        for (factory in skinnableViewFactories.toList().asReversed()) {
+            val view = try {
+                factory(name, context, attrs)
+            } catch (e: Exception) {
+                SkinLog.e(TAG, "注册的 SkinnableViewFactory 拦截 $name 异常，已跳过", e)
+                null
+            }
+            if (view != null) return view
+        }
         if (viewInflater == null) {
             viewInflater = CustomAppCompatViewInflater(context)
         }
         viewInflater!!.setName(name)
         viewInflater!!.setAttrs(attrs)
         return viewInflater!!.autoMatch()
+    }
+
+    /**
+     * 以列表形式注册 [SkinnableViewFactory]，用于「免子类化」接入换肤控件替换。
+     *
+     * 与 [LayoutFactoryRegistry]（跨 Activity 全局、面向 LayoutInflater.Factory2）不同，
+     * 本注册表是 **Activity 实例级**：注册的 Factory 只作用于注册它的那个 Activity，
+     * 适合第三方模块把自己的控件替换逻辑随 Activity 注入。后注册者优先尝试。
+     *
+     * 需在 `setContentView` 触发 inflate 之前注册（如 onCreate 的 super.onCreate 之后、
+     * setContentView 之前，或 onPostCreate 之前）。
+     */
+    protected fun registerSkinnableViewFactories(factories: List<SkinnableViewFactory>) {
+        skinnableViewFactories.addAll(factories)
+    }
+
+    /**
+     * 以「控件类 + 标签名」绑定列表注册第三方换肤控件，免去手写 `when(name)` 工厂。
+     *
+     * 每个 [SkinnableViewBinder] 声明一个换肤控件类接管的标签名集合与其构造器引用，
+     * 内部转换成一个 [SkinnableViewFactory]：标签名命中即用构造器创建控件，未命中返回 null 放行。
+     * 等价于逐条调用 [registerSkinnableViewFactories]，但业务侧无需关心 `name → creator` 的分发逻辑。
+     *
+     * @param binders 绑定列表，如 `listOf(SkinnableViewBinder(setOf(TEXT_VIEW), ::SkinnableBydTextView), ...)`
+     */
+    protected fun registerSkinnableViews(binders: List<SkinnableViewBinder>) {
+        skinnableViewFactories.addAll(
+            binders.map { binder ->
+                { name: String, context: Context, attrs: AttributeSet ->
+                    if (name in binder.names) binder.creator(context, attrs) else null
+                }
+            }
+        )
     }
 
     /**

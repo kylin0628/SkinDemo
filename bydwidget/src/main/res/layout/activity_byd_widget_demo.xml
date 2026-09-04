@@ -24,14 +24,16 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="BydButton（按压缩放）"
-            android:textColor="@color/skin_bridge_card_bg" />
+            android:textColor="@color/skin_bridge_text_primary"
+            android:backgroundTint="@color/skin_bridge_primary" />
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:hint="BydEditText"
-            android:textColor="@color/skin_bridge_text_primary" />
+            android:textColor="@color/skin_bridge_text_primary"
+            android:textColorHint="@color/skin_bridge_text_secondary" />
 
         <ProgressBar
             style="?android:attr/progressBarStyleHorizontal"
@@ -39,14 +41,17 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:max="100"
-            android:progress="50" />
+            android:progress="50"
+            android:progressTint="@color/skin_bridge_primary" />
 
         <SeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:max="100"
-            android:progress="40" />
+            android:progress="40"
+            android:progressTint="@color/skin_bridge_primary"
+            android:thumbTint="@color/skin_bridge_primary" />
 
         <Switch
             android:layout_width="wrap_content"
@@ -54,7 +59,9 @@
             android:layout_marginTop="16dp"
             android:checked="true"
             android:text="BydSwitch"
-            android:textColor="@color/skin_bridge_text_primary" />
+            android:textColor="@color/skin_bridge_text_primary"
+            android:thumbTint="@color/skin_bridge_primary"
+            android:trackTint="@color/skin_bridge_text_secondary" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"

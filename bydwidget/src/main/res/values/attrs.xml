@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      比亚迪控件换肤属性（颜色契约下沉到 XML 布局）。
+
+      这些 declare-styleable 把「换肤语义色」的绑定点从 Kotlin 硬编码下沉到 XML：
+      业务在布局里声明 android:textColor / android:progressTint 等，SkinnableByd*
+      用 withStyledAttributes 记录资源 ID，切肤时按名映射到皮肤包同名颜色。
+
+      为什么放 bydwidget 而非 skinlibrary：skinlibrary 是通用换肤库，不做第三方控件适配；
+      这些是比亚迪控件（com.byd.widget.*）的专属语义色，属于 bydwidget 业务层。
+    -->
+
+    <!-- SkinnableBydTextView：文字色（提示色为 EditText 专属，TextView 不需） -->
+    <declare-styleable name="SkinnableBydTextView">
+        <attr name="android:textColor" />
+    </declare-styleable>
+
+    <!-- SkinnableBydButton：文字色 + 背景 tint（比亚迪按钮底色为 token 主题色） -->
+    <declare-styleable name="SkinnableBydButton">
+        <attr name="android:textColor" />
+        <attr name="android:backgroundTint" />
+    </declare-styleable>
+
+    <!-- SkinnableBydEditText：文字色 + 提示色 -->
+    <declare-styleable name="SkinnableBydEditText">
+        <attr name="android:textColor" />
+        <attr name="android:textColorHint" />
+    </declare-styleable>
+
+    <!-- SkinnableBydCardView：卡片底色 -->
+    <declare-styleable name="SkinnableBydCardView">
+        <attr name="cardBackgroundColor" />
+    </declare-styleable>
+
+    <!-- SkinnableBydProgressBar：进度 tint -->
+    <declare-styleable name="SkinnableBydProgressBar">
+        <attr name="android:progressTint" />
+    </declare-styleable>
+
+    <!-- SkinnableBydSeekBar：进度 + 滑块 tint -->
+    <declare-styleable name="SkinnableBydSeekBar">
+        <attr name="android:progressTint" />
+        <attr name="android:thumbTint" />
+    </declare-styleable>
+
+    <!-- SkinnableBydSwitch：滑块 + 轨道 tint + 文字色 -->
+    <declare-styleable name="SkinnableBydSwitch">
+        <attr name="android:thumbTint" />
+        <attr name="android:trackTint" />
+        <attr name="android:textColor" />
+    </declare-styleable>
+
+</resources>
