@@ -1,5 +1,6 @@
 package com.netease.skin.library.base
 
+import android.R
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.withStyledAttributes
 import androidx.core.view.LayoutInflaterCompat
 import com.kylin.skinlibrary.SkinManager
 import com.kylin.skinlibrary.SkinUiHost
@@ -64,6 +66,9 @@ abstract class SkinActivity : AppCompatActivity() {
     /** 首帧 onResume 跳过兜底：onPostCreate 已做过一次 applyCurrentSkin()，避免重复刷 */
     private var firstResumeSkipped = false
 
+    /** 本 Activity 上次已应用（完成遍历）的 skinVersion，用于 onResume 兜底时跳过无谓的全量重刷。 */
+    private var lastAppliedSkinVersion = -1
+
     /** Activity 实例级换肤工厂注册表：一个 Factory 只作用于当前 Activity，实例销毁即回收 */
     private val skinnableViewFactories = java.util.concurrent.CopyOnWriteArrayList<SkinnableViewFactory>()
 
@@ -78,11 +83,11 @@ abstract class SkinActivity : AppCompatActivity() {
      *
      * 关键：这里只换 `getResources()`，不换 `LocalContext` 本身，故
      * `LocalContext.current as ComponentActivity` 之类强转不受影响（LocalContext 仍是 Activity）。
-     * 默认皮肤返回 `super.getResources()`，行为与原生完全一致。
+     * 默认皮肤也返回 [SkinnableResources]（其内部对默认皮肤走 `super` 透传），行为与原生一致。
      */
     override fun getResources(): Resources {
         val manager = SkinManager.instance
-        if (manager == null || manager.isDefaultSkin) {
+        if (manager == null) {
             return super.getResources()
         }
         var res = skinnableResources
@@ -114,7 +119,8 @@ abstract class SkinActivity : AppCompatActivity() {
         }
         // 跨页切肤一致性兜底：在第三方页面（如比亚迪演示页）切肤后返回本页时，
         // 本页 Skinnable* 控件不会自动重刷，这里按当前皮肤重刷一遍。
-        if (openChangeSkin()) {
+        // 但若皮肤版本未变（未跨页切肤），跳过全量重刷，仅保证新 attach 的控件走 onAttachedToWindow 兜底。
+        if (openChangeSkin() && SkinManager.instance?.skinVersion != lastAppliedSkinVersion) {
             SkinLog.d(TAG, "onResume() — ${this.javaClass.simpleName} 兜底 applyCurrentSkin()")
             applyCurrentSkin()
         }
@@ -286,27 +292,36 @@ abstract class SkinActivity : AppCompatActivity() {
         return true
     }
 
-    fun defaultSkin(themeColorId: Int) {
-        SkinLog.d(TAG, "defaultSkin(themeColorId=$themeColorId) — ${this.javaClass.simpleName}")
-        skinDynamic(null, themeColorId)
+    fun defaultSkin() {
+        SkinLog.d(TAG, "defaultSkin() — ${this.javaClass.simpleName}")
+        skinDynamic(null)
     }
 
     /**
      * 动态换肤
      * public 可见性：供 DialogFragment 等外部组件调用
+     *
+     * 无需传入主题色：状态栏 / 导航栏 / ActionBar 的主题色由本方法自动从 Activity 主题
+     * （`colorAccent` → `colorPrimary` → `statusBarColor`）解析，再经 [SkinManager] 按名
+     * 映射到皮肤包同名资源，与页面控件换肤走同一条链路。
      */
-    fun skinDynamic(skinPath: String?, themeColorId: Int) {
-        SkinLog.i(TAG, "skinDynamic() → ${this.javaClass.simpleName} | skinPath=$skinPath, themeColorId=$themeColorId")
+    fun skinDynamic(skinPath: String?) {
+        SkinLog.i(TAG, "skinDynamic() → ${this.javaClass.simpleName} | skinPath=$skinPath")
 
         // 统一通过 SkinManager.loadSkin() 管理皮肤状态
         val manager = SkinManager.instance ?: run {
             SkinLog.w(TAG, "skinDynamic → SkinManager 未初始化，跳过")
             return
         }
-        manager.loadSkin(skinPath, themeColorId)
+        // 注意：这里始终遍历视图树，即使 loadSkin 因「相同皮肤」短路返回 false。
+        // 冷启动时 restoreSkinState 已 loadSkin 同路径，但 onPostCreate 刚 inflate 完视图树、
+        // 尚未换肤，必须走下面的 applyViews；跨页切肤返回本页时本页视图也是陈旧状态。
+        manager.loadSkin(skinPath)
+        // 记录本次遍历对应的 skinVersion，供 onResume 兜底判断「返回本页时皮肤是否已变」。
+        lastAppliedSkinVersion = manager.skinVersion
 
-        if (themeColorId != 0) {
-            val themeColor = manager.getColor(themeColorId)
+        val themeColor = resolveThemeColor()
+        if (themeColor != 0) {
             SkinLog.d(TAG, "解析主题色 = #${Integer.toHexString(themeColor)} → StatusBar/Navigation/ActionBar 换肤")
             StatusBarUtils.forStatusBar(this, themeColor)
             NavigationUtils.forNavigation(this, themeColor)
@@ -327,10 +342,34 @@ abstract class SkinActivity : AppCompatActivity() {
      */
     fun applyCurrentSkin() {
         val currentPath = SkinManager.instance?.currentSkinPath
-        val themeColorId = SkinManager.instance?.currentThemeColorId ?: 0
         SkinLog.d(TAG, "applyCurrentSkin() — ${this.javaClass.simpleName}")
-        SkinLog.d(TAG, "  当前 skinPath=$currentPath, themeColorId=$themeColorId")
-        skinDynamic(currentPath, themeColorId)
+        SkinLog.d(TAG, "  当前 skinPath=$currentPath")
+        skinDynamic(currentPath)
+    }
+
+    /**
+     * 解析当前 Activity 主题色（皮肤感知）：用于状态栏 / 导航栏 / ActionBar 着色。
+     *
+     * 取值优先级：主题 `colorAccent` → 主题 `colorPrimary` → 主题 `statusBarColor`。
+     * 资源 ID 经 [SkinManager.getColor] 按名映射，默认皮肤取宿主值、动态皮肤取皮肤包
+     * 同名值，因此调用方无需再单独传入主题色。解析失败返回 0，调用方跳过着色。
+     */
+    private fun resolveThemeColor(): Int {
+        val manager = SkinManager.instance ?: return 0
+        var themeColorId = 0
+        withStyledAttributes(
+            attrs = intArrayOf(R.attr.colorAccent, R.attr.colorPrimary, R.attr.statusBarColor)
+        ) {
+            themeColorId = getResourceId(0, 0)
+                .takeIf { it != 0 }
+                ?: getResourceId(1, 0).takeIf { it != 0 }
+                ?: getResourceId(2, 0)
+        }
+        if (themeColorId == 0) {
+            SkinLog.d(TAG, "resolveThemeColor → 无 colorAccent/colorPrimary/statusBarColor 资源，跳过着色")
+            return 0
+        }
+        return manager.getColor(themeColorId)
     }
 
     /**

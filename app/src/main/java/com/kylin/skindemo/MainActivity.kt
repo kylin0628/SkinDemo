@@ -53,7 +53,7 @@ class MainActivity : SkinActivity() {
             SkinUiHost.applyTheme!!.invoke(this, true, true)
         } else if (SkinManager.instance?.currentSkinPath != skinPath) {
             Log.d(TAG, "  → 未注册宿主策略，回落直接换肤!")
-            skinDynamic(skinPath, R.color.skin_item_color)
+            skinDynamic(skinPath)
             PreferencesUtils.putString(this, "currentSkin", "skindemo")
         }
         Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -70,7 +70,7 @@ class MainActivity : SkinActivity() {
             SkinUiHost.applyTheme!!.invoke(this, false, true)
         } else if (SkinManager.instance?.currentSkinPath != null) {
             Log.d(TAG, "  → 未注册宿主策略，回落恢复默认!")
-            defaultSkin(R.color.colorPrimary)
+            defaultSkin()
             PreferencesUtils.putString(this, "currentSkin", "default")
         }
         Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")

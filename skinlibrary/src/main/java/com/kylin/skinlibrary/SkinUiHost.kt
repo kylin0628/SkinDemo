@@ -31,7 +31,7 @@ object SkinUiHost {
      *
      * 关键：跟随系统时不能强制 YES/NO，否则会污染全局默认夜间模式，导致无
      * `configChanges="uiMode"` 的页面（如比亚迪演示页）重建时读到被强制的旧值、卡在错误深浅色。
-     * 策略下沉到宿主一处维护：皮肤包路径、主题色 ID 都在宿主侧。未注册则深浅色切换不联动皮肤。
+     * 策略下沉到宿主一处维护：皮肤包路径在宿主侧。未注册则深浅色切换不联动皮肤。
      */
     @Volatile
     var applyTheme: ((SkinActivity, Boolean, Boolean) -> Unit)? = null

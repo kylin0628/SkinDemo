@@ -31,10 +31,6 @@ class SkinManager private constructor(private val application: Application) {
     var currentSkinPath: String? = null
         private set
 
-    /** 当前主题色资源 ID */
-    var currentThemeColorId: Int = 0
-        private set
-
     /**
      * 皮肤版本号：每次 loadSkin 成功加载（含切默认皮肤）后自增。
      * Compose 侧用它在 `skinnedColor()` 里作为重组触发信号（remember(key = skinVersion)）。
@@ -129,44 +125,62 @@ class SkinManager private constructor(private val application: Application) {
 
     // ==================== 皮肤加载入口 ====================
 
-    fun loadSkin(skinPath: String?, themeColorId: Int) {
+    /**
+     * @return true=皮肤确实发生切换（已重载资源并通知监听者）；false=相同皮肤，直接跳过。
+     *         调用方（如 [com.netease.skin.library.base.SkinActivity.skinDynamic]）可据此跳过无谓重刷。
+     */
+    fun loadSkin(skinPath: String?): Boolean {
         val isSame = currentSkinPath == skinPath
         SkinLog.i(
             TAG,
-            "loadSkin() 入口: skinPath=$skinPath themeColorId=$themeColorId " +
+            "loadSkin() 入口: skinPath=$skinPath " +
                 "旧(isDefaultSkin=$isDefaultSkin, version=$skinVersion)"
         )
 
-        currentSkinPath = skinPath
-        currentThemeColorId = themeColorId
+        // 相同皮肤直接短路：不再重载资源、不再 skinVersion++、不再遍历已注册窗口。
+        // 修复「onResume 兜底每次切回都全量重刷」的根因（此前 isSame 仅用于日志，实际仍会重刷）。
+        if (isSame) {
+            SkinLog.i(TAG, "loadSkin() → 相同皮肤，跳过（不重载、不通知、不重刷）")
+            return false
+        }
+
         loaderSkinResources(skinPath)
-        // 皮肤资源已（可能）切换，宿主→皮肤资源 ID 映射缓存失效
+        // 加载结果同步路径：成功加载非默认皮肤才记录路径；回退默认/加载失败均视为默认（路径置空）。
+        // 修复「currentSkinPath 先写路径、加载失败不回滚」导致 isDefaultSkin=true 与
+        // currentSkinPath!=null 矛盾，使 updateStatus 显示「动态皮肤」而实际走宿主资源。
+        currentSkinPath = if (isDefaultSkin) null else skinPath
+
+        // 皮肤资源已切换，宿主→皮肤资源 ID 映射缓存失效
         skinResourceIdCache.clear()
         skinVersion++
 
         SkinLog.i(
             TAG,
-            "loadSkin() 完成: 新(isDefaultSkin=$isDefaultSkin, packageName=$skinPackageName, version=$skinVersion) " +
-                (if (isSame) "【相同皮肤，跳过】" else "【皮肤已切换】")
+            "loadSkin() 完成: 新(isDefaultSkin=$isDefaultSkin, packageName=$skinPackageName, version=$skinVersion)"
         )
 
         // 皮肤加载完成后通知监听者（Compose 重组 / 原生侧刷肤）
         notifySkinChange()
+        return true
     }
 
     fun loaderSkinResources(skinPath: String?) {
         if (skinPath.isNullOrEmpty()) {
             SkinLog.d(TAG, "loaderSkinResources → skinPath 为空，回退默认皮肤")
-            isDefaultSkin = true
+            resetSkinResources()
             return
         }
 
         if (cacheSkin.containsKey(skinPath)) {
-            isDefaultSkin = false
             cacheSkin[skinPath]?.let {
                 skinResources = it.skinResources
                 skinPackageName = it.skinPackageName
+                isDefaultSkin = false
                 SkinLog.d(TAG, "loaderSkinResources → 命中缓存: packageName=$skinPackageName")
+            } ?: run {
+                // 缓存项异常为空：视为加载失败，回退默认皮肤（保持 skinResources 与 isDefaultSkin 一致）
+                SkinLog.w(TAG, "loaderSkinResources → 缓存命中但值为空，回退默认皮肤")
+                resetSkinResources()
             }
             return
         }
@@ -180,23 +194,33 @@ class SkinManager private constructor(private val application: Application) {
             addAssetPath.invoke(assetManager, skinPath)
 
             @Suppress("DEPRECATION")
-            skinResources = Resources(assetManager, appResources.displayMetrics, appResources.configuration)
+            val resources = Resources(assetManager, appResources.displayMetrics, appResources.configuration)
 
-            skinPackageName = application.packageManager
+            val packageName = application.packageManager
                 .getPackageArchiveInfo(skinPath, PackageManager.GET_ACTIVITIES)
                 ?.packageName
 
-            isDefaultSkin = skinPackageName.isNullOrEmpty()
-            if (!isDefaultSkin) {
-                cacheSkin[skinPath] = SkinCache(skinResources!!, skinPackageName!!)
-                SkinLog.i(TAG, "loaderSkinResources → 皮肤包加载成功: packageName=$skinPackageName, path=$skinPath")
-            } else {
+            if (packageName.isNullOrEmpty()) {
                 SkinLog.w(TAG, "loaderSkinResources → 无法获取皮肤包包名，回退默认皮肤")
+                resetSkinResources()
+            } else {
+                skinResources = resources
+                skinPackageName = packageName
+                isDefaultSkin = false
+                cacheSkin[skinPath] = SkinCache(resources, packageName)
+                SkinLog.i(TAG, "loaderSkinResources → 皮肤包加载成功: packageName=$packageName, path=$skinPath")
             }
         } catch (e: Exception) {
             SkinLog.e(TAG, "loaderSkinResources → 皮肤包加载异常，回退默认皮肤: $skinPath", e)
-            isDefaultSkin = true
+            resetSkinResources()
         }
+    }
+
+    /** 统一回退默认皮肤：清空皮肤包 Resources/包名并置默认标志，避免状态残留（见 loadSkin 状态机说明）。 */
+    private fun resetSkinResources() {
+        skinResources = null
+        skinPackageName = null
+        isDefaultSkin = true
     }
 
     // ==================== 资源获取 ====================

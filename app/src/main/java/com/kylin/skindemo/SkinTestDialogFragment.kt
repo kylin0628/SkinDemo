@@ -84,7 +84,7 @@ class SkinTestDialogFragment : DialogFragment(), LayoutInflater.Factory2 {
             Log.d(TAG, "点击 Dialog 内【默认主题】按钮")
             val activity = requireActivity()
             if (activity is SkinActivity) {
-                activity.defaultSkin(R.color.colorPrimary)
+                activity.defaultSkin()
                 PreferencesUtils.putString(requireContext(), "currentSkin", "default")
                 activity.applyViews(root)
                 updateSkinStatusLabel(root)
@@ -95,7 +95,7 @@ class SkinTestDialogFragment : DialogFragment(), LayoutInflater.Factory2 {
             Log.d(TAG, "点击 Dialog 内【切换动态主题】按钮")
             val activity = requireActivity()
             if (activity is SkinActivity) {
-                activity.skinDynamic(skinPath, R.color.skin_item_color)
+                activity.skinDynamic(skinPath)
                 PreferencesUtils.putString(requireContext(), "currentSkin", "skindemo")
                 activity.applyViews(root)
                 updateSkinStatusLabel(root)

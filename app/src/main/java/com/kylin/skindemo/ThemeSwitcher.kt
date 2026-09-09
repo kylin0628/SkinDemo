@@ -156,11 +156,11 @@ class ThemeSwitcherDialog(context: Context) : Dialog(context), LayoutInflater.Fa
         (window?.decorView as? FrameLayout)?.let { ThemeSwitcher.installFabInto(it, context) }
 
         root.findViewById<View>(R.id.btn_theme_default)?.setOnClickListener {
-            applySkin(null, R.color.colorPrimary, "default", root)
+            applySkin(null, "default", root)
         }
         root.findViewById<View>(R.id.btn_theme_dynamic)?.setOnClickListener {
             val skinPath = "${context.applicationContext.getExternalFilesDir("skindemo")?.absolutePath}/skindemo.skin"
-            applySkin(skinPath, R.color.skin_item_color, "skindemo", root)
+            applySkin(skinPath, "skindemo", root)
         }
     }
 
@@ -169,7 +169,7 @@ class ThemeSwitcherDialog(context: Context) : Dialog(context), LayoutInflater.Fa
      * 换肤），与「跟随系统变化」共用同一条链路，保证 BYD 弹框/控件（按 uiMode 取色）在
      * app 内切换时同样跟随；未注册钩子时回落直接换肤。普通 Activity 直接 loadSkin。
      */
-    private fun applySkin(skinPath: String?, themeColorId: Int, prefValue: String, root: View) {
+    private fun applySkin(skinPath: String?, prefValue: String, root: View) {
         when (val act = activity) {
             is SkinActivity -> {
                 // 动态皮肤 → 深色模式，默认皮肤 → 浅色模式；与跟随系统共用 applyTheme 统一策略。
@@ -178,11 +178,11 @@ class ThemeSwitcherDialog(context: Context) : Dialog(context), LayoutInflater.Fa
                     true
                 } ?: false
                 if (!applied) {
-                    if (skinPath == null) act.defaultSkin(themeColorId) else act.skinDynamic(skinPath, themeColorId)
+                    if (skinPath == null) act.defaultSkin() else act.skinDynamic(skinPath)
                 }
             }
             else -> {
-                SkinManager.instance?.loadSkin(skinPath, themeColorId)
+                SkinManager.instance?.loadSkin(skinPath)
             }
         }
         PreferencesUtils.putString(context, "currentSkin", prefValue)

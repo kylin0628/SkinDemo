@@ -98,13 +98,13 @@ class MultiLevelDialogFragment : DialogFragment(), LayoutInflater.Factory2 {
         val skinPath = "${requireContext().getExternalFilesDir("skindemo")!!.absolutePath}/skindemo.skin"
         view.findViewById<View>(R.id.btn_multi_dynamic)?.setOnClickListener {
             if (activity is SkinActivity) {
-                activity.skinDynamic(skinPath, R.color.skin_item_color)
+                activity.skinDynamic(skinPath)
                 com.kylin.skinlibrary.utils.PreferencesUtils.putString(requireContext(), "currentSkin", "skindemo")
             }
         }
         view.findViewById<View>(R.id.btn_multi_default)?.setOnClickListener {
             if (activity is SkinActivity) {
-                activity.defaultSkin(R.color.colorPrimary)
+                activity.defaultSkin()
                 com.kylin.skinlibrary.utils.PreferencesUtils.putString(requireContext(), "currentSkin", "default")
             }
         }

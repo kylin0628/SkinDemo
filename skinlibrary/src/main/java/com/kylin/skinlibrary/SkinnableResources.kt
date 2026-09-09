@@ -25,24 +25,25 @@ class SkinnableResources(private val host: Resources) :
         get() = SkinManager.instance
 
     // ===== 颜色 =====
+    // 颜色读取无论默认/动态皮肤都经 SkinManager：动态皮肤按名映射到皮肤包，默认皮肤走宿主。
     override fun getColor(id: Int): Int {
         val m = manager
-        return if (m != null && !m.isDefaultSkin) m.getColor(id) else super.getColor(id)
+        return if (m != null) m.getColor(id) else super.getColor(id)
     }
 
     override fun getColor(id: Int, theme: Theme?): Int {
         val m = manager
-        return if (m != null && !m.isDefaultSkin) m.getColor(id) else super.getColor(id, theme)
+        return if (m != null) m.getColor(id) else super.getColor(id, theme)
     }
 
     override fun getColorStateList(id: Int): ColorStateList {
         val m = manager
-        return if (m != null && !m.isDefaultSkin) m.getColorStateList(id) else super.getColorStateList(id)
+        return if (m != null) m.getColorStateList(id) else super.getColorStateList(id)
     }
 
     override fun getColorStateList(id: Int, theme: Theme?): ColorStateList {
         val m = manager
-        return if (m != null && !m.isDefaultSkin) m.getColorStateList(id) else super.getColorStateList(id, theme)
+        return if (m != null) m.getColorStateList(id) else super.getColorStateList(id, theme)
     }
 
     // ===== 图片 =====
