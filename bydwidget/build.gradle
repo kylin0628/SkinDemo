@@ -34,6 +34,10 @@ dependencies {
     api 'com.byd.uikit:widget-tluc:1.10.4'
     api 'com.byd.uikit:animation:1.2.0-20260623212440'
 
+    // BydImageView extends LottieAnimationView，但 widget-tluc 的 pom 未声明该传递依赖，
+    // 运行时 BydListItem 等复合控件 inflate BydImageView 时会 NoClassDefFoundError，需显式补齐
+    api 'com.airbnb.android:lottie:6.2.0'
+
     // 主题库：BydThemeBridge 借 SkinManager 取当前皮肤色刷到比亚迪控件上
     implementation project(':skinlibrary')
 }

@@ -2,14 +2,31 @@ package com.kylin.bydwidget
 
 import com.kylin.bydwidget.views.SkinnableBydButton
 import com.kylin.bydwidget.views.SkinnableBydCardView
+import com.kylin.bydwidget.views.SkinnableBydCheckBox
+import com.kylin.bydwidget.views.SkinnableBydDivider
 import com.kylin.bydwidget.views.SkinnableBydEditText
 import com.kylin.bydwidget.views.SkinnableBydProgressBar
+import com.kylin.bydwidget.views.SkinnableBydRadioButton
 import com.kylin.bydwidget.views.SkinnableBydSeekBar
+import com.kylin.bydwidget.views.SkinnableBydSlideBar
 import com.kylin.bydwidget.views.SkinnableBydSwitch
 import com.kylin.bydwidget.views.SkinnableBydTextView
+import com.kylin.bydwidget.views.SkinnableBydTextInputLayout
 import com.kylin.skinlibrary.utils.SystemViewName
 import com.netease.skin.library.base.SkinActivity
 import com.netease.skin.library.base.SkinnableViewBinder
+
+/**
+ * 比亚迪控件 FQCN 常量（仅 bydwidget 业务层使用，不放通用 [SystemViewName]）。
+ *
+ * 这些控件是比亚迪专属复合控件，标准标签（CheckBox/RadioButton 等）不存在对应系统标签，
+ * XML 里需用全限定名 inflate，故在工厂绑定里用 FQCN 匹配。
+ */
+private object BydViewName {
+    const val BYD_DIVIDER = "com.byd.widget.BydDivider"
+    const val BYD_SLIDE_BAR = "com.byd.widget.BydSlideBar"
+    const val BYD_TEXT_INPUT_LAYOUT = "com.byd.widget.BydTextInputLayout"
+}
 
 /**
  * 比亚迪控件换肤页基类。
@@ -55,6 +72,26 @@ abstract class BydSkinActivity : SkinActivity() {
         SkinnableViewBinder(
             setOf(SystemViewName.MATERIAL_CARD_VIEW),
             ::SkinnableBydCardView
+        ),
+        SkinnableViewBinder(
+            setOf(SystemViewName.CHECK_BOX),
+            ::SkinnableBydCheckBox
+        ),
+        SkinnableViewBinder(
+            setOf(SystemViewName.RADIO_BUTTON),
+            ::SkinnableBydRadioButton
+        ),
+        SkinnableViewBinder(
+            setOf(BydViewName.BYD_DIVIDER),
+            ::SkinnableBydDivider
+        ),
+        SkinnableViewBinder(
+            setOf(BydViewName.BYD_SLIDE_BAR),
+            ::SkinnableBydSlideBar
+        ),
+        SkinnableViewBinder(
+            setOf(BydViewName.BYD_TEXT_INPUT_LAYOUT),
+            ::SkinnableBydTextInputLayout
         ),
     )
 

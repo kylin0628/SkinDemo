@@ -5,11 +5,16 @@ import android.util.AttributeSet
 import androidx.core.content.withStyledAttributes
 import com.byd.widget.BydButton
 import com.byd.widget.BydCardView
+import com.byd.widget.BydCheckBox
+import com.byd.widget.BydDivider
 import com.byd.widget.BydEditText
 import com.byd.widget.BydProgressBar
+import com.byd.widget.BydRadioButton
 import com.byd.widget.BydSeekBar
+import com.byd.widget.BydSlideBar
 import com.byd.widget.BydSwitch
 import com.byd.widget.BydTextView
+import com.byd.widget.BydTextInputLayout
 import com.kylin.bydwidget.R
 import com.kylin.skinlibrary.SkinManager
 import com.kylin.skinlibrary.model.AttrsBean
@@ -221,6 +226,147 @@ class SkinnableBydSwitch(context: Context, attrs: AttributeSet?) :
     init {
         context.withStyledAttributes(attrs, R.styleable.SkinnableBydSwitch, 0, 0) {
             attrsBean.saveViewResource(this, R.styleable.SkinnableBydSwitch)
+        }
+    }
+}
+
+class SkinnableBydCheckBox(context: Context, attrs: AttributeSet?) :
+    BydCheckBox(context, attrs), ViewsMatch {
+    private val attrsBean = AttrsBean()
+
+    override fun skinnableView() {
+        val manager = SkinManager.instance ?: return
+        val textColorResId = attrsBean.getViewResource(
+            R.styleable.SkinnableBydCheckBox[R.styleable.SkinnableBydCheckBox_android_textColor]
+        )
+        if (textColorResId > 0) setTextColor(manager.getColorStateList(textColorResId))
+        val buttonTintResId = attrsBean.getViewResource(
+            R.styleable.SkinnableBydCheckBox[R.styleable.SkinnableBydCheckBox_android_buttonTint]
+        )
+        if (buttonTintResId > 0) buttonTintList = manager.getColorStateList(buttonTintResId)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        SkinManager.instance?.applySkinIfChanged(this)
+    }
+
+    init {
+        context.withStyledAttributes(attrs, R.styleable.SkinnableBydCheckBox, 0, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableBydCheckBox)
+        }
+    }
+}
+
+class SkinnableBydRadioButton(context: Context, attrs: AttributeSet?) :
+    BydRadioButton(context, attrs), ViewsMatch {
+    private val attrsBean = AttrsBean()
+
+    override fun skinnableView() {
+        val manager = SkinManager.instance ?: return
+        val textColorResId = attrsBean.getViewResource(
+            R.styleable.SkinnableBydRadioButton[R.styleable.SkinnableBydRadioButton_android_textColor]
+        )
+        if (textColorResId > 0) setTextColor(manager.getColorStateList(textColorResId))
+        val buttonTintResId = attrsBean.getViewResource(
+            R.styleable.SkinnableBydRadioButton[R.styleable.SkinnableBydRadioButton_android_buttonTint]
+        )
+        if (buttonTintResId > 0) buttonTintList = manager.getColorStateList(buttonTintResId)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        SkinManager.instance?.applySkinIfChanged(this)
+    }
+
+    init {
+        context.withStyledAttributes(attrs, R.styleable.SkinnableBydRadioButton, 0, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableBydRadioButton)
+        }
+    }
+}
+
+class SkinnableBydDivider(context: Context, attrs: AttributeSet?) :
+    BydDivider(context, attrs), ViewsMatch {
+    private val attrsBean = AttrsBean()
+
+    override fun skinnableView() {
+        val manager = SkinManager.instance ?: return
+        val bgResId = attrsBean.getViewResource(
+            R.styleable.SkinnableBydDivider[R.styleable.SkinnableBydDivider_android_background]
+        )
+        if (bgResId > 0) {
+            when (val res = manager.getBackgroundOrSrc(bgResId)) {
+                is Int -> setBackgroundColor(res)
+                is android.graphics.drawable.Drawable -> background = res
+            }
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        SkinManager.instance?.applySkinIfChanged(this)
+    }
+
+    init {
+        context.withStyledAttributes(attrs, R.styleable.SkinnableBydDivider, 0, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableBydDivider)
+        }
+    }
+}
+
+class SkinnableBydSlideBar(context: Context, attrs: AttributeSet?) :
+    BydSlideBar(context, attrs), ViewsMatch {
+    private val attrsBean = AttrsBean()
+
+    override fun skinnableView() {
+        val manager = SkinManager.instance ?: return
+        val progressResId = attrsBean.getViewResource(
+            R.styleable.SkinnableBydSlideBar[R.styleable.SkinnableBydSlideBar_android_progressTint]
+        )
+        if (progressResId > 0) progressTintList = manager.getColorStateList(progressResId)
+        val thumbResId = attrsBean.getViewResource(
+            R.styleable.SkinnableBydSlideBar[R.styleable.SkinnableBydSlideBar_android_thumbTint]
+        )
+        if (thumbResId > 0) thumbTintList = manager.getColorStateList(thumbResId)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        SkinManager.instance?.applySkinIfChanged(this)
+    }
+
+    init {
+        context.withStyledAttributes(attrs, R.styleable.SkinnableBydSlideBar, 0, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableBydSlideBar)
+        }
+    }
+}
+
+class SkinnableBydTextInputLayout(context: Context, attrs: AttributeSet?) :
+    BydTextInputLayout(context, attrs), ViewsMatch {
+    private val attrsBean = AttrsBean()
+
+    override fun skinnableView() {
+        val manager = SkinManager.instance ?: return
+        val hintResId = attrsBean.getViewResource(
+            R.styleable.SkinnableBydTextInputLayout[R.styleable.SkinnableBydTextInputLayout_hintTextColor]
+        )
+        if (hintResId > 0) setHintTextColor(manager.getColorStateList(hintResId))
+        val boxResId = attrsBean.getViewResource(
+            R.styleable.SkinnableBydTextInputLayout[R.styleable.SkinnableBydTextInputLayout_boxBackgroundColor]
+        )
+        if (boxResId > 0) setBoxBackgroundColor(manager.getColor(boxResId))
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        SkinManager.instance?.applySkinIfChanged(this)
+    }
+
+    init {
+        context.withStyledAttributes(attrs, R.styleable.SkinnableBydTextInputLayout, 0, 0) {
+            attrsBean.saveViewResource(this, R.styleable.SkinnableBydTextInputLayout)
         }
     }
 }

@@ -20,4 +20,10 @@
     <color name="skin_bridge_card_bg">#FFFFFFFF</color>
     <!-- 主题强调色（进度/开关/按钮 tint）：浅色蓝 -->
     <color name="skin_bridge_primary">#FF3388FF</color>
+
+    <!-- 比亚迪展示型控件演示区背景：BYD 控件 token（文字/图标）默认用 sys_white_900（白），
+         是为深色车机背景设计的；放在浅色 skin_bridge_card_bg 上会白底白字不可见，
+         故给 ⑥⑦ 展示区单独配深色底衬托（取自 BYD sys_gray_800） -->
+    <color name="byd_demo_dark_bg">#FF15181F</color>
+    <color name="byd_demo_dark_text">#FFFFFFFF</color>
 </resources>

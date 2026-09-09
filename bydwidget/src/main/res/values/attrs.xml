@@ -52,4 +52,33 @@
         <attr name="android:textColor" />
     </declare-styleable>
 
+    <!-- SkinnableBydCheckBox：文字色 + 勾选图标 tint -->
+    <declare-styleable name="SkinnableBydCheckBox">
+        <attr name="android:textColor" />
+        <attr name="android:buttonTint" />
+    </declare-styleable>
+
+    <!-- SkinnableBydRadioButton：文字色 + 单选图标 tint -->
+    <declare-styleable name="SkinnableBydRadioButton">
+        <attr name="android:textColor" />
+        <attr name="android:buttonTint" />
+    </declare-styleable>
+
+    <!-- SkinnableBydDivider：分割线背景色 -->
+    <declare-styleable name="SkinnableBydDivider">
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- SkinnableBydSlideBar：进度 + 滑块 tint -->
+    <declare-styleable name="SkinnableBydSlideBar">
+        <attr name="android:progressTint" />
+        <attr name="android:thumbTint" />
+    </declare-styleable>
+
+    <!-- SkinnableBydTextInputLayout：提示色 + 输入框底色 -->
+    <declare-styleable name="SkinnableBydTextInputLayout">
+        <attr name="hintTextColor" format="color|reference" />
+        <attr name="boxBackgroundColor" format="color|reference" />
+    </declare-styleable>
+
 </resources>

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="@color/skin_bridge_card_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,11 +11,12 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- ============ ① 基础文本/按钮/输入 ============ -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="比亚迪官方控件演示（按压 / 缩放 / 白蒙层 / 过滚动回弹）"
-            android:textColor="@color/skin_bridge_text_primary"
+            android:text="① 基础文本 / 按钮 / 输入（动态换肤）"
+            android:textColor="@color/skin_bridge_primary"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -30,16 +31,78 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:hint="BydEditText"
             android:textColor="@color/skin_bridge_text_primary"
             android:textColorHint="@color/skin_bridge_text_secondary" />
+
+        <!-- ============ ② 选择 / 开关 ============ -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="② 选择 / 开关（动态换肤）"
+            android:textColor="@color/skin_bridge_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:buttonTint="@color/skin_bridge_primary"
+            android:checked="true"
+            android:text="BydCheckBox 复选框"
+            android:textColor="@color/skin_bridge_text_primary" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/skin_bridge_primary"
+                android:checked="true"
+                android:text="Radio A"
+                android:textColor="@color/skin_bridge_text_primary" />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:buttonTint="@color/skin_bridge_primary"
+                android:text="Radio B"
+                android:textColor="@color/skin_bridge_text_primary" />
+        </RadioGroup>
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:checked="true"
+            android:text="BydSwitch"
+            android:textColor="@color/skin_bridge_text_primary"
+            android:thumbTint="@color/skin_bridge_primary"
+            android:trackTint="@color/skin_bridge_text_secondary" />
+
+        <!-- ============ ③ 进度 / 滑杆 ============ -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="③ 进度 / 滑杆（动态换肤）"
+            android:textColor="@color/skin_bridge_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <ProgressBar
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:max="100"
             android:progress="50"
             android:progressTint="@color/skin_bridge_primary" />
@@ -47,26 +110,35 @@
         <SeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:max="100"
             android:progress="40"
             android:progressTint="@color/skin_bridge_primary"
             android:thumbTint="@color/skin_bridge_primary" />
 
-        <Switch
-            android:layout_width="wrap_content"
+        <com.byd.widget.BydSlideBar
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:checked="true"
-            android:text="BydSwitch"
-            android:textColor="@color/skin_bridge_text_primary"
-            android:thumbTint="@color/skin_bridge_primary"
-            android:trackTint="@color/skin_bridge_text_secondary" />
+            android:layout_marginTop="12dp"
+            android:max="100"
+            android:progress="35"
+            android:progressTint="@color/skin_bridge_primary"
+            android:thumbTint="@color/skin_bridge_primary" />
+
+        <!-- ============ ④ 卡片 / 图片 / 分割线 ============ -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="④ 卡片 / 图片 / 分割线（动态换肤）"
+            android:textColor="@color/skin_bridge_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             app:cardBackgroundColor="@color/skin_bridge_card_bg">
 
             <TextView
@@ -76,6 +148,147 @@
                 android:text="BydCardView（按压白蒙层）"
                 android:textColor="@color/skin_bridge_text_primary" />
         </com.google.android.material.card.MaterialCardView>
+
+        <ImageView
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginTop="12dp"
+            android:background="@color/skin_bridge_card_bg"
+            android:padding="6dp"
+            android:src="@drawable/ic_skin_demo" />
+
+        <com.byd.widget.BydDivider
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/skin_bridge_text_secondary" />
+
+        <!-- ============ ⑤ 输入框 ============ -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="⑤ 文本输入框（动态换肤）"
+            android:textColor="@color/skin_bridge_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <com.byd.widget.BydTextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="BydTextInputLayout"
+            app:boxBackgroundColor="@color/skin_bridge_card_bg"
+            app:hintTextColor="@color/skin_bridge_text_secondary">
+
+            <com.byd.widget.BydEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/skin_bridge_text_primary"
+                android:textColorHint="@color/skin_bridge_text_secondary" />
+        </com.byd.widget.BydTextInputLayout>
+
+        <!-- ============ ⑥ 展示型控件（仅跟随 BYD 内置暗黑/浅色） ============ -->
+        <!-- BYD 展示型控件文字/图标 token 默认 sys_white_900（白），为深色车机设计；
+             这里用深色底衬托，避免白字白底不可见 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/byd_demo_dark_bg"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="⑥ 展示型控件（跟随 BYD 内置暗黑/浅色，不跟随动态主题色）"
+                android:textColor="@color/byd_demo_dark_text"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <com.byd.widget.BydTitleBar
+                android:id="@+id/byd_title_bar"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp" />
+
+            <com.byd.widget.BydSearchView
+                android:id="@+id/byd_search_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" />
+
+            <com.byd.widget.BydNumberPicker
+                android:id="@+id/byd_number_picker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" />
+
+            <com.byd.widget.BydDatePicker
+                android:id="@+id/byd_date_picker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" />
+
+            <com.byd.widget.BydTimePicker
+                android:id="@+id/byd_time_picker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" />
+
+            <com.byd.widget.listItem.BydListItem
+                android:id="@+id/byd_list_item"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" />
+
+            <com.byd.widget.listItem.BydSwitchListItem
+                android:id="@+id/byd_switch_list_item"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" />
+
+            <com.byd.widget.table.BydTabLayout
+                android:id="@+id/byd_tab_layout"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp" />
+
+            <com.byd.widget.sidebar.BydSideBar
+                android:id="@+id/byd_side_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" />
+        </LinearLayout>
+
+        <!-- ============ ⑦ 弹框入口 ============ -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="⑦ 弹框入口（展示型）"
+            android:textColor="@color/skin_bridge_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn_byd_alert_dialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="弹 BydAlertDialog"
+            android:textColor="@color/skin_bridge_text_primary"
+            android:backgroundTint="@color/skin_bridge_primary" />
+
+        <Button
+            android:id="@+id/btn_byd_popup_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="弹 BydPopupMenu"
+            android:textColor="@color/skin_bridge_text_primary"
+            android:backgroundTint="@color/skin_bridge_primary" />
 
         <!-- 占位内容，便于测试过滚动回弹效果 -->
         <TextView
