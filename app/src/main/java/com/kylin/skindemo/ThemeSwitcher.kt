@@ -16,6 +16,7 @@ import android.widget.PopupWindow
 import androidx.core.view.LayoutInflaterCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.kylin.skinlibrary.SkinManager
+import com.kylin.skinlibrary.SkinUiHost
 import com.kylin.skinlibrary.core.CustomAppCompatViewInflater
 import com.kylin.skinlibrary.utils.PreferencesUtils
 import com.netease.skin.library.base.SkinActivity
@@ -164,14 +165,21 @@ class ThemeSwitcherDialog(context: Context) : Dialog(context), LayoutInflater.Fa
     }
 
     /**
-     * 统一切肤入口：宿主为 [SkinActivity] 走其完整换肤（含 StatusBar/Navigation/ActionBar +
-     * applyViews 遍历）；普通 Activity 直接 loadSkin，靠 SkinManager.notifySkinChange 触发监听器。
-     * 比亚迪页继承 SkinActivity，走的是前者（完整换肤链路）。
+     * 统一切肤入口：宿主为 [SkinActivity] 走 [SkinUiHost.applyTheme] 统一策略（切夜间模式 +
+     * 换肤），与「跟随系统变化」共用同一条链路，保证 BYD 弹框/控件（按 uiMode 取色）在
+     * app 内切换时同样跟随；未注册钩子时回落直接换肤。普通 Activity 直接 loadSkin。
      */
     private fun applySkin(skinPath: String?, themeColorId: Int, prefValue: String, root: View) {
         when (val act = activity) {
             is SkinActivity -> {
-                if (skinPath == null) act.defaultSkin(themeColorId) else act.skinDynamic(skinPath, themeColorId)
+                // 动态皮肤 → 深色模式，默认皮肤 → 浅色模式；与跟随系统共用 applyTheme 统一策略。
+                val applied = SkinUiHost.applyTheme?.let { hook ->
+                    hook(act, skinPath != null, true)
+                    true
+                } ?: false
+                if (!applied) {
+                    if (skinPath == null) act.defaultSkin(themeColorId) else act.skinDynamic(skinPath, themeColorId)
+                }
             }
             else -> {
                 SkinManager.instance?.loadSkin(skinPath, themeColorId)

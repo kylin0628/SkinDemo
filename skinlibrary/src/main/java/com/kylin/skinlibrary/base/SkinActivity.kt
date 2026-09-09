@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.LayoutInflaterCompat
 import com.kylin.skinlibrary.SkinManager
+import com.kylin.skinlibrary.SkinUiHost
 import com.kylin.skinlibrary.SkinnableResources
 import com.kylin.skinlibrary.core.CustomAppCompatViewInflater
 import com.netease.skin.library.core.ViewsMatch
@@ -162,7 +163,11 @@ abstract class SkinActivity : AppCompatActivity() {
      * @param isDarkMode true=暗黑模式, false=浅色模式
      */
     protected open fun onDarkModeChanged(isDarkMode: Boolean) {
-        SkinLog.d(TAG, "onDarkModeChanged(isDarkMode=$isDarkMode) — 默认空实现，子类可重写")
+        SkinLog.d(TAG, "onDarkModeChanged(isDarkMode=$isDarkMode) — 尝试宿主统一策略")
+        // 优先走宿主在 SkinUiHost 注册的「应用一套主题」统一策略（深色→动态 / 浅色→默认）；
+        // 系统变化场景 forceNightMode=false：不强制夜间模式（保持 FOLLOW_SYSTEM），仅按 isDark 换肤。
+        // 未注册则保持子类可重写的空实现，保证第三方库独立运行时无副作用。
+        SkinUiHost.applyTheme?.invoke(this, isDarkMode, false)
     }
 
     override fun onCreateView(

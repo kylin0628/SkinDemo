@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import com.kylin.skinlibrary.SkinManager
+import com.kylin.skinlibrary.SkinUiHost
 import com.kylin.skinlibrary.utils.PreferencesUtils
 import com.netease.skin.library.base.SkinActivity
 import java.io.File
@@ -47,12 +48,13 @@ class MainActivity : SkinActivity() {
         Log.d(TAG, "  当前 SkinManager.currentSkinPath = ${SkinManager.instance?.currentSkinPath}")
         Log.d(TAG, "  目标 skinPath                    = $skinPath")
 
-        if (SkinManager.instance?.currentSkinPath != skinPath) {
-            Log.d(TAG, "  → 皮肤状态不同，执行换肤!")
+        if (SkinUiHost.applyTheme != null) {
+            Log.d(TAG, "  → 走 SkinUiHost.applyTheme(isDark=true)：切夜间模式 + 动态皮肤")
+            SkinUiHost.applyTheme!!.invoke(this, true, true)
+        } else if (SkinManager.instance?.currentSkinPath != skinPath) {
+            Log.d(TAG, "  → 未注册宿主策略，回落直接换肤!")
             skinDynamic(skinPath, R.color.skin_item_color)
             PreferencesUtils.putString(this, "currentSkin", "skindemo")
-        } else {
-            Log.d(TAG, "  → 已是动态皮肤，跳过重复操作")
         }
         Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     }
@@ -63,12 +65,13 @@ class MainActivity : SkinActivity() {
         Log.d(TAG, "=== 用户点击【使用宿主默认主题色】按钮 ===")
         Log.d(TAG, "  当前 SkinManager.currentSkinPath = ${SkinManager.instance?.currentSkinPath}")
 
-        if (SkinManager.instance?.currentSkinPath != null) {
-            Log.d(TAG, "  → 非默认皮肤，执行恢复默认!")
+        if (SkinUiHost.applyTheme != null) {
+            Log.d(TAG, "  → 走 SkinUiHost.applyTheme(isDark=false)：切浅色模式 + 默认皮肤")
+            SkinUiHost.applyTheme!!.invoke(this, false, true)
+        } else if (SkinManager.instance?.currentSkinPath != null) {
+            Log.d(TAG, "  → 未注册宿主策略，回落恢复默认!")
             defaultSkin(R.color.colorPrimary)
             PreferencesUtils.putString(this, "currentSkin", "default")
-        } else {
-            Log.d(TAG, "  → 已是默认皮肤，跳过重复操作")
         }
         Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     }
@@ -112,19 +115,4 @@ class MainActivity : SkinActivity() {
         MultiLevelDialogFragment.newInstance(1).show(supportFragmentManager, "MultiLevel_1")
     }
 
-    /** 暗黑模式 → 动态皮肤 / 浅色模式 → 默认皮肤 */
-    override fun onDarkModeChanged(isDarkMode: Boolean) {
-        Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        Log.d(TAG, "onDarkModeChanged(isDarkMode=$isDarkMode)")
-        if (isDarkMode) {
-            Log.d(TAG, "  → 暗黑模式：切换到动态皮肤")
-            skinDynamic(skinPath, R.color.skin_item_color)
-            PreferencesUtils.putString(this, "currentSkin", "skindemo")
-        } else {
-            Log.d(TAG, "  → 浅色模式：恢复到默认皮肤")
-            defaultSkin(R.color.colorPrimary)
-            PreferencesUtils.putString(this, "currentSkin", "default")
-        }
-        Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    }
 }
