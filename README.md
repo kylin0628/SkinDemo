@@ -30,13 +30,17 @@ Application.onCreate
   └─ SkinUiHost.applyTheme = { ... }        // 2. 宿主注册「应用一套主题」统一策略
   └─ AppCompatDelegate.setDefaultNightMode(FOLLOW_SYSTEM)  // 3. 跟随系统深浅色
 
-Activity : SkinActivity
+Activity 接入（继承版）: SkinActivity
   ├─ onCreate → LayoutInflaterCompat.setFactory2(this)     // 拦截 XML inflate
   ├─ onCreateView(name, ...)                                // 标签名 → Skinnable* 子类
   │     └─ CustomAppCompatViewInflater.autoMatch()          //   （内置 50+ 原生控件映射）
   │     └─ registerSkinnableViews(binders)                  //   （第三方控件参数注册）
   ├─ init  → AttrsBean.saveViewResource(...)               // 记录 background/textColor/text/src 等属性资源 ID
   └─ onPostCreate → applyCurrentSkin() → skinDynamic(...)  // 首次自动换肤
+
+Activity 接入（组合版）: AppCompatActivity + SkinActivityDelegate   // 见 §2.3
+  ├─ getResources() → delegate.resources(...)               // 皮肤感知 Resources（Compose 用）
+  └─ onCreateView() → delegate.createView(...) ?: super      // 转发拦截（仅 XML 页面需要）
 
 切换主题
   └─ SkinManager.loadSkin(skinPath)
@@ -97,7 +101,11 @@ class SkinApp : Application() {
 
 初始化时可传 [SkinConfig](#38-资源类型开关-SkinConfig) 指定哪些资源类型参与换肤；不传则四类全支持。
 
-### 2.3 Activity 继承 `SkinActivity`
+### 2.3 Activity 接入：继承 or 组合
+
+主题库提供**两条等价**接入路径，按「能否换基类」选择：
+
+**方式 A —— 继承 `SkinActivity`**（默认，最省事）：
 
 ```kotlin
 class MyActivity : SkinActivity() {   // 替代 AppCompatActivity
@@ -107,6 +115,31 @@ class MyActivity : SkinActivity() {   // 替代 AppCompatActivity
     }
 }
 ```
+
+**方式 B —— 组合 `SkinActivityDelegate`**（已有 BaseActivity / 想解耦继承时）：
+
+```kotlin
+class MyActivity : AppCompatActivity(), SkinnableThemeHost {   // 不继承 SkinActivity
+    private val skin = SkinActivityDelegate(this)
+
+    override fun getResources() = skin.resources(super.getResources())          // 皮肤感知 Resources
+    override fun skinDynamic(path: String?) = skin.skinDynamic(path)            // 实现 SkinnableThemeHost
+    override fun defaultSkin() = skin.defaultSkin()
+
+    override fun onCreateView(p: View?, n: String, c: Context, a: AttributeSet) =
+        skin.createView(p, n, c, a) ?: super.onCreateView(p, n, c, a)          // 拦截 XML 控件
+
+    override fun onPostCreate(b: Bundle?) { super.onPostCreate(b); skin.onPostCreate() }
+    override fun onResume()               { super.onResume(); skin.onResume() }
+    override fun onConfigurationChanged(c: Configuration) {
+        super.onConfigurationChanged(c); skin.onConfigurationChanged(c)
+    }
+}
+```
+
+> **为什么组合版仍有样板**：`AppCompatActivity.onCreate` 已把**自己**设为 `LayoutInflater.Factory2`（`mFactorySet=true`），此后任何 `setFactory2` 都抛 `IllegalStateException`，所以拦截控件只能靠「覆写 `onCreateView` 转发给 delegate」——这一步必须继承 `AppCompatActivity`。区别只是「继承 `SkinActivity`」还是「继承 `AppCompatActivity` + 转发」，换肤逻辑本体都在库内、业务侧零重复。
+>
+> **组合版可裁剪**：纯 Compose 页（无 XML inflate）无需覆写 `onCreateView`，只转发 `getResources` + 生命周期即可（见 §3.2）。`SkinActivityDelegate` 与继承版 `SkinActivity` 都实现 `SkinnableThemeHost` 接口，主题切换入口据此识别宿主，两路可混用。
 
 ### 2.4 XML 布局照常写，属性自动换肤
 
@@ -211,11 +244,28 @@ setContent {
 }
 ```
 
-**为什么 `colorResource` / `painterResource` 能直接换肤**：`SkinActivity.getResources()` 被覆盖，非默认皮肤时返回 `SkinnableResources`（按名映射到皮肤包），Compose 系统资源方法内部都走 `LocalContext.current.resources.getXxx(id)`，故自动生效。
+**为什么 `colorResource` / `painterResource` 能直接换肤**：`SkinActivity.getResources()`（或组合版 `SkinActivityDelegate.resources(...)`）被覆盖，非默认皮肤时返回 `SkinnableResources`（按名映射到皮肤包），Compose 系统资源方法内部都走 `LocalContext.current.resources.getXxx(id)`，故自动生效。
 
 **状态保持**：`SkinTheme` 用 `staticCompositionLocalOf` 提供 `LocalSkinVersion`，只在读取点触发**局部重组**，不用 `key(skinVersion)` 整树重建——切主题后输入框文本、开关勾选、滑块值**不丢**。
 
-如需显式包装（非继承 `SkinActivity` 的纯 Compose 场景），用主题库原生 API：
+**纯 Compose 页的组合接入**（不继承 `SkinActivity`，无需 XML 的 `onCreateView` 拦截）：
+
+```kotlin
+class ComposeDemoActivity : AppCompatActivity(), SkinnableThemeHost {
+    private val skin = SkinActivityDelegate(this)
+    override fun getResources() = skin.resources(super.getResources())
+    override fun skinDynamic(path: String?) = skin.skinDynamic(path)
+    override fun defaultSkin() = skin.defaultSkin()
+    override fun onPostCreate(b: Bundle?) { super.onPostCreate(b); skin.onPostCreate() }
+    override fun onResume() { super.onResume(); skin.onResume() }
+    override fun onConfigurationChanged(c: Configuration) {
+        super.onConfigurationChanged(c); skin.onConfigurationChanged(c)
+    }
+    // 无需覆写 onCreateView —— Compose 页没有 XML inflate
+}
+```
+
+如需显式包装（不依赖 Activity 的纯 Compose 场景），用主题库原生 API：
 
 ```kotlin
 val c = skinnedColor(R.color.text_primary)          // 颜色，皮肤切换时局部重组
@@ -224,17 +274,46 @@ val d = skinnedDimension(R.dimen.gap)               // 尺寸
 val p = skinnedPainter(R.drawable.ic_skin_demo)     // 图片（绕过 painterResource 全局缓存）
 ```
 
-### 3.3 独立窗口跟随换肤（Dialog / PopupWindow）
+### 3.3 独立窗口跟随换肤（Dialog / DialogFragment / PopupWindow）
 
-Dialog / PopupWindow 拥有独立 Window，不在 `SkinActivity.applyViews(decorView)` 覆盖范围内。显示后调一次 `registerWindow`，此后每次切肤自动遍历：
+Dialog / DialogFragment / PopupWindow 拥有独立 Window，不在 `SkinActivity.applyViews(decorView)` 覆盖范围内。主题库提供**继承基类**与**零继承入口**两条路，均已内置「Factory2 拦截 + 首次刷肤 + registerWindow 注册」，切肤自动跟随。
+
+**方式 A —— 继承基类**（推荐，最省事）：
 
 ```kotlin
-// Dialog 内
-setContentView(root)
-SkinManager.instance?.registerWindow(root)   // 关键：注册根视图
+// ① 原生 Dialog：继承 SkinDialog，实现 getLayoutResId + onContentViewCreated
+class MyDialog(context: Context) : SkinDialog(context) {
+    override fun getLayoutResId() = R.layout.dialog_my
+    override fun onContentViewCreated(root: View) {
+        root.findViewById<View>(R.id.btn_close).setOnClickListener { dismiss() }
+    }
+}
+MyDialog(context).showWithSkin()     // = show() + 换肤 inflate + setContentView
+
+// ② DialogFragment：继承 SkinDialogFragment，实现 getLayoutResId
+class MyDialogFragment : SkinDialogFragment() {
+    override fun getLayoutResId() = R.layout.dialog_my
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)   // 先 super 刷肤
+        // 业务逻辑……
+    }
+}
+
+// ③ PopupWindow：继承 SkinPopupWindow
+val popup = SkinPopupWindow(context).apply { /* width/height/background… */ }
+val content = popup.setSkinnableContentView(R.layout.popup_my)   // 换肤 inflate + 注册
+popup.showAsDropDown(anchor, 0, 16)
 ```
 
-PopupWindow 同理注册其 `contentView`。注册用弱引用，视图回收自动失效，无需反注册。
+**方式 B —— 零继承入口 `SkinnableViewInflater`**（已有 Dialog/PopupWindow 基类时）：
+
+```kotlin
+// 任意 Context（原生 Dialog / PopupWindow / Fragment / 自定义容器）一行调用即换肤
+val root = SkinnableViewInflater.inflate(context, R.layout.popup_my, null, registerWindow = true)
+// 等价：克隆 inflater 挂 Factory2 + 换肤 inflate + applySkin + registerWindow
+```
+
+> 弹框内布局照常写 `@color` / `@string` / `@dimen` / `@drawable` 属性，`Skinnable*` 控件自动替换并按名换肤，与 Activity 页面一致。注册用弱引用，视图回收自动失效，无需反注册。
 
 ### 3.4 全局主题切换器（可选 UI）
 
@@ -259,10 +338,10 @@ SkinUiHost.installThemeSwitcher?.invoke(this)
 
 ### 3.5 跟随系统深浅色 + 统一「应用一套主题」
 
-核心钩子是 `SkinUiHost.applyTheme(activity, isDark, forceNightMode)`，把「app 内切换」与「跟随系统变化」收敛到**同一条实现**：
+核心钩子是 `SkinUiHost.applyTheme(host, isDark, forceNightMode)`，把「app 内切换」与「跟随系统变化」收敛到**同一条实现**。`host` 参数类型为 [SkinnableThemeHost](#skinnablethemehost)（继承版 `SkinActivity` 与组合版 `SkinActivityDelegate` 都实现），故两种接入方式都能复用同一策略：
 
 ```kotlin
-SkinUiHost.applyTheme = { activity, isDark, forceNightMode ->
+SkinUiHost.applyTheme = { host, isDark, forceNightMode ->
     // 1) 同步夜间模式（BYD 等按 uiMode 取色的控件才跟随）
     AppCompatDelegate.setDefaultNightMode(
         when {
@@ -272,8 +351,8 @@ SkinUiHost.applyTheme = { activity, isDark, forceNightMode ->
         }
     )
     // 2) 换肤：深色→动态皮肤，浅色→默认皮肤
-    if (isDark) activity.skinDynamic(skinPath)
-    else        activity.defaultSkin()
+    if (isDark) host.skinDynamic(skinPath)
+    else        host.defaultSkin()
 }
 ```
 
@@ -281,7 +360,7 @@ SkinUiHost.applyTheme = { activity, isDark, forceNightMode ->
 
 | 入口 | 参数 | 语义 |
 |---|---|---|
-| `SkinActivity.onDarkModeChanged(isDark)` | `forceNightMode=false` | 跟随系统：重置 `FOLLOW_SYSTEM`，仅换肤，不污染全局默认 |
+| `SkinActivity.onDarkModeChanged(isDark)`（或 delegate 的 `onConfigurationChanged`） | `forceNightMode=false` | 跟随系统：重置 `FOLLOW_SYSTEM`，仅换肤，不污染全局默认 |
 | 切肤入口（切换器/按钮） | `forceNightMode=true` | 用户主动：强制 `YES/NO`，让 uiMode 立即随主题切 |
 
 **关键坑**：跟随系统时**不能**强制 `YES/NO`，否则会污染全局默认夜间模式，导致无 `configChanges="uiMode"` 的页面（如比亚迪演示页）重建时读到被强制的旧值、卡在错误深浅色。
@@ -431,6 +510,8 @@ framework 的 `LayoutInflater.setFactory2` **只能设一次**（第二次抛 `I
 3. 同类控件「先注册者优先」，后来者对该类控件静默失效。
 4. 第三方 View 想参与换肤：`implements ViewsMatch` + `skinnableView()` 内读 `SkinManager` 单例。
 
+**独立窗口的拦截复用体**：`SkinnableInflaterFactory` 把「标签名 → `Skinnable*` 控件」的 `CustomAppCompatViewInflater` 拦截逻辑抽成可复用组件，自身实现 `LayoutInflater.Factory2`。`SkinDialog` / `SkinDialogFragment` / `SkinPopupWindow` 各持一个实例并委托 `createView`；`SkinnableViewInflater` 则每次 `inflate` 新建一个实例直接 `setFactory2` 到克隆的 inflater。这些独立窗口的 inflater 是 `cloneInContext` 新建、`mFactorySet` 未占用，可自由 `setFactory2`，无需走 `LayoutFactoryRegistry`。
+
 ### 4.6 皮肤包构建（自动同步）
 
 `skinpackage` 是一个独立 `com.android.application` 模块，产出皮肤 APK。换肤库 `build.gradle` 内置 `syncSkinAsset` 任务：构建皮肤包 → 自动拷贝改名为 `assets/skin/skindemo.skin`，并挂到库 `preBuild` 前，**任何一次 app 构建都会自动同步最新皮肤包**，无需手工拷贝：
@@ -494,7 +575,39 @@ adb logcat | grep "皮肤包缺少同名资源"                    # 「某资�
 
 ### SkinnableResources
 
-`SkinActivity.getResources()` 在非默认皮肤时返回它，重写 `getColor` / `getColorStateList` / `getDrawable` / `getString` / `getText` / `getDimension` / `getDimensionPixelSize` / `getValue` / `getXml`，使 Compose 系统资源 API 自动按皮肤包取值。
+`SkinActivity.getResources()`（或组合版 `SkinActivityDelegate.resources(...)`）在非默认皮肤时返回它，重写 `getColor` / `getColorStateList` / `getDrawable` / `getString` / `getText` / `getDimension` / `getDimensionPixelSize` / `getValue` / `getXml`，使 Compose 系统资源 API 自动按皮肤包取值。
+
+### SkinnableThemeHost（接口）
+
+抽象「按皮肤路径切主题」的最小能力，`SkinActivity` 与 `SkinActivityDelegate` 都实现，供 `SkinUiHost.applyTheme` 等宿主钩子依赖——避免钩子签名绑定具体实现类。
+
+| 成员 | 说明 |
+|---|---|
+| `skinDynamic(path?)` | 切到皮肤包路径（`null` = 默认） |
+| `defaultSkin()` | 切回默认皮肤 |
+
+### SkinActivityDelegate（组合接入）
+
+继承 `SkinActivity` 的等价物，供已有 BaseActivity 时转发使用（见 §2.3）。
+
+| 成员 | 说明 |
+|---|---|
+| `resources(hostResources)` | 皮肤感知 `Resources`，宿主 `getResources()` 返回它 |
+| `createView(parent, name, context, attrs)` | 换肤控件拦截，宿主 `onCreateView` 转发（返回 null 交 `super`） |
+| `onPostCreate()` / `onResume()` / `onConfigurationChanged(c)` | 生命周期转发，自动换肤 / 深浅色跟随 |
+| `skinDynamic(path?)` / `defaultSkin()` | 完整切肤链路（状态栏/导航栏/ActionBar + 遍历 + 弹框） |
+| `applyCurrentSkin()` / `applyViews(view)` | 按当前皮肤刷新 / 递归换肤 |
+| `registerSkinnableViewFactories(list)` / `registerSkinnableViews(binders)` | 第三方控件接入（同继承版） |
+
+### 独立窗口基类与零继承入口
+
+| 类型 | 说明 |
+|---|---|
+| `SkinDialog`（`getLayoutResId()` + `onContentViewCreated(root)`） | 换肤原生 Dialog；`showWithSkin()` = show + 换肤 inflate + 注册 |
+| `SkinDialogFragment`（`getLayoutResId()`） | 换肤 DialogFragment；`onViewCreated` 先 `super` 刷肤 |
+| `SkinPopupWindow`（`setSkinnableContentView(layoutResId)`） | 换肤 PopupWindow；返回根视图供绑定业务 |
+| `SkinnableViewInflater.inflate(ctx, layoutRes, root?, attachToRoot?, registerWindow?)` | 零继承换肤 inflate 入口（任意 Context） |
+| `SkinnableInflaterFactory` | 实现 `LayoutInflater.Factory2` 的拦截复用体，供上列组件共用 |
 
 ### PreferencesUtils
 
