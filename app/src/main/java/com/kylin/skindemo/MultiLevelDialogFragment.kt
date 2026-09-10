@@ -1,20 +1,13 @@
 package com.kylin.skindemo
 
-import android.content.Context
 import android.os.Bundle
-import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.FrameLayout
 import android.widget.ListView
 import android.widget.TextView
-import androidx.core.view.LayoutInflaterCompat
-import androidx.fragment.app.DialogFragment
-import com.kylin.skinlibrary.SkinManager
-import com.kylin.skinlibrary.core.CustomAppCompatViewInflater
 import com.netease.skin.library.base.SkinActivity
+import com.netease.skin.library.base.SkinDialogFragment
 
 /**
  * 多层弹框换肤案例。
@@ -26,8 +19,10 @@ import com.netease.skin.library.base.SkinActivity
  *
  * 用于验证 [SkinActivity.applyViewsToDialogs] 的多层递归遍历 + [SkinManager.registerWindow]
  * 独立窗口注册，切肤时所有层级的弹框与内嵌列表全部跟随换肤。
+ *
+ * 换肤样板已下沉到 [SkinDialogFragment] 基类，此处只保留弹框业务。
  */
-class MultiLevelDialogFragment : DialogFragment(), LayoutInflater.Factory2 {
+class MultiLevelDialogFragment : SkinDialogFragment() {
 
     companion object {
         private const val ARG_LEVEL = "level"
@@ -35,8 +30,6 @@ class MultiLevelDialogFragment : DialogFragment(), LayoutInflater.Factory2 {
             arguments = Bundle().apply { putInt(ARG_LEVEL, level) }
         }
     }
-
-    private var viewInflater: CustomAppCompatViewInflater? = null
 
     private val level: Int
         get() = arguments?.getInt(ARG_LEVEL, 1) ?: 1
@@ -46,20 +39,10 @@ class MultiLevelDialogFragment : DialogFragment(), LayoutInflater.Factory2 {
         setStyle(STYLE_NORMAL, R.style.AppTheme)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val dialogInflater = inflater.cloneInContext(requireContext())
-        LayoutInflaterCompat.setFactory2(dialogInflater, this)
-        return dialogInflater.inflate(R.layout.dialog_multi_level, container, false)
-    }
+    override fun getLayoutResId(): Int = R.layout.dialog_multi_level
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val activity = requireActivity()
-        if (activity is SkinActivity) activity.applyViews(view)
         // 弹框内注入悬浮切肤入口（独立 Window 会遮挡 Activity 的悬浮按钮）
         (dialog?.window?.decorView as? FrameLayout)?.let {
             ThemeSwitcher.installFabInto(it, requireContext())
@@ -96,6 +79,7 @@ class MultiLevelDialogFragment : DialogFragment(), LayoutInflater.Factory2 {
 
         // 切肤按钮（演示弹框内直接切肤）
         val skinPath = "${requireContext().getExternalFilesDir("skindemo")!!.absolutePath}/skindemo.skin"
+        val activity = requireActivity()
         view.findViewById<View>(R.id.btn_multi_dynamic)?.setOnClickListener {
             if (activity is SkinActivity) {
                 activity.skinDynamic(skinPath)
@@ -110,17 +94,4 @@ class MultiLevelDialogFragment : DialogFragment(), LayoutInflater.Factory2 {
         }
         view.findViewById<View>(R.id.btn_multi_close)?.setOnClickListener { dismiss() }
     }
-
-    // =================== Factory2 ===================
-
-    override fun onCreateView(parent: View?, name: String, context: Context, attrs: AttributeSet): View? {
-        if (name == "fragment" || name == "androidx.fragment.app.FragmentContainerView") return null
-        if (viewInflater == null) viewInflater = CustomAppCompatViewInflater(context)
-        viewInflater!!.setName(name)
-        viewInflater!!.setAttrs(attrs)
-        return viewInflater!!.autoMatch()
-    }
-
-    override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? =
-        onCreateView(null, name, context, attrs)
 }

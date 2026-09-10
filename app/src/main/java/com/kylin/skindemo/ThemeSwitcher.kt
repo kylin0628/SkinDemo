@@ -1,24 +1,19 @@
 package com.kylin.skindemo
 
 import android.app.Activity
-import android.app.Dialog
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.res.ColorStateList
-import android.util.AttributeSet
 import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
 import android.widget.FrameLayout
 import android.widget.PopupWindow
-import androidx.core.view.LayoutInflaterCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.kylin.skinlibrary.SkinManager
 import com.kylin.skinlibrary.SkinUiHost
-import com.kylin.skinlibrary.core.CustomAppCompatViewInflater
 import com.netease.skin.library.base.SkinActivity
+import com.netease.skin.library.base.SkinDialog
 
 /**
  * 全局主题切换器。
@@ -123,32 +118,14 @@ object ThemeSwitcher {
  * 拥有独立 Window，自行设置 Factory2 创建 Skinnable* 控件，并注册到 [SkinManager]，
  * 使切肤时弹框自身也能跟随刷新。
  */
-class ThemeSwitcherDialog(context: Context) : Dialog(context), LayoutInflater.Factory2 {
-
-    private var viewInflater: CustomAppCompatViewInflater? = null
+class ThemeSwitcherDialog(context: Context) : SkinDialog(context) {
 
     private val activity: Activity?
         get() = ThemeSwitcher.findActivity(context)
 
-    init {
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
-    }
+    override fun getLayoutResId(): Int = R.layout.dialog_theme_switcher
 
-    fun showWithSkin() {
-        show()
-        buildContentView()
-    }
-
-    private fun buildContentView() {
-        val inflater = LayoutInflater.from(context)
-        val dialogInflater = inflater.cloneInContext(context)
-        LayoutInflaterCompat.setFactory2(dialogInflater, this)
-        val root = dialogInflater.inflate(R.layout.dialog_theme_switcher, null)
-        setContentView(root)
-
-        // 立即按当前皮肤刷一遍 + 注册独立窗口，切肤时自动跟随
-        SkinManager.instance?.applySkin(root)
-        SkinManager.instance?.registerWindow(root)
+    override fun onContentViewCreated(root: View) {
         updateStatus(root)
 
         // 弹框内也注入悬浮切肤入口（本弹框是独立 Window，Activity 的悬浮按钮被遮挡）
@@ -195,17 +172,4 @@ class ThemeSwitcherDialog(context: Context) : Dialog(context), LayoutInflater.Fa
         root.findViewById<android.widget.TextView>(R.id.tv_theme_switcher_status)?.text =
             if (isDefault) "当前：默认皮肤" else "当前：动态皮肤 (skindemo.skin)"
     }
-
-    // =================== Factory2 ===================
-
-    override fun onCreateView(parent: View?, name: String, context: Context, attrs: AttributeSet): View? {
-        if (name == "fragment" || name == "androidx.fragment.app.FragmentContainerView") return null
-        if (viewInflater == null) viewInflater = CustomAppCompatViewInflater(context)
-        viewInflater!!.setName(name)
-        viewInflater!!.setAttrs(attrs)
-        return viewInflater!!.autoMatch()
-    }
-
-    override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? =
-        onCreateView(null, name, context, attrs)
 }

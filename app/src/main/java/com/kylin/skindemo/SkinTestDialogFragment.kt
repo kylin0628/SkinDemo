@@ -1,59 +1,37 @@
 package com.kylin.skindemo
 
-import android.content.Context
 import android.os.Bundle
-import android.util.AttributeSet
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.core.view.LayoutInflaterCompat
-import androidx.fragment.app.DialogFragment
 import com.kylin.skinlibrary.SkinManager
-import com.kylin.skinlibrary.core.CustomAppCompatViewInflater
-import com.kylin.skinlibrary.utils.SystemViewName
 import com.netease.skin.library.base.SkinActivity
+import com.netease.skin.library.base.SkinDialogFragment
 import java.io.File
 
 /**
  * 换肤测试 DialogFragment
  *
- * Dialog 拥有独立的 Window，LayoutInflater 不经过 SkinActivity.Factory2，
- * 因此自行设置 Factory2 以确保 Skinnable* 控件被正确创建。
+ * 换肤样板（Factory2 拦截 + 首次刷肤）已下沉到 [SkinDialogFragment] 基类，
+ * 此处只保留弹框业务：注入悬浮切肤入口、刷新状态文案、绑定切肤/关闭按钮。
  */
-class SkinTestDialogFragment : DialogFragment(), LayoutInflater.Factory2 {
+class SkinTestDialogFragment : SkinDialogFragment() {
 
     companion object {
         private const val TAG = "[Skin] SkinTestDialog"
         fun newInstance() = SkinTestDialogFragment()
     }
 
-    private var viewInflater: CustomAppCompatViewInflater? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.AppTheme)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        Log.d(TAG, "onCreateView() — 设置 Dialog 的 Factory2")
-        val dialogInflater = inflater.cloneInContext(requireContext())
-        LayoutInflaterCompat.setFactory2(dialogInflater, this)
-        return dialogInflater.inflate(R.layout.dialog_test_skin, container, false)
-    }
+    override fun getLayoutResId(): Int = R.layout.dialog_test_skin
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d(TAG, "onViewCreated() — 应用当前皮肤到 Dialog 视图树")
-        val activity = requireActivity()
-        if (activity is SkinActivity) {
-            activity.applyViews(view)
-        }
         // 弹框内注入悬浮切肤入口（独立 Window 会遮挡 Activity 的悬浮按钮）
         (dialog?.window?.decorView as? FrameLayout)?.let {
             ThemeSwitcher.installFabInto(it, requireContext())
@@ -101,24 +79,4 @@ class SkinTestDialogFragment : DialogFragment(), LayoutInflater.Factory2 {
             }
         }
     }
-
-    // =================== Factory2 ===================
-
-    override fun onCreateView(parent: View?, name: String, context: Context, attrs: AttributeSet): View? {
-        if (!ignoreView(name)) {
-            if (viewInflater == null) viewInflater = CustomAppCompatViewInflater(context)
-            viewInflater?.setName(name)
-            viewInflater?.setAttrs(attrs)
-            val view = viewInflater?.autoMatch()
-            Log.d(TAG, "onCreateView(Factory) → $name → ${view?.javaClass?.simpleName ?: "null"}")
-            return view
-        }
-        return null
-    }
-
-    override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? =
-        onCreateView(null, name, context, attrs)
-
-    private fun ignoreView(name: String): Boolean =
-        name == SystemViewName.FRAGMENT_CONTAINER_VIEW || name == SystemViewName.FRAGMENT
 }
