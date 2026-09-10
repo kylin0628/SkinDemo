@@ -12,9 +12,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="🎨 换肤测试 Dialog"
+        android:text="@string/skin_test_dialog_title"
         android:textColor="@color/colorAccent"
-        android:textSize="22sp"
+        android:textSize="@dimen/text_size_22"
         android:textStyle="bold"
         android:padding="12dp"
         android:background="@color/colorPrimary" />
@@ -25,9 +25,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="此 Dialog 中所有控件均使用 Skinnable* 控件，验证 Dialog 内外换肤一致性。"
+        android:text="@string/skin_test_dialog_desc"
         android:textColor="@color/colorAccent"
-        android:textSize="14sp"
+        android:textSize="@dimen/text_size_14"
         android:padding="8dp"
         android:background="@color/colorPrimaryDark" />
 
@@ -40,7 +40,7 @@
         android:gravity="center"
         android:text="当前：默认皮肤"
         android:textColor="@color/skin_item_color"
-        android:textSize="16sp"
+        android:textSize="@dimen/text_size_16"
         android:padding="12dp"
         android:background="@color/colorAccent" />
 
@@ -59,9 +59,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:text="关闭"
+            android:text="@string/skin_btn_close"
             android:textColor="@color/skin_item_color"
-            android:textSize="16sp"
+            android:textSize="@dimen/text_size_16"
             android:background="@color/colorAccent" />
 
         <!-- 切换默认皮肤按钮 -->
@@ -71,9 +71,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:text="默认主题"
+            android:text="@string/skin_btn_default_theme"
             android:textColor="@color/skin_item_color"
-            android:textSize="16sp"
+            android:textSize="@dimen/text_size_16"
             android:background="@color/colorAccent" />
 
     </LinearLayout>
@@ -84,9 +84,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="切换动态主题"
+        android:text="@string/skin_btn_switch_dynamic_theme"
         android:textColor="@color/skin_item_color"
-        android:textSize="16sp"
+        android:textSize="@dimen/text_size_16"
         android:background="@color/colorAccent" />
 
 </LinearLayout>

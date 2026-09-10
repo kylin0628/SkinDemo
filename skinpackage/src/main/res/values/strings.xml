@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- string 换肤演示：与宿主同名 string、内容不同，切肤后 getString 按名映射到皮肤包，
+         使 Compose 页的文案与颜色/图标/尺寸同步切换，验证四类资源同时换肤。 -->
+
+    <string name="compose_demo_title">Compose 组件换肤案例 · 动态皮肤</string>
+    <string name="compose_demo_desc">当前为动态皮肤：颜色 / 图标 / 尺寸 / 文案四类资源均已按名映射到皮肤包，切肤后同步变化。</string>
+    <string name="compose_icon">图标（painterResource 已切到橙色皮肤）</string>
+    <string name="compose_card_title">卡片标题 · 皮肤包</string>
+    <string name="compose_card_body">这是皮肤包侧正文：颜色来自 text_hint，切肤时文案与颜色同步切换。</string>
+    <string name="compose_button">Compose 按钮 · 皮肤包</string>
+    <string name="compose_switch">Compose 开关 · 皮肤包</string>
+    <string name="compose_checkbox">Compose 复选框 · 皮肤包</string>
+    <string name="compose_slider">Compose 滑块 · 皮肤包</string>
+    <string name="compose_textfield">Compose 输入框 · 皮肤包</string>
+    <string name="compose_accent">强调色块（main_style 皮肤橙）</string>
+    <string name="compose_radio">Compose 单选 · 皮肤包</string>
+
+    <!-- 原生页四类资源换肤演示：宿主同名覆盖 -->
+    <string name="skin_demo_string">动态皮肤 · string 文字资源（已切换）</string>
+    <string name="skin_demo_all_hint">皮肤包已生效：图标（橙）/ 文案 / 间距（8→16dp）/ 文字颜色同步变化</string>
+
+    <!-- 应用名同名覆盖：让 string 资源覆盖 100% 完整（与宿主 app_name 同名） -->
+    <string name="app_name">SkinDemo · 动态皮肤</string>
+
+    <!-- ============ 原生页静态文案（同名 string 覆盖，切肤后文案变化） ============ -->
+    <string name="skin_title_logo">皮肤 · 品牌 Logo（同名 drawable 已切橙）</string>
+    <string name="skin_title_theme_switch">皮肤 · ① 主题切换</string>
+    <string name="skin_btn_dynamic_theme">动态主题 · 皮肤</string>
+    <string name="skin_btn_default_theme">默认主题 · 皮肤</string>
+    <string name="skin_title_basic">皮肤 · ② 基础组件（背景 + 文字颜色）</string>
+    <string name="skin_textview_sample">皮肤 TextView 示例文本（背景 + 文字颜色）</string>
+    <string name="skin_button_sample">皮肤 Button 按钮（背景 + 文字）</string>
+    <string name="skin_title_image">皮肤 · 图片组件（src 图标 + 背景）</string>
+    <string name="skin_imageview_sample">皮肤 ImageView（同名 drawable 已切橙）</string>
+    <string name="skin_title_switch">皮肤 · 选择/开关组件（文字 + 图标着色）</string>
+    <string name="skin_checkbox_sample">皮肤 CheckBox 复选框</string>
+    <string name="skin_radio_a">皮肤 Radio A</string>
+    <string name="skin_radio_b">皮肤 Radio B</string>
+    <string name="skin_switch_sample">皮肤 Switch 开关</string>
+    <string name="skin_checked_textview_sample">皮肤 CheckedTextView 选中项</string>
+    <string name="skin_toggle_off">皮肤关</string>
+    <string name="skin_toggle_on">皮肤开</string>
+    <string name="skin_title_progress">皮肤 · 进度组件（进度/轨道/滑块/星星着色）</string>
+    <string name="skin_title_input">皮肤 · 输入/时间组件（背景 + 文字 + 提示色）</string>
+    <string name="skin_edittext_hint">皮肤 EditText 输入框</string>
+    <string name="skin_autocomplete_hint">皮肤 AutoCompleteTextView 自动补全</string>
+    <string name="skin_multiautocomplete_hint">皮肤 MultiAutoCompleteTextView 多项补全</string>
+    <string name="skin_title_material">皮肤 · Material 组件（卡片/标签/输入框/下拉）</string>
+    <string name="skin_card_sample">皮肤 MaterialCardView 卡片</string>
+    <string name="skin_chip_sample">皮肤 Chip 标签</string>
+    <string name="skin_tab_1">皮肤标签 1</string>
+    <string name="skin_tab_2">皮肤标签 2</string>
+    <string name="skin_tab_3">皮肤标签 3</string>
+    <string name="skin_textinputlayout_hint">皮肤 TextInputLayout 输入框</string>
+    <string name="skin_title_dialog_entry">皮肤 · ③ 弹框入口</string>
+    <string name="skin_btn_compose_demo">Compose 组件案例页 · 皮肤</string>
+    <string name="skin_btn_byd_demo">比亚迪官方控件演示页 · 皮肤</string>
+    <string name="skin_btn_popup">皮肤弹 PopupWindow</string>
+    <string name="skin_btn_dialog_fragment">皮肤弹 DialogFragment</string>
+    <string name="skin_btn_native_dialog">皮肤弹原生 Dialog</string>
+    <string name="skin_btn_multi_level">皮肤弹多层弹框（列表）</string>
+    <string name="skin_multi_level_desc">皮肤 · 内嵌列表 + 多层弹框，切肤时全部跟随。</string>
+    <string name="skin_btn_next_level">皮肤下一层弹框</string>
+    <string name="skin_btn_native_dialog_short">皮肤弹原生Dialog</string>
+    <string name="skin_btn_close">皮肤关闭</string>
+    <string name="skin_native_dialog_title">皮肤 · 原生 Dialog 换肤</string>
+    <string name="skin_native_dialog_desc">皮肤 · 原生 Dialog 拥有独立 Window，切肤时自动跟随。</string>
+    <string name="skin_test_dialog_title">皮肤 🎨 换肤测试 Dialog</string>
+    <string name="skin_test_dialog_desc">皮肤 · 此 Dialog 中所有控件均使用 Skinnable* 控件，验证 Dialog 内外换肤一致性。</string>
+    <string name="skin_btn_switch_dynamic_theme">皮肤切换动态主题</string>
+    <string name="skin_theme_switcher_title">皮肤 🎨 全局主题切换</string>
+    <string name="skin_popup_title">皮肤 PopupWindow 换肤</string>
+    <string name="skin_popup_desc">皮肤 · 这是一个 PopupWindow，切肤时跟随变化。</string>
+</resources>

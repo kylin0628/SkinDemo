@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.View
 import com.kylin.skinlibrary.SkinManager
 import com.kylin.skinlibrary.SkinUiHost
-import com.kylin.skinlibrary.utils.PreferencesUtils
 import com.netease.skin.library.base.SkinActivity
 import java.io.File
 
@@ -54,7 +53,7 @@ class MainActivity : SkinActivity() {
         } else if (SkinManager.instance?.currentSkinPath != skinPath) {
             Log.d(TAG, "  → 未注册宿主策略，回落直接换肤!")
             skinDynamic(skinPath)
-            PreferencesUtils.putString(this, "currentSkin", "skindemo")
+            SkinApp.persistCurrentSkin(this, "skindemo")
         }
         Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     }
@@ -71,7 +70,7 @@ class MainActivity : SkinActivity() {
         } else if (SkinManager.instance?.currentSkinPath != null) {
             Log.d(TAG, "  → 未注册宿主策略，回落恢复默认!")
             defaultSkin()
-            PreferencesUtils.putString(this, "currentSkin", "default")
+            SkinApp.persistCurrentSkin(this, "default")
         }
         Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     }

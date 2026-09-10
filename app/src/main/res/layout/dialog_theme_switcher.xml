@@ -11,9 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="🎨 全局主题切换"
+        android:text="@string/skin_theme_switcher_title"
         android:textColor="@color/text_primary"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_18"
         android:textStyle="bold" />
 
     <TextView
@@ -24,7 +24,7 @@
         android:gravity="center"
         android:text="当前：默认皮肤"
         android:textColor="@color/text_secondary"
-        android:textSize="13sp" />
+        android:textSize="@dimen/text_size_13" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -39,9 +39,9 @@
             android:layout_weight="1"
             android:layout_marginEnd="6dp"
             android:background="@color/colorAccent"
-            android:text="默认主题"
+            android:text="@string/skin_btn_default_theme"
             android:textColor="@color/text_primary"
-            android:textSize="14sp" />
+            android:textSize="@dimen/text_size_14" />
 
         <Button
             android:id="@+id/btn_theme_dynamic"
@@ -50,9 +50,9 @@
             android:layout_weight="1"
             android:layout_marginStart="6dp"
             android:background="@color/main_style"
-            android:text="动态主题"
+            android:text="@string/skin_btn_dynamic_theme"
             android:textColor="@color/text_primary"
-            android:textSize="14sp" />
+            android:textSize="@dimen/text_size_14" />
     </LinearLayout>
 
 </LinearLayout>

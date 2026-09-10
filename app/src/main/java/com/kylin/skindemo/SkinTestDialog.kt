@@ -49,13 +49,13 @@ class SkinTestDialog(context: Context) : Dialog(context), LayoutInflater.Factory
             val activity = ThemeSwitcher.findSkinActivity(context) ?: return@setOnClickListener
             val skinPath = "${activity.getExternalFilesDir("skindemo")!!.absolutePath}/skindemo.skin"
             activity.skinDynamic(skinPath)
-            com.kylin.skinlibrary.utils.PreferencesUtils.putString(activity, "currentSkin", "skindemo")
+            SkinApp.persistCurrentSkin(activity, "skindemo")
             activity.applyViews(root)
         }
         root.findViewById<View>(R.id.btn_dialog_default)?.setOnClickListener {
             val activity = ThemeSwitcher.findSkinActivity(context) ?: return@setOnClickListener
             activity.defaultSkin()
-            com.kylin.skinlibrary.utils.PreferencesUtils.putString(activity, "currentSkin", "default")
+            SkinApp.persistCurrentSkin(activity, "default")
             activity.applyViews(root)
         }
     }

@@ -65,6 +65,13 @@ open class SkinnableTextInputLayout @JvmOverloads constructor(
                 }
             )
         }
+
+        // hint 文案：仅 @string 引用换肤，字面量 getResourceId=-1 跳过
+        val hintTextKey = R.styleable.SkinnableTextInputLayout[R.styleable.SkinnableTextInputLayout_android_hint]
+        val hintTextResourceId = attrsBean.getViewResource(hintTextKey)
+        if (hintTextResourceId > 0) {
+            hint = manager.getString(hintTextResourceId)
+        }
     }
 
     override fun onAttachedToWindow() {

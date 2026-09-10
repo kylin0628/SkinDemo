@@ -2,4 +2,13 @@
 <resources>
     <!-- Compose 尺寸换肤示例：皮肤包同名覆盖（8dp ↔ 16dp） -->
     <dimen name="skin_demo_gap">8dp</dimen>
+
+    <!-- 原生页 textSize 换肤：皮肤包同名覆盖，字号随主题变化 -->
+    <dimen name="text_size_13">13sp</dimen>
+    <dimen name="text_size_14">14sp</dimen>
+    <dimen name="text_size_15">15sp</dimen>
+    <dimen name="text_size_16">16sp</dimen>
+    <dimen name="text_size_18">18sp</dimen>
+    <dimen name="text_size_20">20sp</dimen>
+    <dimen name="text_size_22">22sp</dimen>
 </resources>

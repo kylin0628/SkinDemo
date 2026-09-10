@@ -12,9 +12,10 @@ import com.netease.skin.library.core.ViewsMatch
 import com.kylin.skinlibrary.model.AttrsBean
 
 /**
- * 换肤版 View。
- * 首页搜索框 view_main_search 是普通 <View>（背景 bg_search_view），框架默认不匹配普通 View，
- * 需单独匹配才能换搜索框背景色。
+ * 换肤版普通 [View]（仅换 `android:background`）。
+ *
+ * 对应 XML 里的 `<View>` 标签：框架默认不匹配普通 View，若某纯占位 View 需要换背景色，
+ * 需在布局里用它（经 [com.kylin.skinlibrary.core.CustomAppCompatViewInflater] 映射到本类）。
  */
 open class SkinnableView @JvmOverloads constructor(
     context: Context,

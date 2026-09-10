@@ -9,4 +9,4 @@
     android:padding="14dp"
     android:text="列表项"
     android:textColor="@color/text_primary"
-    android:textSize="15sp" />
+    android:textSize="@dimen/text_size_15" />

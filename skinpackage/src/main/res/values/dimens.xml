@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Compose 尺寸换肤示例：皮肤包同名覆盖（宿主 8dp → 皮肤 16dp） -->
-    <dimen name="skin_demo_gap">16dp</dimen>
+    <dimen name="skin_demo_gap">20dp</dimen>
+
+    <!-- 原生页 textSize 换肤：同名覆盖，字号整体 +1sp 区分默认 -->
+    <dimen name="text_size_13">16sp</dimen>
+    <dimen name="text_size_14">17sp</dimen>
+    <dimen name="text_size_15">18sp</dimen>
+    <dimen name="text_size_16">19sp</dimen>
+    <dimen name="text_size_18">21sp</dimen>
+    <dimen name="text_size_20">24sp</dimen>
+    <dimen name="text_size_22">26sp</dimen>
 </resources>

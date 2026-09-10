@@ -68,6 +68,10 @@ open class SkinnableToggleButton @JvmOverloads constructor(
                 setTextColor(color)
             }
         }
+        // text + textSize（dimen）：仅 @string/@dimen 引用换肤，字面量 getResourceId=-1 跳过
+        val textKey = R.styleable.SkinnableToggleButton[R.styleable.SkinnableToggleButton_android_text]
+        val textSizeKey = R.styleable.SkinnableToggleButton[R.styleable.SkinnableToggleButton_android_textSize]
+        manager.applyTextSkin(this, attrsBean.getViewResource(textKey), attrsBean.getViewResource(textSizeKey))
     }
 
     override fun onAttachedToWindow() {

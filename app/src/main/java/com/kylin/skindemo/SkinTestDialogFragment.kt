@@ -12,7 +12,6 @@ import androidx.core.view.LayoutInflaterCompat
 import androidx.fragment.app.DialogFragment
 import com.kylin.skinlibrary.SkinManager
 import com.kylin.skinlibrary.core.CustomAppCompatViewInflater
-import com.kylin.skinlibrary.utils.PreferencesUtils
 import com.kylin.skinlibrary.utils.SystemViewName
 import com.netease.skin.library.base.SkinActivity
 import java.io.File
@@ -85,7 +84,7 @@ class SkinTestDialogFragment : DialogFragment(), LayoutInflater.Factory2 {
             val activity = requireActivity()
             if (activity is SkinActivity) {
                 activity.defaultSkin()
-                PreferencesUtils.putString(requireContext(), "currentSkin", "default")
+                SkinApp.persistCurrentSkin(requireContext(), "default")
                 activity.applyViews(root)
                 updateSkinStatusLabel(root)
             }
@@ -96,7 +95,7 @@ class SkinTestDialogFragment : DialogFragment(), LayoutInflater.Factory2 {
             val activity = requireActivity()
             if (activity is SkinActivity) {
                 activity.skinDynamic(skinPath)
-                PreferencesUtils.putString(requireContext(), "currentSkin", "skindemo")
+                SkinApp.persistCurrentSkin(requireContext(), "skindemo")
                 activity.applyViews(root)
                 updateSkinStatusLabel(root)
             }

@@ -5,10 +5,12 @@ import android.content.pm.PackageManager
 import android.content.res.AssetManager
 import android.content.res.ColorStateList
 import android.content.res.Resources
-import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.util.SparseArray
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.kylin.skinlibrary.model.SkinCache
 import com.kylin.skinlibrary.utils.SkinLog
@@ -21,7 +23,10 @@ import java.util.concurrent.CopyOnWriteArrayList
  * 皮肤管理器
  * 加载应用资源（app内置：res/xxx） or 存储资源（下载皮肤包：skindemo.skin）
  */
-class SkinManager private constructor(private val application: Application) {
+class SkinManager private constructor(
+    private val application: Application,
+    private val config: SkinConfig = SkinConfig(),
+) {
     private val appResources: Resources = application.resources
     private var skinResources: Resources? = null
     private var skinPackageName: String? = ""
@@ -108,15 +113,25 @@ class SkinManager private constructor(private val application: Application) {
         private const val TAG = "SkinManager"
         private const val ADD_ASSET_PATH = "addAssetPath"
 
+        // 应用 APK（含皮肤包）资源的 package id：AAPT 固定把 app 资源编到 0x7f（framework 0x01、
+        // 厂商 overlay 更低的 id），故 0x7f 唯一对应皮肤包包名。
+        private const val APP_PACKAGE_ID = 0x7f
+
         var instance: SkinManager? = null
             private set
 
-        fun init(application: Application) {
+        /**
+         * 初始化皮肤管理器。
+         *
+         * @param config 资源类型开关（图片 / 颜色 / 字符串 / 尺寸是否换肤）；不传默认四类全支持。
+         *               仅首次调用生效，重复调用不覆盖已创建的实例。
+         */
+        fun init(application: Application, config: SkinConfig = SkinConfig()) {
             if (instance == null) {
                 synchronized(SkinManager::class.java) {
                     if (instance == null) {
-                        instance = SkinManager(application)
-                        SkinLog.i(TAG, "init() 完成，皮肤管理器已创建")
+                        instance = SkinManager(application, config)
+                        SkinLog.i(TAG, "init() 完成，皮肤管理器已创建: $config")
                     }
                 }
             }
@@ -196,9 +211,7 @@ class SkinManager private constructor(private val application: Application) {
             @Suppress("DEPRECATION")
             val resources = Resources(assetManager, appResources.displayMetrics, appResources.configuration)
 
-            val packageName = application.packageManager
-                .getPackageArchiveInfo(skinPath, PackageManager.GET_ACTIVITIES)
-                ?.packageName
+            val packageName = resolveSkinPackageName(assetManager, skinPath)
 
             if (packageName.isNullOrEmpty()) {
                 SkinLog.w(TAG, "loaderSkinResources → 无法获取皮肤包包名，回退默认皮肤")
@@ -223,6 +236,42 @@ class SkinManager private constructor(private val application: Application) {
         isDefaultSkin = true
     }
 
+    /**
+     * 读取皮肤包 APK 的包名，用于后续 `getIdentifier(name, type, packageName)` 按名映射。
+     *
+     * 皮肤包是标准应用 APK，其资源固定编在 application 包 id [APP_PACKAGE_ID]（0x7f）。
+     * 故优先反射 [AssetManager.getAssignedPackageIdentifiers]（返回 SparseArray：key=包 id，
+     * value=包名）按 0x7f 精准取值，绕开 [android.content.pm.PackageManager.getPackageArchiveInfo]
+     * ——后者在部分机型（vivo / 联发科，Android 14/15）会触发框架 `ParsingPackageUtils` 静态初始化
+     * 去读 `/vendor/etc/aconfig_flags.pb`，文件缺失打印 ENOENT 错误（设备固件噪音，但污染日志）。
+     *
+     * 注意：必须按 0x7f 取值，不能「取第一个非 android」——AssetManager 上除 framework("android")
+     * 外还挂着厂商 overlay（如 com.mediatek.frameworkresoverlay，id 更低），顺序因设备而异，
+     * 取错会让皮肤整体失效。反射失败（极端定制系统）时回落 getPackageArchiveInfo 兜底。
+     */
+    private fun resolveSkinPackageName(assetManager: AssetManager, skinPath: String): String? {
+        try {
+            val method = AssetManager::class.java.getDeclaredMethod("getAssignedPackageIdentifiers")
+            method.isAccessible = true
+            @Suppress("UNCHECKED_CAST")
+            val identifiers = method.invoke(assetManager) as? SparseArray<*>
+            val name = identifiers?.get(APP_PACKAGE_ID) as? String
+            if (!name.isNullOrEmpty()) return name
+        } catch (e: Exception) {
+            SkinLog.e(TAG, "反射读取皮肤包包名失败，回落 getPackageArchiveInfo", e)
+        }
+        // 兜底：标准路径（可能触发系统 AconfigFlags 噪音日志，但不影响结果）
+        return try {
+            @Suppress("DEPRECATION")
+            application.packageManager
+                .getPackageArchiveInfo(skinPath, PackageManager.GET_ACTIVITIES)
+                ?.packageName
+        } catch (e: Exception) {
+            SkinLog.e(TAG, "getPackageArchiveInfo 读取皮肤包包名异常", e)
+            null
+        }
+    }
+
     // ==================== 资源获取 ====================
 
     /**
@@ -231,9 +280,18 @@ class SkinManager private constructor(private val application: Application) {
     private fun getSkinResourceIds(resourceId: Int): Int {
         if (isDefaultSkin) return resourceId
 
+        // 只对「宿主 App 自身资源」尝试换肤。framework（android.R）与厂商（如 vivo）资源
+        // 的同名资源不存在于皮肤包，硬查只会刷「皮肤包缺少同名资源」日志且必回退宿主，
+        // 故直接短路，根除冷启动/切肤时的海量噪音日志（dimen/config_*、ic_ab_back_material 等）。
+        if (appResources.getResourcePackageName(resourceId) != application.packageName) return 0
+
+        val resourceType = appResources.getResourceTypeName(resourceId)
+        // 初始化时若关闭了该资源类型的换肤，返回 0 等价于「皮肤包缺同名资源」，
+        // 使 getter（useHost）与 resolveSkinId 调用方（SkinnableResources.getValue/getXml）统一回退宿主。
+        if (!supportsResourceType(resourceType)) return 0
+
         return skinResourceIdCache.getOrPut(resourceId) {
             val resourceName = appResources.getResourceEntryName(resourceId)
-            val resourceType = appResources.getResourceTypeName(resourceId)
             val ids = skinResources!!.getIdentifier(resourceName, resourceType, skinPackageName)
             // 切主题某颜色/图片没变的最常见根因：皮肤包缺同名资源，只能回退宿主。
             // getOrPut 对同一 resourceId 仅执行一次，天然去重，不会在 getColor 热路径刷屏。
@@ -241,6 +299,17 @@ class SkinManager private constructor(private val application: Application) {
                 SkinLog.w(TAG, "皮肤包缺少同名资源 → $resourceType/$resourceName (hostId=$resourceId)，回退宿主")
             }
             ids
+        }
+    }
+
+    /** 该资源类型是否参与换肤（由初始化时的 [SkinConfig] 决定，默认四类全支持）。 */
+    private fun supportsResourceType(resourceType: String): Boolean {
+        return when (resourceType) {
+            "drawable", "mipmap" -> config.supportDrawable
+            "color" -> config.supportColor
+            "string" -> config.supportString
+            "dimen" -> config.supportDimen
+            else -> true
         }
     }
 
@@ -310,18 +379,6 @@ class SkinManager private constructor(private val application: Application) {
         else skinResources!!.getDimensionPixelSize(ids)
     }
 
-    fun getInteger(resourceId: Int): Int {
-        val ids = getSkinResourceIds(resourceId)
-        return if (useHost(ids)) appResources.getInteger(resourceId)
-        else skinResources!!.getInteger(ids)
-    }
-
-    fun getBoolean(resourceId: Int): Boolean {
-        val ids = getSkinResourceIds(resourceId)
-        return if (useHost(ids)) appResources.getBoolean(resourceId)
-        else skinResources!!.getBoolean(ids)
-    }
-
     /**
      * 宿主资源 ID → 皮肤包资源 ID 的公开映射入口。
      *
@@ -345,6 +402,24 @@ class SkinManager private constructor(private val application: Application) {
             "mipmap", "drawable" -> getDrawableOrMipMap(resourceId)
             else -> null
         }
+    }
+
+    /**
+     * 统一文本换肤入口：按名映射重刷 TextView 的 text 与 textSize。
+     *
+     * 供 Skinnable*.skinnableView() 复用，避免 13 个文本控件重复 getString/getDimension 逻辑。
+     * 仅当资源 ID > 0（即 XML 里显式写 `@string`/`@dimen` 引用）才重刷；
+     * 字面量（`android:text="…"`、`android:textSize="16sp"`）经 getResourceId 返回 -1，自动跳过，
+     * 从而不覆盖业务代码运行时 setText 的动态文本。
+     */
+    fun applyTextSkin(view: TextView, textRes: Int, textSizeRes: Int) {
+        if (textRes > 0) view.text = getString(textRes)
+        if (textSizeRes > 0) view.setTextSize(TypedValue.COMPLEX_UNIT_PX, getDimension(textSizeRes))
+    }
+
+    /** 按名映射重刷 TextView 的 hint（输入框提示文案），仅资源 ID > 0（显式 `@string` 引用）才生效。 */
+    fun applyHintSkin(view: TextView, hintRes: Int) {
+        if (hintRes > 0) view.hint = getString(hintRes)
     }
 
     /**
@@ -378,15 +453,5 @@ class SkinManager private constructor(private val application: Application) {
         if (last == version) return
         skinnedViewVersions[view] = version
         view.skinnableView()
-    }
-
-    fun getTypeface(resourceId: Int): Typeface {
-        val skinTypefacePath = getString(resourceId)
-        if (skinTypefacePath.isNullOrEmpty()) return Typeface.DEFAULT
-        return if (isDefaultSkin) {
-            Typeface.createFromAsset(appResources.assets, skinTypefacePath)
-        } else {
-            Typeface.createFromAsset(skinResources!!.assets, skinTypefacePath)
-        }
     }
 }

@@ -7,6 +7,8 @@
         <attr name="android:textColor" />
         <attr name="android:textColorHint" />
         <!-- 字体属性 -->
+        <attr name="android:text" />
+        <attr name="android:textSize" />
     </declare-styleable>
 
     <!-- Button控件继承TextView，此处parent语法通过，但无效果，不像style.xml -->
@@ -14,6 +16,8 @@
         <attr name="android:background" />
         <attr name="android:textColor" />
         <!-- 字体属性 -->
+        <attr name="android:text" />
+        <attr name="android:textSize" />
     </declare-styleable>
 
     <!-- SkinnableEditText控件 -->
@@ -22,6 +26,9 @@
         <attr name="android:textColor" />
         <attr name="android:textColorHint" />
         <!-- 字体属性 -->
+        <attr name="android:text" />
+        <attr name="android:textSize" />
+        <attr name="android:hint" />
     </declare-styleable>
 
     <!-- ImageView控件特有属性 -->
@@ -80,6 +87,8 @@
         <attr name="android:textColor" />
         <attr name="android:buttonTint" />
         <attr name="android:textColorHint" />
+        <attr name="android:text" />
+        <attr name="android:textSize" />
     </declare-styleable>
 
     <!-- SkinnableRadioButton控件 -->
@@ -87,6 +96,8 @@
         <attr name="android:background" />
         <attr name="android:textColor" />
         <attr name="android:buttonTint" />
+        <attr name="android:text" />
+        <attr name="android:textSize" />
     </declare-styleable>
 
     <!-- SkinnableSwitchCompat控件 -->
@@ -95,24 +106,33 @@
         <attr name="android:textColor" />
         <attr name="android:thumbTint" />
         <attr name="android:trackTint" />
+        <attr name="android:text" />
+        <attr name="android:textSize" />
     </declare-styleable>
 
     <!-- SkinnableToggleButton控件 -->
     <declare-styleable name="SkinnableToggleButton">
         <attr name="android:background" />
         <attr name="android:textColor" />
+        <attr name="android:text" />
+        <attr name="android:textSize" />
     </declare-styleable>
 
     <!-- SkinnableCheckedTextView控件 -->
     <declare-styleable name="SkinnableCheckedTextView">
         <attr name="android:background" />
         <attr name="android:textColor" />
+        <attr name="android:text" />
+        <attr name="android:textSize" />
     </declare-styleable>
 
     <!-- SkinnableAutoCompleteTextView控件 -->
     <declare-styleable name="SkinnableAutoCompleteTextView">
         <attr name="android:background" />
         <attr name="android:textColor" />
+        <attr name="android:text" />
+        <attr name="android:textSize" />
+        <attr name="android:hint" />
     </declare-styleable>
 
     <!-- SkinnableView控件（普通 <View/>） -->
@@ -233,12 +253,17 @@
     <declare-styleable name="SkinnableMultiAutoCompleteTextView">
         <attr name="android:background" />
         <attr name="android:textColor" />
+        <attr name="android:text" />
+        <attr name="android:textSize" />
+        <attr name="android:hint" />
     </declare-styleable>
 
     <!-- SkinnableTextClock控件 -->
     <declare-styleable name="SkinnableTextClock">
         <attr name="android:background" />
         <attr name="android:textColor" />
+        <attr name="android:text" />
+        <attr name="android:textSize" />
     </declare-styleable>
 
     <!-- SkinnableCoordinatorLayout控件 -->
@@ -275,6 +300,8 @@
     <declare-styleable name="SkinnableChip">
         <attr name="android:background" />
         <attr name="android:textColor" />
+        <attr name="android:text" />
+        <attr name="android:textSize" />
     </declare-styleable>
 
     <!-- SkinnableChipGroup控件 -->
@@ -286,12 +313,15 @@
     <declare-styleable name="SkinnableTextInputLayout">
         <attr name="android:background" />
         <attr name="hintTextColor" format="color" />
+        <attr name="android:hint" />
     </declare-styleable>
 
     <!-- SkinnableTextInputEditText控件 -->
     <declare-styleable name="SkinnableTextInputEditText">
         <attr name="android:background" />
         <attr name="android:textColor" />
+        <attr name="android:text" />
+        <attr name="android:textSize" />
     </declare-styleable>
 
     <!-- SkinnableMaterialDivider控件 -->

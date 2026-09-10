@@ -79,6 +79,13 @@ open class SkinnableEditText @JvmOverloads constructor(
                 setHintTextColor(manager.getColorStateList(textColorHintResourceId))
             }
         }
+        // text + textSize（dimen）：仅 @string/@dimen 引用换肤，字面量 getResourceId=-1 跳过
+        val textKey = R.styleable.SkinnableEditText[R.styleable.SkinnableEditText_android_text]
+        val textSizeKey = R.styleable.SkinnableEditText[R.styleable.SkinnableEditText_android_textSize]
+        manager.applyTextSkin(this, attrsBean.getViewResource(textKey), attrsBean.getViewResource(textSizeKey))
+        // hint（输入框提示文案）：仅 @string 引用换肤
+        val hintKey = R.styleable.SkinnableEditText[R.styleable.SkinnableEditText_android_hint]
+        manager.applyHintSkin(this, attrsBean.getViewResource(hintKey))
     }
 
     override fun onAttachedToWindow() {

@@ -1,8 +1,15 @@
 package com.kylin.skindemo
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import com.kylin.skinlibrary.SkinConfig
 import com.kylin.skinlibrary.SkinManager
 import com.kylin.skinlibrary.SkinUiHost
 import com.kylin.skinlibrary.utils.AssetsUtils
@@ -19,6 +26,31 @@ class SkinApp : Application() {
 
     companion object {
         private const val TAG = "[Skin] SkinApp"
+
+        /**
+         * 进程级协程作用域：宿主侧 DataStore 异步读写的统一宿主。
+         *
+         * 换肤状态写入（currentSkin）走「发射后即忘」，不阻塞 UI 线程——这正是相比旧版
+         * SharedPreferences.commit()（调用线程同步落盘）的改进点。落盘由 DataStore 后台 IO 保证。
+         */
+        val appScope: CoroutineScope by lazy {
+            CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        }
+
+        /** 异步持久化当前皮肤状态（DataStore 写，发射后即忘，不阻塞 UI 线程）。 */
+        fun persistCurrentSkin(context: Context, value: String) {
+            appScope.launch { PreferencesUtils.putString(context, "currentSkin", value) }
+        }
+
+        /**
+         * 同步读取上次持久化的皮肤状态。
+         *
+         * 仅供 [restoreSkinState]（Application.onCreate，首个 Activity 尚未创建）调用一次：
+         * 必须赶在首 Activity onPostCreate 前拿到结果，故用 runBlocking 同步等待一次读。
+         * 该读为一次性小文件 IO，阻塞极短，可接受。运行期订阅请改用 PreferencesUtils.data。
+         */
+        fun readCurrentSkin(context: Context): String? =
+            runBlocking { PreferencesUtils.getString(context, "currentSkin") }
     }
 
     override fun onCreate() {
@@ -27,9 +59,18 @@ class SkinApp : Application() {
         Log.d(TAG, "onCreate() → Application 启动")
         Log.d(TAG, "========================================")
 
-        // 1. 初始化 SkinManager（最早时机）
+        // 1. 初始化 SkinManager（最早时机），按需指定参与换肤的资源类型；
+        //    不传 config 则默认四类资源（图片/颜色/字符串/尺寸）全部支持。
         Log.d(TAG, "步骤1: 初始化 SkinManager")
-        SkinManager.init(this)
+        SkinManager.init(
+            this,
+            SkinConfig(
+                supportDrawable = true,
+                supportColor = true,
+                supportString = true,
+                supportDimen = true,
+            )
+        )
         Log.d(TAG, "步骤1: SkinManager 初始化完成, instance=${SkinManager.instance}")
 
         // 1.5 注册宿主切肤入口钩子，供第三方模块（比亚迪演示页）挂载切肤悬浮按钮
@@ -74,10 +115,10 @@ class SkinApp : Application() {
                     val path =
                         "${getExternalFilesDir("skindemo")!!.absolutePath}${File.separator}skindemo.skin"
                     activity.skinDynamic(path)
-                    PreferencesUtils.putString(activity, "currentSkin", "skindemo")
+                    persistCurrentSkin(activity, "skindemo")
                 } else {
                     activity.defaultSkin()
-                    PreferencesUtils.putString(activity, "currentSkin", "default")
+                    persistCurrentSkin(activity, "default")
                 }
             } else {
                 Log.d(TAG, "  忽略主动强制模式(defaultNightMode=$currentNightMode)触发的回声回调，保持用户选择")
@@ -111,14 +152,14 @@ class SkinApp : Application() {
     }
 
     /**
-     * 从 SharedPreferences 恢复上次保存的皮肤状态
+     * 从 DataStore 恢复上次保存的皮肤状态。
      * 在 SkinActivity.onPostCreate 触发前完成注入，
-     * 确保每个 Activity 创建时能自动应用正确的皮肤
+     * 确保每个 Activity 创建时能自动应用正确的皮肤。
      */
     private fun restoreSkinState() {
         Log.d(TAG, "步骤3: 恢复皮肤状态")
-        val currentSkin = PreferencesUtils.getString(this, "currentSkin")
-        Log.d(TAG, "步骤3: SharedPreferences[currentSkin]=$currentSkin")
+        val currentSkin = readCurrentSkin(this)
+        Log.d(TAG, "步骤3: DataStore[currentSkin]=$currentSkin")
 
         if ("skindemo" == currentSkin) {
             val skinPath =

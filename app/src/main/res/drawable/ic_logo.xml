@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 品牌 Logo：蓝色水滴（默认皮肤） -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#3388FF"
+        android:pathData="M12,2C12,2 5,10.5 5,15a7,7 0 0 0 14,0C19,10.5 12,2 12,2z" />
+</vector>

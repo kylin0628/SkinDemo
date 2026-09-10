@@ -18,7 +18,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.kylin.skinlibrary.SkinManager
 import com.kylin.skinlibrary.SkinUiHost
 import com.kylin.skinlibrary.core.CustomAppCompatViewInflater
-import com.kylin.skinlibrary.utils.PreferencesUtils
 import com.netease.skin.library.base.SkinActivity
 
 /**
@@ -185,7 +184,7 @@ class ThemeSwitcherDialog(context: Context) : Dialog(context), LayoutInflater.Fa
                 SkinManager.instance?.loadSkin(skinPath)
             }
         }
-        PreferencesUtils.putString(context, "currentSkin", prefValue)
+        SkinApp.persistCurrentSkin(context, prefValue)
         // 弹框自身内容（Skinnable* 控件）按新皮肤重刷
         SkinManager.instance?.applySkin(root)
         updateStatus(root)

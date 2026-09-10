@@ -43,4 +43,35 @@ dependencies {
     implementation platform('androidx.compose:compose-bom:2023.06.01')
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.runtime:runtime'
+
+    // Jetpack DataStore Preferences：替代 SharedPreferences 的本地键值存储（PreferencesUtils 使用）。
+    // 用 api 暴露：PreferencesUtils 的 suspend 方法 + skinDataStore 委托属本库公开 API，
+    // 宿主模块需能拿到 kotlinx-coroutines / datastore 类型才能调用。
+    api "androidx.datastore:datastore-preferences:1.1.1"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+}
+
+// ============ 皮肤包自动同步 ============
+// 坑：改了 skinpackage 的资源（colors/strings/dimens/drawable）后若忘记重新构建并拷贝
+//     release APK 到 assets/skin/skindemo.skin，App 切肤时读到的仍是旧皮肤包，表现为
+//     「颜色变了但尺寸/图片/文案没变」。此任务把「构建皮肤包 → 拷贝 assets」自动化，
+//     并挂到本库 preBuild 前，App 构建即自动同步，彻底消除手工拷贝遗漏。
+def skinAssetDir = "$projectDir/src/main/assets/skin"
+def skinSourceApk = "$rootDir/skinpackage/build/outputs/apk/release/skinpackage-release-unsigned.apk"
+
+task syncSkinAsset(type: Copy) {
+    dependsOn ':skinpackage:assembleRelease'
+    from file(skinSourceApk)
+    into skinAssetDir
+    rename { 'skindemo.skin' }
+    doLast {
+        println "[syncSkinAsset] 已同步皮肤包 → ${skinAssetDir}/skindemo.skin"
+    }
+}
+
+// 库资源合并前先同步皮肤包（preBuild 最早触发，保证 assets 最新再参与后续合并）
+tasks.whenTaskAdded { task ->
+    if (task.name == 'preBuild') {
+        task.dependsOn 'syncSkinAsset'
+    }
 }

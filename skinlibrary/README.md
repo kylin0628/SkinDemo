@@ -2,11 +2,11 @@
 
 运行时「皮肤包」换肤框架：宿主 App 通过加载一个独立的皮肤 APK（`skindemo.skin`），按资源**同名映射**替换颜色 / 图片 / 字符串 / 尺寸，实现「不重装、不重启」切换整套主题。
 
-本文按 **完整 → 初步 → 高级 → 深入** 四层组织，逐层递进：
+本文按 **完整 → 快速接入 → 进阶 → 深入** 四层组织，逐层递进：
 
 - [完整](#一完整主题库全貌)：架构、模块划分、数据流、核心概念。
-- [初步](#二初步快速接入)：最小可用的接入步骤（继承基类 + XML 属性即可换肤）。
-- [高级](#三高级进阶用法)：Compose、独立窗口、全局切换器、跟随系统深浅色。
+- [快速接入](#二快速接入)：最小可用的接入步骤（继承基类 + XML 属性即可换肤）。
+- [进阶](#三进阶用法)：Compose、独立窗口、全局切换器、跟随系统深浅色、资源类型开关。
 - [深入](#四深入原理与扩展)：内部实现、第三方控件接入、新增可换肤资源、皮肤包构建、排查。
 
 ---
@@ -26,7 +26,7 @@
 
 ```
 Application.onCreate
-  └─ SkinManager.init(app)                 // 1. 全局单例，最早初始化
+  └─ SkinManager.init(app, config)          // 1. 全局单例，最早初始化（可传 SkinConfig 开关资源类型）
   └─ SkinUiHost.applyTheme = { ... }        // 2. 宿主注册「应用一套主题」统一策略
   └─ AppCompatDelegate.setDefaultNightMode(FOLLOW_SYSTEM)  // 3. 跟随系统深浅色
 
@@ -35,7 +35,7 @@ Activity : SkinActivity
   ├─ onCreateView(name, ...)                                // 标签名 → Skinnable* 子类
   │     └─ CustomAppCompatViewInflater.autoMatch()          //   （内置 50+ 原生控件映射）
   │     └─ registerSkinnableViews(binders)                  //   （第三方控件参数注册）
-  ├─ init  → AttrsBean.saveViewResource(...)               // 记录 background/textColor 等属性资源 ID
+  ├─ init  → AttrsBean.saveViewResource(...)               // 记录 background/textColor/text/src 等属性资源 ID
   └─ onPostCreate → applyCurrentSkin() → skinDynamic(...)  // 首次自动换肤
 
 切换主题
@@ -55,18 +55,20 @@ Skinnable*.skinnableView()
 2. **`ViewsMatch` 契约**：所有可换肤控件实现 `ViewsMatch.skinnableView()`。切肤时框架递归遍历 View 树，对命中的控件逐个调用该方法。
 3. **`skinVersion` 信号**：每切一次肤 `SkinManager.skinVersion++`。原生侧靠 `notifySkinChange()` 监听器，Compose 侧靠 `LocalSkinVersion`（`staticCompositionLocalOf`）触发局部重组。
 
-### 1.4 四维资源适配能力
+### 1.4 四类资源适配能力
 
 | 维度 | 映射方式 | 取值优先级 |
 |---|---|---|
 | 颜色 | `color` / `colorStateList` | 皮肤包同名 → 宿主 |
 | 图片 | `drawable` / `mipmap` | 皮肤包同名 → 宿主 |
 | 字符串 | `string` / `text`（locale 感知） | 皮肤包同名 → 宿主 |
-| 尺寸 / 整数 / 布尔 | `dimen` / `integer` / `bool` | 皮肤包同名 → 宿主 |
+| 尺寸 | `dimen` | 皮肤包同名 → 宿主 |
+
+> 整数（`integer`）、布尔（`bool`）**不**纳入换肤范畴——它们是业务数据、非主题语义，库也不为它们提供换肤入口，避免误导。资源类型参与范围可用 [SkinConfig](#38-资源类型开关-SkinConfig) 进一步收窄。
 
 ---
 
-## 二、初步：快速接入
+## 二、快速接入
 
 > 目标：让一个 Activity 里的原生控件（TextView / Button / ImageView …）在切肤时跟随变色。
 
@@ -93,6 +95,8 @@ class SkinApp : Application() {
 }
 ```
 
+初始化时可传 [SkinConfig](#38-资源类型开关-SkinConfig) 指定哪些资源类型参与换肤；不传则四类全支持。
+
 ### 2.3 Activity 继承 `SkinActivity`
 
 ```kotlin
@@ -108,18 +112,24 @@ class MyActivity : SkinActivity() {   // 替代 AppCompatActivity
 
 ```xml
 <TextView
-    android:textColor="@color/text_primary"      <!-- 文字色随皮肤切换 -->
-    android:background="@color/dialog_bg"        <!-- 背景随皮肤切换 -->
-    android:text="示例文本" />
+    android:text="@string/skin_textview_sample"   <!-- 文案随皮肤切换（同名 string） -->
+    android:textSize="@dimen/text_size_16"        <!-- 字号随皮肤切换（同名 dimen） -->
+    android:textColor="@color/text_primary"       <!-- 文字色随皮肤切换 -->
+    android:background="@color/dialog_bg"         <!-- 背景随皮肤切换 -->
 
 <ImageView
-    android:src="@drawable/ic_skin_demo" />       <!-- 同名 drawable 换肤 -->
+    android:src="@drawable/ic_skin_demo" />        <!-- 同名 drawable 换肤 -->
+
+<EditText
+    android:hint="@string/skin_edittext_hint"      <!-- 提示文案随皮肤切换（同名 string） -->
 
 <ProgressBar
-    android:progressTint="@color/main_style" />   <!-- 进度条着色随皮肤切换 -->
+    android:progressTint="@color/main_style" />     <!-- 进度条着色随皮肤切换 -->
 ```
 
 **原理**：`SkinActivity` 设置了 `LayoutInflater.Factory2`，把 XML 里的 `TextView` / `Button` / `ImageView` 等标签自动替换成对应的 `Skinnable*` 子类，构造时用 `AttrsBean` 记录这些属性的资源 ID，切肤时按名映射到皮肤包同名资源。
+
+> 仅「资源引用」（`@string` / `@dimen` / `@color` / `@drawable`）会换肤；XML 里的字面量（`android:text="…"`、`android:textSize="16sp"`）经 `getResourceId` 返回 -1，自动跳过，不会覆盖业务代码运行时 `setText` 的动态文本。
 
 ### 2.5 切换皮肤
 
@@ -159,7 +169,7 @@ activity.defaultSkin()          // 默认皮肤
 
 ---
 
-## 三、高级：进阶用法
+## 三、进阶用法
 
 ### 3.1 资源门面（手动取色）
 
@@ -171,24 +181,19 @@ m.getColor(R.color.text_primary)             // 颜色
 m.getColorStateList(R.color.tab_selected)    // 颜色选择器
 m.getDrawableOrMipMap(R.drawable.ic_skin)    // 图片
 m.getString(R.string.title)                  // 字符串
-m.getDimension(R.dimen.gap)                  // 尺寸
+m.getText(R.string.title)                    // 文本（CharSequence）
+m.getDimension(R.dimen.gap)                  // 尺寸（px Float）
+m.getDimensionPixelSize(R.dimen.gap)         // 尺寸（px Int）
 ```
 
-**代码动态设色直接用系统方法即可**：所有文本类 `Skinnable*` 控件（`SkinnableTextView` / `SkinnableButton` /
-`SkinnableEditText` / `SkinnableCheckBox` / `SkinnableRadioButton` / `SkinnableSwitchCompat` /
-`SkinnableAutoCompleteTextView` / `SkinnableToggleButton` / `SkinnableCheckedTextView` /
-`SkinnableChip` / `SkinnableTextClock` / `SkinnableMultiAutoCompleteTextView` /
-`SkinnableTextInputEditText`）重写了 `setTextColor(int)` / `setTextColor(ColorStateList)`，
-`view.setTextColor(context.getColor(R.color.x))` 会反推资源 ID 回填，切肤时可自动重映射，业务无需感知主题库：
+**代码运行时设色且希望跟随换肤**：文本类 `Skinnable*` 控件提供 `setTextColorRes(resId)`，显式携带资源 ID 回填 `AttrsBean`，切肤遍历时精确按名重映射——从根本上避免「两个不同资源解析出同一 ARGB 时无法区分」导致的串色：
 
 ```kotlin
-view.setTextColor(context.getColor(R.color.text_primary))          // 颜色（切肤自动跟随）
-view.setTextColor(context.getColorStateList(R.color.tab_selected)) // 颜色选择器
+// SkinnableTextView（含其子类语义）
+view.setTextColorRes(R.color.text_primary)   // 运行时设色，切肤跟随
 ```
 
-`SkinnableTextInputLayout` 的 hint 文字同理，重写了 `setHintTextColor(ColorStateList)`，用系统方法设色即可跟随换肤。
-
-> 局限：字面量色值（`setTextColor(0xFF000000)`）无对应 `getColor` 调用、校验失败，不纳入换肤。换肤依赖「`getColor(res)` 先于 `setTextColor` 同线程紧邻执行」这一调用顺序（按最近一次解析的资源 ID 反推，并校验解析结果等于传入色值），同值不同名的多个资源不会串色——每个 `setTextColor` 取回的是它自己那次 `getColor` 的资源。
+> 局限：`setTextColorRes` 只存在于 `SkinnableTextView` 上，其余一次性/字面量设色仍用系统 `setTextColor`，但字面量色值（`setTextColor(0xFF000000)`）不纳入换肤。
 
 ### 3.2 Compose 换肤
 
@@ -281,6 +286,24 @@ SkinUiHost.applyTheme = { activity, isDark, forceNightMode ->
 
 **关键坑**：跟随系统时**不能**强制 `YES/NO`，否则会污染全局默认夜间模式，导致无 `configChanges="uiMode"` 的页面（如比亚迪演示页）重建时读到被强制的旧值、卡在错误深浅色。
 
+### 3.6 资源类型开关（SkinConfig）
+
+初始化时用 `SkinConfig` 指定哪些资源类型参与换肤，不传默认四类全支持。**仅首次 `init` 生效，运行期不可变**：
+
+```kotlin
+SkinManager.init(
+    this,
+    SkinConfig(
+        supportDrawable = true,   // 图片（drawable / mipmap）
+        supportColor = true,      // 颜色
+        supportString = true,     // 字符串
+        supportDimen = true,      // 尺寸
+    )
+)
+```
+
+关闭某一类后，该类资源在映射处直接返回「皮肤包缺同名资源」，统一回退宿主——宿主侧无需改任何 XML 或代码。
+
 ---
 
 ## 四、深入：原理与扩展
@@ -301,12 +324,14 @@ skinPackageName = packageManager.getPackageArchiveInfo(skinPath, ...)?.packageNa
 
 皮肤包加载结果缓存到 `SkinCache`，同一路径二次加载命中缓存。
 
-#### 同名资源映射（含缓存）
+#### 同名资源映射（含缓存 + 类型开关）
 
 ```kotlin
 // SkinManager.getSkinResourceIds()
 val name = appResources.getResourceEntryName(resourceId)   // 反查名称
 val type = appResources.getResourceTypeName(resourceId)
+// 类型被 SkinConfig 关闭 → 直接回退宿主
+if (!supportsResourceType(type)) return 0
 val ids  = skinResources.getIdentifier(name, type, skinPackageName)  // 皮肤包同名 ID
 // ids == 0 表示皮肤包缺名 → 回退宿主
 ```
@@ -317,7 +342,7 @@ val ids  = skinResources.getIdentifier(name, type, skinPackageName)  // 皮肤�
 
 - `SkinActivity.onCreate` 调 `LayoutInflaterCompat.setFactory2(layoutInflater, this)`。
 - `onCreateView` 里 `CustomAppCompatViewInflater.autoMatch()` 按标签名 `when(name)` 构造 `Skinnable*` 子类。
-- 每个 `Skinnable*` 构造时 `withStyledAttributes(...)` 把 `background` / `textColor` / `src` 等属性的**资源 ID** 存进 `AttrsBean`（`SparseIntArray`）。
+- 每个 `Skinnable*` 构造时 `withStyledAttributes(...)` 把 `background` / `textColor` / `src` / `text` / `textSize` / `hint` 等属性的**资源 ID** 存进 `AttrsBean`（`SparseIntArray`）。
 - 切肤遍历时 `skinnableView()` 从 `AttrsBean` 取回资源 ID，经 `SkinManager` 按名映射后 `setBackground` / `setTextColor` 等刷新。
 
 #### 切肤遍历与去重
@@ -406,17 +431,20 @@ framework 的 `LayoutInflater.setFactory2` **只能设一次**（第二次抛 `I
 3. 同类控件「先注册者优先」，后来者对该类控件静默失效。
 4. 第三方 View 想参与换肤：`implements ViewsMatch` + `skinnableView()` 内读 `SkinManager` 单例。
 
-### 4.6 皮肤包构建
+### 4.6 皮肤包构建（自动同步）
 
-`skinpackage` 是一个独立 `com.android.application` 模块，产出皮肤 APK：
+`skinpackage` 是一个独立 `com.android.application` 模块，产出皮肤 APK。换肤库 `build.gradle` 内置 `syncSkinAsset` 任务：构建皮肤包 → 自动拷贝改名为 `assets/skin/skindemo.skin`，并挂到库 `preBuild` 前，**任何一次 app 构建都会自动同步最新皮肤包**，无需手工拷贝：
 
 ```bash
-./gradlew :skinpackage:assembleRelease
-# 产物：skinpackage/build/outputs/apk/release/skinpackage-release-unsigned.apk
-# 复制改名为 skinlibrary/src/main/assets/skin/skindemo.skin
+./gradlew :app:assembleDebug
+# 内部自动执行 :skinpackage:assembleRelease → syncSkinAsset →
+#   skinpackage/build/outputs/apk/release/skinpackage-release-unsigned.apk
+#   → skinlibrary/src/main/assets/skin/skindemo.skin
 ```
 
-宿主启动时 `AssetsUtils.doCopy` 把 `assets/skin/` 拷到 `getExternalFilesDir("skindemo")`，再 `loadSkin` 加载。已验证 `skindemo.skin` 与 `skinpackage-release-unsigned.apk` 逐字节一致（仅后缀不同）。
+宿主启动时 `AssetsUtils.doCopy` 把 `assets/skin/` 拷到 `getExternalFilesDir("skindemo")`，再 `loadSkin` 加载。`skindemo.skin` 与 `skinpackage-release-unsigned.apk` 仅后缀不同、内容一致。
+
+> **坑**：改了皮肤包源资源（colors/strings/dimens/drawable）后若没重新构建同步，App 读到的是旧皮肤包，表现为「颜色变了但尺寸/图片/文案没变」。`syncSkinAsset` 已自动化此流程；若仍遇到，确认设备外部存储里的 `.skin` 是否为新包（卸载重装或清 app 数据）。
 
 ### 4.7 排查
 
@@ -436,7 +464,49 @@ adb logcat | grep "皮肤包缺少同名资源"                    # 「某资�
 | 现象 | 根因 | 处理 |
 |---|---|---|
 | 切肤后某资源不变 | 皮肤包缺同名资源 | 打 `[Skin]` warn 日志，补同名资源 |
+| 尺寸/图片/文案不变但颜色变 | 皮肤包 assets 过期（改了源没重新构建） | 让 `syncSkinAsset` 自动同步 / 重装清数据 |
 | 弹框不跟随换肤 | 独立 Window 未注册 | `SkinManager.registerWindow(root)` |
-| 代码设色不生效 | 用了字面量色值（非资源 ID） | 改用 `setTextColor(context.getColor(R.color.x))` |
+| 代码设色不生效 | 用了字面量色值（非资源 ID） | 改用 `setTextColorRes(R.color.x)` |
 | 跟随系统时页面卡在旧深浅色 | 跟随系统路径强制了 `YES/NO` | `forceNightMode=false` 时重置 `FOLLOW_SYSTEM` |
 | 多库 Factory 冲突 | 各自 `setFactory2` | 改走 `LayoutFactoryRegistry.register` |
+
+---
+
+## 五、API 速查
+
+### SkinManager
+
+| 成员 | 说明 |
+|---|---|
+| `init(app, config)` | 初始化单例，`config` 可选（见 [SkinConfig](#38-资源类型开关-SkinConfig)），仅首次生效 |
+| `loadSkin(path?)` | 加载皮肤包；`null` 回默认。返回是否真正切换 |
+| `getColor(id)` / `getColorStateList(id)` | 颜色 / 颜色选择器 |
+| `getDrawableOrMipMap(id)` | 图片 |
+| `getString(id[, args])` / `getText(id)` | 字符串 / 文本 |
+| `getDimension(id)` / `getDimensionPixelSize(id)` | 尺寸 |
+| `getBackgroundOrSrc(id)` | color/drawable/mipmap 统一获取（按类型分流） |
+| `resolveSkinId(id)` | 宿主 ID → 皮肤包 ID（缺名返回 0） |
+| `getSkinResourcesOrNull()` | 皮肤包 `Resources`（非默认皮肤才非空） |
+| `registerWindow(root)` | 注册独立窗口，切肤自动遍历 |
+| `applySkin(view)` / `applySkinIfChanged(view)` | 手动换肤 / 带版本去重的换肤 |
+| `addSkinChangeListener(listener)` / `remove...` | 订阅/退订皮肤变化 |
+| `isDefaultSkin` / `currentSkinPath` / `skinVersion` | 状态查询 |
+
+### SkinnableResources
+
+`SkinActivity.getResources()` 在非默认皮肤时返回它，重写 `getColor` / `getColorStateList` / `getDrawable` / `getString` / `getText` / `getDimension` / `getDimensionPixelSize` / `getValue` / `getXml`，使 Compose 系统资源 API 自动按皮肤包取值。
+
+### PreferencesUtils
+
+本地键值存储（Jetpack DataStore Preferences，替代旧版 `SharedPreferences`），库用于持久化「上次皮肤状态」（key `currentSkin`）。所有方法均为 `suspend`，需在协程中调用。
+
+| 成员 | 说明 |
+|---|---|
+| `Context.skinDataStore` | 进程级 `DataStore<Preferences>` 单例（委托属性） |
+| `putString/Int/Long/Float/Boolean(ctx, key, value)` | suspend 写（`edit` 异步落盘，不阻塞 UI 线程） |
+| `getString/Int/Long/Float/Boolean(ctx, key[, default])` | suspend 一次性读 |
+| `data(ctx)` | 返回 `Flow<Preferences>`，供响应式订阅（如 Compose `collectAsState`） |
+| `getAll(ctx)` / `contains(ctx, key)` | suspend 读全部 / 判断键存在 |
+| `remove(ctx, vararg keys)` / `clear(ctx)` | suspend 删除 / 清空 |
+
+> 旧版 `SharedPreferences`（`com.netease.skin`）数据经 `SharedPreferencesMigration` 自动迁移，升级不丢状态。方法签名由同步改为 `suspend`，宿主调用需包在协程作用域中（如 `CoroutineScope(Dispatchers.Main).launch { ... }`）。

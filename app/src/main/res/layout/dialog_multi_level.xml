@@ -13,16 +13,16 @@
         android:gravity="center"
         android:text="第 1 层弹框"
         android:textColor="@color/text_primary"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_18"
         android:textStyle="bold" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="内嵌列表 + 多层弹框，切肤时全部跟随。"
+        android:text="@string/skin_multi_level_desc"
         android:textColor="@color/text_secondary"
-        android:textSize="13sp" />
+        android:textSize="@dimen/text_size_13" />
 
     <ListView
         android:id="@+id/lv_multi_list"
@@ -44,9 +44,9 @@
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
             android:background="@color/main_style"
-            android:text="下一层弹框"
+            android:text="@string/skin_btn_next_level"
             android:textColor="@color/text_primary"
-            android:textSize="13sp" />
+            android:textSize="@dimen/text_size_13" />
 
         <Button
             android:id="@+id/btn_nested_popup"
@@ -56,9 +56,9 @@
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
             android:background="@color/main_style"
-            android:text="弹 PopupWindow"
+            android:text="@string/skin_btn_popup"
             android:textColor="@color/text_primary"
-            android:textSize="13sp" />
+            android:textSize="@dimen/text_size_13" />
 
         <Button
             android:id="@+id/btn_nested_dialog"
@@ -67,9 +67,9 @@
             android:layout_weight="1"
             android:layout_marginStart="4dp"
             android:background="@color/main_style"
-            android:text="弹原生Dialog"
+            android:text="@string/skin_btn_native_dialog_short"
             android:textColor="@color/text_primary"
-            android:textSize="13sp" />
+            android:textSize="@dimen/text_size_13" />
 
     </LinearLayout>
 
@@ -86,9 +86,9 @@
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
             android:background="@color/colorAccent"
-            android:text="默认主题"
+            android:text="@string/skin_btn_default_theme"
             android:textColor="@color/text_primary"
-            android:textSize="13sp" />
+            android:textSize="@dimen/text_size_13" />
 
         <Button
             android:id="@+id/btn_multi_dynamic"
@@ -98,9 +98,9 @@
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
             android:background="@color/colorAccent"
-            android:text="动态主题"
+            android:text="@string/skin_btn_dynamic_theme"
             android:textColor="@color/text_primary"
-            android:textSize="13sp" />
+            android:textSize="@dimen/text_size_13" />
 
         <Button
             android:id="@+id/btn_multi_close"
@@ -109,9 +109,9 @@
             android:layout_weight="1"
             android:layout_marginStart="4dp"
             android:background="@color/colorAccent"
-            android:text="关闭"
+            android:text="@string/skin_btn_close"
             android:textColor="@color/text_primary"
-            android:textSize="13sp" />
+            android:textSize="@dimen/text_size_13" />
 
     </LinearLayout>
 
