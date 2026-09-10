@@ -115,10 +115,10 @@ class SkinApp : Application() {
                     val path =
                         "${getExternalFilesDir("skindemo")!!.absolutePath}${File.separator}skindemo.skin"
                     activity.skinDynamic(path)
-                    persistCurrentSkin(activity, "skindemo")
+                    persistCurrentSkin(this, "skindemo")
                 } else {
                     activity.defaultSkin()
-                    persistCurrentSkin(activity, "default")
+                    persistCurrentSkin(this, "default")
                 }
             } else {
                 Log.d(TAG, "  忽略主动强制模式(defaultNightMode=$currentNightMode)触发的回声回调，保持用户选择")

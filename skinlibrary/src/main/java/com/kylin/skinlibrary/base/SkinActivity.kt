@@ -16,6 +16,7 @@ import androidx.core.view.LayoutInflaterCompat
 import com.kylin.skinlibrary.SkinManager
 import com.kylin.skinlibrary.SkinUiHost
 import com.kylin.skinlibrary.SkinnableResources
+import com.kylin.skinlibrary.SkinnableThemeHost
 import com.kylin.skinlibrary.core.CustomAppCompatViewInflater
 import com.netease.skin.library.core.ViewsMatch
 import com.kylin.skinlibrary.utils.ActionBarUtils
@@ -57,7 +58,7 @@ class SkinnableViewBinder(
  * 1、继承此类
  * 2、重写openChangeSkin()方法
  */
-abstract class SkinActivity : AppCompatActivity() {
+abstract class SkinActivity : AppCompatActivity(), SkinnableThemeHost {
     private var viewInflater: CustomAppCompatViewInflater? = null
 
     /** 皮肤感知的 Resources 缓存（默认皮肤返回 null → 走 super.getResources()） */
@@ -292,7 +293,7 @@ abstract class SkinActivity : AppCompatActivity() {
         return true
     }
 
-    fun defaultSkin() {
+    override fun defaultSkin() {
         SkinLog.d(TAG, "defaultSkin() — ${this.javaClass.simpleName}")
         skinDynamic(null)
     }
@@ -305,7 +306,7 @@ abstract class SkinActivity : AppCompatActivity() {
      * （`colorAccent` → `colorPrimary` → `statusBarColor`）解析，再经 [SkinManager] 按名
      * 映射到皮肤包同名资源，与页面控件换肤走同一条链路。
      */
-    fun skinDynamic(skinPath: String?) {
+    override fun skinDynamic(skinPath: String?) {
         SkinLog.i(TAG, "skinDynamic() → ${this.javaClass.simpleName} | skinPath=$skinPath")
 
         // 统一通过 SkinManager.loadSkin() 管理皮肤状态

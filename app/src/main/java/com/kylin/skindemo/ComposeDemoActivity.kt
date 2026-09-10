@@ -1,7 +1,10 @@
 package com.kylin.skindemo
 
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -43,23 +46,57 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kylin.skindemo.compose.SkinTheme
 import com.kylin.skindemo.compose.skinColorScheme
-import com.netease.skin.library.base.SkinActivity
+import com.kylin.skinlibrary.SkinnableThemeHost
+import com.netease.skin.library.base.SkinActivityDelegate
 
 /**
  * Compose 组件换肤案例页（完整组件示例 + 状态保持验证）。
  *
- * 继承 [SkinActivity] 获得 `getResources()` 皮肤感知覆盖（[com.kylin.skinlibrary.SkinnableResources]），
- * 因此页面里**全部使用 Compose 系统资源方法**：`colorResource` / `painterResource` /
+ * **组合（非继承）示范**：本页不继承 [com.netease.skin.library.base.SkinActivity]，而是继承
+ * 原生 [AppCompatActivity] + 持有一个 [SkinActivityDelegate]。Compose 页面用不到 XML 的
+ * Factory2 控件拦截（`onCreateView`），只需 `getResources()` 的皮肤感知覆盖，因此这里只转发
+ * 少量生命周期即可获得完整换肤能力——相比继承，避免了继承版 `SkinActivity` 对 Compose 页
+ * 冗余的 `onCreateView` 拦截。
+ *
+ * 页面里**全部使用 Compose 系统资源方法**：`colorResource` / `painterResource` /
  * `stringResource` / `dimensionResource`，不引入任何自定义 wrapper——这些系统方法内部都是
- * `LocalContext.current.resources.getXxx(id)`，切肤时 `SkinnableResources` 自动按皮肤包同名
- * 资源取值，业务代码保持原生 Compose 写法不变。
+ * `LocalContext.current.resources.getXxx(id)`，切肤时 [com.kylin.skinlibrary.SkinnableResources]
+ * 自动按皮肤包同名资源取值，业务代码保持原生 Compose 写法不变。
  *
  * 重组由 [SkinTheme]（内部是 SkinComposeProvider）负责：它通过 staticCompositionLocalOf 的
  * [com.kylin.skinlibrary.compose.LocalSkinVersion] 在皮肤切换时重建 provider 子树，使所有
  * 资源读点重新执行、拿到新皮肤色，而 `remember { mutableStateOf(...) }` 里的页面状态
  * （输入框文本、开关勾选、复选框、单选、滑块值、计数）保持不变。
  */
-class ComposeDemoActivity : SkinActivity() {
+class ComposeDemoActivity : AppCompatActivity(), SkinnableThemeHost {
+
+    /** 组合版换肤 delegate：接管 getResources 覆盖 + 生命周期换肤，不拦截 XML 控件。 */
+    private val skin = SkinActivityDelegate(this)
+
+    override fun getResources(): Resources = skin.resources(super.getResources())
+
+    // 实现 SkinnableThemeHost：主题切换入口（ThemeSwitcherDialog）据此识别本页为换肤宿主。
+    override fun skinDynamic(skinPath: String?) = skin.skinDynamic(skinPath)
+    override fun defaultSkin() = skin.defaultSkin()
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        skin.onPostCreate()
+        // 全局主题切换悬浮按钮：Compose 页同样可切肤看效果
+        ThemeSwitcher.installFab(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        skin.onResume()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        skin.onConfigurationChanged(newConfig)
+    }
+
+    // Compose 页无 XML inflate，无需覆写 onCreateView 转发 skin.createView(...)。
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,12 +110,6 @@ class ComposeDemoActivity : SkinActivity() {
                 }
             }
         }
-    }
-
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
-        // 全局主题切换悬浮按钮：Compose 页同样可切肤看效果
-        ThemeSwitcher.installFab(this)
     }
 }
 

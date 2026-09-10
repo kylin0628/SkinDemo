@@ -12,7 +12,7 @@ import android.widget.PopupWindow
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.kylin.skinlibrary.SkinManager
 import com.kylin.skinlibrary.SkinUiHost
-import com.netease.skin.library.base.SkinActivity
+import com.kylin.skinlibrary.SkinnableThemeHost
 import com.netease.skin.library.base.SkinDialog
 
 /**
@@ -109,7 +109,7 @@ object ThemeSwitcher {
     }
 
     /** 保留兼容别名：老调用点（SkinActivity 场景）仍可用 */
-    fun findSkinActivity(context: Context?): SkinActivity? = findActivity(context) as? SkinActivity
+    fun findSkinActivity(context: Context?): SkinnableThemeHost? = findActivity(context) as? SkinnableThemeHost
 }
 
 /**
@@ -141,13 +141,14 @@ class ThemeSwitcherDialog(context: Context) : SkinDialog(context) {
     }
 
     /**
-     * 统一切肤入口：宿主为 [SkinActivity] 走 [SkinUiHost.applyTheme] 统一策略（切夜间模式 +
-     * 换肤），与「跟随系统变化」共用同一条链路，保证 BYD 弹框/控件（按 uiMode 取色）在
-     * app 内切换时同样跟随；未注册钩子时回落直接换肤。普通 Activity 直接 loadSkin。
+     * 统一切肤入口：宿主为 [SkinnableThemeHost]（继承版 [SkinActivity] 或组合版
+     * [SkinActivityDelegate]）走 [SkinUiHost.applyTheme] 统一策略（切夜间模式 + 换肤），
+     * 与「跟随系统变化」共用同一条链路，保证 BYD 弹框/控件（按 uiMode 取色）在 app 内切换
+     * 时同样跟随；未注册钩子时回落直接换肤。普通 Activity 直接 loadSkin。
      */
     private fun applySkin(skinPath: String?, prefValue: String, root: View) {
-        when (val act = activity) {
-            is SkinActivity -> {
+        when (val act = activity as? SkinnableThemeHost) {
+            is SkinnableThemeHost -> {
                 // 动态皮肤 → 深色模式，默认皮肤 → 浅色模式；与跟随系统共用 applyTheme 统一策略。
                 val applied = SkinUiHost.applyTheme?.let { hook ->
                     hook(act, skinPath != null, true)

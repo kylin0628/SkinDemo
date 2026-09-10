@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
 import com.kylin.skinlibrary.SkinManager
-import com.netease.skin.library.base.SkinActivity
+import com.kylin.skinlibrary.SkinUiHost
 import com.netease.skin.library.base.SkinDialog
 
 /**
@@ -12,6 +12,10 @@ import com.netease.skin.library.base.SkinDialog
  *
  * 换肤样板（Factory2 拦截 + 首次刷肤 + registerWindow 注册）已下沉到 [SkinDialog] 基类，
  * 此处只保留业务：注入悬浮切肤入口 + 绑定切肤/关闭按钮。
+ *
+ * 切肤走 [SkinUiHost.applyTheme] 统一策略（与 [ThemeSwitcherDialog] 一致），支持继承版
+ * SkinActivity 与组合版 Activity 两种宿主；弹框自身内容由 SkinDialog 基类的 registerWindow
+ * 兜底，切肤时自动跟随。
  */
 class SkinTestDialog(context: Context) : SkinDialog(context) {
 
@@ -23,17 +27,34 @@ class SkinTestDialog(context: Context) : SkinDialog(context) {
 
         root.findViewById<View>(R.id.btn_dialog_close)?.setOnClickListener { dismiss() }
         root.findViewById<View>(R.id.btn_dialog_dynamic)?.setOnClickListener {
-            val activity = ThemeSwitcher.findSkinActivity(context) ?: return@setOnClickListener
-            val skinPath = "${activity.getExternalFilesDir("skindemo")!!.absolutePath}/skindemo.skin"
-            activity.skinDynamic(skinPath)
-            SkinApp.persistCurrentSkin(activity, "skindemo")
-            activity.applyViews(root)
+            applySkin(true)
         }
         root.findViewById<View>(R.id.btn_dialog_default)?.setOnClickListener {
-            val activity = ThemeSwitcher.findSkinActivity(context) ?: return@setOnClickListener
-            activity.defaultSkin()
-            SkinApp.persistCurrentSkin(activity, "default")
-            activity.applyViews(root)
+            applySkin(false)
+        }
+    }
+
+    /** 统一切肤：深色→动态皮肤 / 浅色→默认皮肤，优先走宿主 applyTheme 统一策略。 */
+    private fun applySkin(isDark: Boolean) {
+        val host = ThemeSwitcher.findSkinActivity(context)
+        val applied = if (host != null) {
+            SkinUiHost.applyTheme?.let { hook ->
+                hook(host, isDark, true)
+                true
+            } ?: false
+        } else {
+            false
+        }
+        if (!applied && host != null) {
+            // 未注册宿主统一策略时回落直接换肤。
+            if (isDark) {
+                val skinPath = "${context.applicationContext.getExternalFilesDir("skindemo")?.absolutePath}/skindemo.skin"
+                host.skinDynamic(skinPath)
+                SkinApp.persistCurrentSkin(context, "skindemo")
+            } else {
+                host.defaultSkin()
+                SkinApp.persistCurrentSkin(context, "default")
+            }
         }
     }
 }
