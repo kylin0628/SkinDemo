@@ -99,7 +99,7 @@ class SkinApp : Application() {
 }
 ```
 
-初始化时可传 [SkinConfig](#38-资源类型开关-SkinConfig) 指定哪些资源类型参与换肤；不传则四类全支持。
+初始化时可传 [SkinConfig](#38-资源类型开关-SkinConfig) 指定哪些资源类型参与换肤；不传默认仅颜色。
 
 ### 2.3 Activity 接入：继承 or 组合
 
@@ -367,14 +367,14 @@ SkinUiHost.applyTheme = { host, isDark, forceNightMode ->
 
 ### 3.6 资源类型开关（SkinConfig）
 
-初始化时用 `SkinConfig` 指定哪些资源类型参与换肤，不传默认四类全支持。**仅首次 `init` 生效，运行期不可变**：
+初始化时用 `SkinConfig` 指定哪些资源类型参与换肤，不传默认**仅颜色**（`supportColor = true`，其余默认关闭）。**仅首次 `init` 生效，运行期不可变**：
 
 ```kotlin
 SkinManager.init(
     this,
     SkinConfig(
         supportDrawable = true,   // 图片（drawable / mipmap）
-        supportColor = true,      // 颜色
+        supportColor = true,      // 颜色（默认开启）
         supportString = true,     // 字符串
         supportDimen = true,      // 尺寸
     )

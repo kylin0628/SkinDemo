@@ -123,7 +123,7 @@ class SkinManager private constructor(
         /**
          * 初始化皮肤管理器。
          *
-         * @param config 资源类型开关（图片 / 颜色 / 字符串 / 尺寸是否换肤）；不传默认四类全支持。
+         * @param config 资源类型开关（图片 / 颜色 / 字符串 / 尺寸是否换肤）；不传默认仅颜色。
          *               仅首次调用生效，重复调用不覆盖已创建的实例。
          */
         fun init(application: Application, config: SkinConfig = SkinConfig()) {
@@ -302,7 +302,7 @@ class SkinManager private constructor(
         }
     }
 
-    /** 该资源类型是否参与换肤（由初始化时的 [SkinConfig] 决定，默认四类全支持）。 */
+    /** 该资源类型是否参与换肤（由初始化时的 [SkinConfig] 决定，默认仅颜色）。 */
     private fun supportsResourceType(resourceType: String): Boolean {
         return when (resourceType) {
             "drawable", "mipmap" -> config.supportDrawable

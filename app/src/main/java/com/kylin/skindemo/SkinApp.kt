@@ -42,7 +42,7 @@ class SkinApp : Application() {
         KvStore.init(this)
 
         // 1. 初始化 SkinManager（最早时机），按需指定参与换肤的资源类型；
-        //    不传 config 则默认四类资源（图片/颜色/字符串/尺寸）全部支持。
+        //    本 demo 显式四类全开以展示全部换肤能力（库默认仅颜色，见 SkinConfig）。
         Log.d(TAG, "步骤1: 初始化 SkinManager")
         SkinManager.init(
             this,
