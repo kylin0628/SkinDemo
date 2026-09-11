@@ -62,7 +62,7 @@ class SkinTestDialogFragment : SkinDialogFragment() {
             val activity = requireActivity()
             if (activity is SkinActivity) {
                 activity.defaultSkin()
-                SkinApp.persistCurrentSkin(requireContext(), "default")
+                SkinApp.persistCurrentSkin("default")
                 activity.applyViews(root)
                 updateSkinStatusLabel(root)
             }
@@ -73,7 +73,7 @@ class SkinTestDialogFragment : SkinDialogFragment() {
             val activity = requireActivity()
             if (activity is SkinActivity) {
                 activity.skinDynamic(skinPath)
-                SkinApp.persistCurrentSkin(requireContext(), "skindemo")
+                SkinApp.persistCurrentSkin("skindemo")
                 activity.applyViews(root)
                 updateSkinStatusLabel(root)
             }

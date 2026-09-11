@@ -83,13 +83,13 @@ class MultiLevelDialogFragment : SkinDialogFragment() {
         view.findViewById<View>(R.id.btn_multi_dynamic)?.setOnClickListener {
             if (activity is SkinActivity) {
                 activity.skinDynamic(skinPath)
-                SkinApp.persistCurrentSkin(requireContext(), "skindemo")
+                SkinApp.persistCurrentSkin("skindemo")
             }
         }
         view.findViewById<View>(R.id.btn_multi_default)?.setOnClickListener {
             if (activity is SkinActivity) {
                 activity.defaultSkin()
-                SkinApp.persistCurrentSkin(requireContext(), "default")
+                SkinApp.persistCurrentSkin("default")
             }
         }
         view.findViewById<View>(R.id.btn_multi_close)?.setOnClickListener { dismiss() }

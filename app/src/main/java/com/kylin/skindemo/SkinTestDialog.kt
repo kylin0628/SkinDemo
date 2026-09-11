@@ -50,10 +50,10 @@ class SkinTestDialog(context: Context) : SkinDialog(context) {
             if (isDark) {
                 val skinPath = "${context.applicationContext.getExternalFilesDir("skindemo")?.absolutePath}/skindemo.skin"
                 host.skinDynamic(skinPath)
-                SkinApp.persistCurrentSkin(context, "skindemo")
+                SkinApp.persistCurrentSkin("skindemo")
             } else {
                 host.defaultSkin()
-                SkinApp.persistCurrentSkin(context, "default")
+                SkinApp.persistCurrentSkin("default")
             }
         }
     }

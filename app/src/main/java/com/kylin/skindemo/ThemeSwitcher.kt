@@ -162,7 +162,7 @@ class ThemeSwitcherDialog(context: Context) : SkinDialog(context) {
                 SkinManager.instance?.loadSkin(skinPath)
             }
         }
-        SkinApp.persistCurrentSkin(context, prefValue)
+        SkinApp.persistCurrentSkin(prefValue)
         // 弹框自身内容（Skinnable* 控件）按新皮肤重刷
         SkinManager.instance?.applySkin(root)
         updateStatus(root)

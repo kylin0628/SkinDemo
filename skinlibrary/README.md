@@ -609,17 +609,16 @@ adb logcat | grep "皮肤包缺少同名资源"                    # 「某资�
 | `SkinnableViewInflater.inflate(ctx, layoutRes, root?, attachToRoot?, registerWindow?)` | 零继承换肤 inflate 入口（任意 Context） |
 | `SkinnableInflaterFactory` | 实现 `LayoutInflater.Factory2` 的拦截复用体，供上列组件共用 |
 
-### PreferencesUtils
+### KvStore
 
-本地键值存储（Jetpack DataStore Preferences，替代旧版 `SharedPreferences`），库用于持久化「上次皮肤状态」（key `currentSkin`）。所有方法均为 `suspend`，需在协程中调用。
+本地键值存储（Tencent MMKV，替代旧版 DataStore `PreferencesUtils`），库用于持久化「上次皮肤状态」（key `currentSkin`）。基于 mmap、同步 API、纳秒级读写，UI 线程直接调用无卡顿，无需协程。
 
 | 成员 | 说明 |
 |---|---|
-| `Context.skinDataStore` | 进程级 `DataStore<Preferences>` 单例（委托属性） |
-| `putString/Int/Long/Float/Boolean(ctx, key, value)` | suspend 写（`edit` 异步落盘，不阻塞 UI 线程） |
-| `getString/Int/Long/Float/Boolean(ctx, key[, default])` | suspend 一次性读 |
-| `data(ctx)` | 返回 `Flow<Preferences>`，供响应式订阅（如 Compose `collectAsState`） |
-| `getAll(ctx)` / `contains(ctx, key)` | suspend 读全部 / 判断键存在 |
-| `remove(ctx, vararg keys)` / `clear(ctx)` | suspend 删除 / 清空 |
+| `init(context)` | 幂等初始化（MMKV 全进程只初始化一次）；首次自动 `importFromSharedPreferences` 迁移旧值 |
+| `putString/Int/Long/Float/Boolean(key, value)` | 同步写（`value == null` 视为删除，与旧版行为对齐） |
+| `getString/Int/Long/Float/Boolean(key[, default])` | 同步一次性读 |
+| `contains(key)` | 判断键是否存在 |
+| `remove(vararg keys)` / `clear()` | 同步删除 / 清空 |
 
-> 旧版 `SharedPreferences`（`com.netease.skin`）数据经 `SharedPreferencesMigration` 自动迁移，升级不丢状态。方法签名由同步改为 `suspend`，宿主调用需包在协程作用域中（如 `CoroutineScope(Dispatchers.Main).launch { ... }`）。
+> 旧版 `SharedPreferences`（`com.netease.skin`）历史值经 `importFromSharedPreferences` 在首次 `init` 时一次性迁移，升级不丢状态。需在 `Application.onCreate` 最早时机调用 `KvStore.init(context)`。

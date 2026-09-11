@@ -44,11 +44,10 @@ dependencies {
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.runtime:runtime'
 
-    // Jetpack DataStore Preferences：替代 SharedPreferences 的本地键值存储（PreferencesUtils 使用）。
-    // 用 api 暴露：PreferencesUtils 的 suspend 方法 + skinDataStore 委托属本库公开 API，
-    // 宿主模块需能拿到 kotlinx-coroutines / datastore 类型才能调用。
-    api "androidx.datastore:datastore-preferences:1.1.1"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+    // Tencent MMKV：基于 mmap 的高性能键值存储（KvStore 使用），替代 Jetpack DataStore Preferences。
+    // 同步 API、极快（纳秒/微秒级），无需协程即可在 UI 线程安全调用；KvStore 完全封装 MMKV，
+    // 不向宿主泄漏 MMKV 类型，故用 implementation（仅库内部可见）。
+    implementation "com.tencent:mmkv:1.3.4"
 }
 
 // ============ 皮肤包自动同步 ============

@@ -53,7 +53,7 @@ class MainActivity : SkinActivity() {
         } else if (SkinManager.instance?.currentSkinPath != skinPath) {
             Log.d(TAG, "  → 未注册宿主策略，回落直接换肤!")
             skinDynamic(skinPath)
-            SkinApp.persistCurrentSkin(this, "skindemo")
+            SkinApp.persistCurrentSkin("skindemo")
         }
         Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     }
@@ -70,7 +70,7 @@ class MainActivity : SkinActivity() {
         } else if (SkinManager.instance?.currentSkinPath != null) {
             Log.d(TAG, "  → 未注册宿主策略，回落恢复默认!")
             defaultSkin()
-            SkinApp.persistCurrentSkin(this, "default")
+            SkinApp.persistCurrentSkin("default")
         }
         Log.d(TAG, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     }
