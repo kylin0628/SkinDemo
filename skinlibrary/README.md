@@ -622,3 +622,19 @@ adb logcat | grep "皮肤包缺少同名资源"                    # 「某资�
 | `remove(vararg keys)` / `clear()` | 同步删除 / 清空 |
 
 > 旧版 `SharedPreferences`（`com.netease.skin`）历史值经 `importFromSharedPreferences` 在首次 `init` 时一次性迁移，升级不丢状态。需在 `Application.onCreate` 最早时机调用 `KvStore.init(context)`。
+
+### 系统栏适配（状态栏 / 导航栏 dock / 沉浸式）
+
+| 工具 | 说明 |
+|---|---|
+| `StatusBarUtils.forStatusBar(activity, skinColor[, autoLight])` | 状态栏背景色 + 图标深浅色自动适配（背景偏浅自动换深色图标） |
+| `NavigationUtils.forNavigation(activity, skinColor[, autoLight])` | 导航栏背景色 + 图标深浅色自动适配 + 手势导航（关闭对比度强制） |
+| `SystemBarUtils.isLightColor(color)` | 颜色深浅判定（WCAG 相对亮度 > 0.5 视为浅色），供上两者共用 |
+| `SystemBarUtils.enableEdgeToEdge(activity)` | 沉浸式：内容铺满到状态栏/导航栏后面（`setDecorFitsSystemWindows(false)`） |
+| `SystemBarUtils.applyInsetPadding(view[, bars])` | 内容避让系统栏 insets，避免 edge-to-edge 下内容被遮挡 |
+| `SystemBarUtils.isGestureNavigation(context)` | 探测手势导航（`config_navBarInteractionMode == 2`） |
+
+- `forStatusBar` / `forNavigation` 已在 `skinDynamic()` 切肤链路中自动调用（默认 `autoLight=true`），
+  无需宿主单独接入；图标深浅色根据主题色亮度自动切换，解决浅色主题白图标看不清。
+- 沉浸式（edge-to-edge）会改变内容布局，属页面级视觉决策，故**默认不开启**；宿主按需显式调用
+  `enableEdgeToEdge(activity)` 后再对内容根视图 `applyInsetPadding(findViewById(android.R.id.content))`。

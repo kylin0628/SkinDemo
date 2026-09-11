@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import com.kylin.skinlibrary.SkinManager
 import com.kylin.skinlibrary.SkinUiHost
+import com.kylin.skinlibrary.utils.SystemBarUtils
 import com.netease.skin.library.base.SkinActivity
 import java.io.File
 
@@ -21,7 +22,11 @@ class MainActivity : SkinActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate() 开始")
+        // 沉浸式 edge-to-edge 示范：内容铺满到状态栏/导航栏后面（背景延伸），
+        // 再对内容根视图应用系统栏 insets 避让，避免文字/按钮被系统栏遮挡。
+        SystemBarUtils.enableEdgeToEdge(this)
         setContentView(R.layout.activity_main)
+        SystemBarUtils.applyInsetPadding(findViewById(android.R.id.content))
         skinPath = "${applicationContext.getExternalFilesDir("skindemo")!!.absolutePath}${File.separator}skindemo.skin"
         Log.d(TAG, "onCreate() skinPath=$skinPath")
 
