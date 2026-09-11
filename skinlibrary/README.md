@@ -514,16 +514,16 @@ framework 的 `LayoutInflater.setFactory2` **只能设一次**（第二次抛 `I
 
 ### 4.6 皮肤包构建（自动同步）
 
-`skinpackage` 是一个独立 `com.android.application` 模块，产出皮肤 APK。换肤库 `build.gradle` 内置 `syncSkinAsset` 任务：构建皮肤包 → 自动拷贝改名为 `assets/skin/skindemo.skin`，并挂到库 `preBuild` 前，**任何一次 app 构建都会自动同步最新皮肤包**，无需手工拷贝：
+`skinpackage` 是一个独立 `com.android.application` 模块，产出皮肤 APK。**皮肤是宿主资源，主题库（`skinlibrary`）不内置皮肤**。宿主 `app/build.gradle` 内置 `syncSkinAsset` 任务：构建皮肤包 → 自动拷贝改名为 `app/src/main/assets/skin/skindemo.skin`，并挂到宿主 `preBuild` 前，**任何一次 app 构建都会自动同步最新皮肤包**，无需手工拷贝：
 
 ```bash
 ./gradlew :app:assembleDebug
 # 内部自动执行 :skinpackage:assembleRelease → syncSkinAsset →
 #   skinpackage/build/outputs/apk/release/skinpackage-release-unsigned.apk
-#   → skinlibrary/src/main/assets/skin/skindemo.skin
+#   → app/src/main/assets/skin/skindemo.skin
 ```
 
-宿主启动时 `AssetsUtils.doCopy` 把 `assets/skin/` 拷到 `getExternalFilesDir("skindemo")`，再 `loadSkin` 加载。`skindemo.skin` 与 `skinpackage-release-unsigned.apk` 仅后缀不同、内容一致。
+宿主启动时 `AssetsUtils.doCopy` 把宿主自己的 `assets/skin/` 拷到 `getExternalFilesDir("skindemo")`，再 `loadSkin` 加载。`skindemo.skin` 与 `skinpackage-release-unsigned.apk` 仅后缀不同、内容一致。
 
 > **坑**：改了皮肤包源资源（colors/strings/dimens/drawable）后若没重新构建同步，App 读到的是旧皮肤包，表现为「颜色变了但尺寸/图片/文案没变」。`syncSkinAsset` 已自动化此流程；若仍遇到，确认设备外部存储里的 `.skin` 是否为新包（卸载重装或清 app 数据）。
 

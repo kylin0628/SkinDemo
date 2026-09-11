@@ -78,11 +78,42 @@ Skinnable*.skinnableView()
 
 ### 2.1 依赖
 
-宿主模块（`app`）依赖换肤库：
+宿主模块（`app`）依赖换肤库，两种方式二选一：
+
+**方式一 —— 源码/本地模块**（本仓库内模块）：
 
 ```gradle
 implementation project(':skinlibrary')
 ```
+
+**方式二 —— 远程 Maven 依赖**（其他项目直接依赖已发布到 GitHub Packages 的主题库，无需拷贝源码）：
+
+```gradle
+// 1) settings.gradle(.kts) 的 dependencyResolutionManagement，或模块级 repositories 中加远程仓库
+maven {
+    url = uri("https://maven.pkg.github.com/kylin0628/SkinDemo")
+    credentials {
+        username = project.findProperty("gpr.user") ?: System.getenv("GPR_USER")
+        password = project.findProperty("gpr.key") ?: System.getenv("GPR_KEY")
+    }
+}
+
+// 2) 依赖坐标
+dependencies {
+    implementation 'com.kylin:skinlibrary:1.0.0'           // 稳定版
+    // implementation 'com.kylin:skinlibrary:1.0.0-SNAPSHOT' // 快照版（可覆盖迭代）
+}
+```
+
+远程依赖要求：
+
+- 下游需提供 GitHub 凭证，二选一（**勿提交进 git**）：
+  - 环境变量 `GPR_USER` / `GPR_KEY`；
+  - `~/.gradle/gradle.properties` 中配 `gpr.user` / `gpr.key`。
+- PAT（Personal Access Token）需勾选 `read:packages`（发布方另需 `write:packages`）。
+- 主题库只提供换肤能力，**不内置任何皮肤**。皮肤包是宿主项目的主题资源：下游需自己构建
+  皮肤包（`skinpackage` 模块产物 APK 改名 `.skin`），放入宿主 `assets/skin/`，再按下方
+  `AssetsUtils.doCopy` 拷贝加载（详见 [§4.6](#46-皮肤包构建自动同步)）。
 
 ### 2.2 Application 初始化（最早时机）
 
@@ -514,16 +545,16 @@ framework 的 `LayoutInflater.setFactory2` **只能设一次**（第二次抛 `I
 
 ### 4.6 皮肤包构建（自动同步）
 
-`skinpackage` 是一个独立 `com.android.application` 模块，产出皮肤 APK。换肤库 `build.gradle` 内置 `syncSkinAsset` 任务：构建皮肤包 → 自动拷贝改名为 `assets/skin/skindemo.skin`，并挂到库 `preBuild` 前，**任何一次 app 构建都会自动同步最新皮肤包**，无需手工拷贝：
+`skinpackage` 是一个独立 `com.android.application` 模块，产出皮肤 APK。**皮肤是宿主资源，主题库（`skinlibrary`）不内置皮肤**。宿主 `app/build.gradle` 内置 `syncSkinAsset` 任务：构建皮肤包 → 自动拷贝改名为 `app/src/main/assets/skin/skindemo.skin`，并挂到宿主 `preBuild` 前，**任何一次 app 构建都会自动同步最新皮肤包**，无需手工拷贝：
 
 ```bash
 ./gradlew :app:assembleDebug
 # 内部自动执行 :skinpackage:assembleRelease → syncSkinAsset →
 #   skinpackage/build/outputs/apk/release/skinpackage-release-unsigned.apk
-#   → skinlibrary/src/main/assets/skin/skindemo.skin
+#   → app/src/main/assets/skin/skindemo.skin
 ```
 
-宿主启动时 `AssetsUtils.doCopy` 把 `assets/skin/` 拷到 `getExternalFilesDir("skindemo")`，再 `loadSkin` 加载。`skindemo.skin` 与 `skinpackage-release-unsigned.apk` 仅后缀不同、内容一致。
+宿主启动时 `AssetsUtils.doCopy` 把宿主自己的 `assets/skin/` 拷到 `getExternalFilesDir("skindemo")`，再 `loadSkin` 加载。`skindemo.skin` 与 `skinpackage-release-unsigned.apk` 仅后缀不同、内容一致。
 
 > **坑**：改了皮肤包源资源（colors/strings/dimens/drawable）后若没重新构建同步，App 读到的是旧皮肤包，表现为「颜色变了但尺寸/图片/文案没变」。`syncSkinAsset` 已自动化此流程；若仍遇到，确认设备外部存储里的 `.skin` 是否为新包（卸载重装或清 app 数据）。
 

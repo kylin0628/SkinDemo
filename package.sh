@@ -16,8 +16,9 @@
 #      宿主通过反射 AssetManager.addAssetPath 加载，故无需签名。
 #   3. 分发产物命名含「版本 + 日期 + 时间 + git 短哈希」，每次执行先删同类旧产物再重建。
 #      版本号默认取 git 最近的 tag，无 tag 时回退 1.0.0；可用 VERSION=xx 覆盖。
-#   4. 皮肤包同时回填到 skinlibrary/src/main/assets/skin/skindemo.skin（固定名，宿主启动
-#      时 AssetsUtils.doCopy 按此名加载），回填名不携带时间戳。
+#   4. 皮肤包同时回填到 app/src/main/assets/skin/skindemo.skin（固定名，宿主启动
+#      时 AssetsUtils.doCopy 按此名加载），回填名不携带时间戳。皮肤是宿主资源，
+#      主题库（skinlibrary）不内置皮肤。
 #
 set -euo pipefail
 
@@ -51,7 +52,7 @@ BYD_MODULE=":bydwidget"
 SKIN_LIB_AAR="$ROOT/skinlibrary/build/outputs/aar/skinlibrary-release.aar"
 SKIN_PKG_APK="$ROOT/skinpackage/build/outputs/apk/release/skinpackage-release-unsigned.apk"
 BYD_AAR="$ROOT/bydwidget/build/outputs/aar/bydwidget-release.aar"
-ASSETS_SKIN_DIR="$ROOT/skinlibrary/src/main/assets/skin"
+ASSETS_SKIN_DIR="$ROOT/app/src/main/assets/skin"
 
 # ---------- 输出辅助 ----------
 if [ -t 1 ]; then
@@ -115,7 +116,7 @@ build_skin() {
     local out="$DIST_DIR/skindemo-${STAMP}.skin"
     cp -f "$apk" "$out"
 
-    # 回填宿主内嵌默认皮肤（固定名，宿主启动按此名加载）
+    # 回填宿主内嵌皮肤（固定名，宿主启动按此名加载；皮肤是宿主资源，非主题库）
     mkdir -p "$ASSETS_SKIN_DIR"
     cp -f "$apk" "$ASSETS_SKIN_DIR/$ASSETS_SKIN_NAME"
 

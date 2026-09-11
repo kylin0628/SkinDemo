@@ -57,3 +57,30 @@ dependencies {
     // 比亚迪官方控件演示模块
     implementation project(':bydwidget')
 }
+
+// ============ 皮肤包自动同步（皮肤是宿主资源） ============
+// 皮肤包（.skin）是**宿主项目的主题资源**，主题库（skinlibrary）只提供换肤能力、不内置皮肤。
+// 坑：改了 skinpackage 的资源（colors/strings/dimens/drawable）后若忘记重新构建并拷贝
+//     release APK 到 assets/skin/skindemo.skin，App 切肤时读到的仍是旧皮肤包，表现为
+//     「颜色变了但尺寸/图片/文案没变」。此任务把「构建皮肤包 → 拷贝到宿主 assets」自动化，
+//     并挂到 app preBuild 前，宿主构建即自动同步，消除手工拷贝遗漏。
+// App 启动时 AssetsUtils.doCopy(this, "skin", ...) 读的正是宿主自己的 assets。
+def skinAssetDir = "$projectDir/src/main/assets/skin"
+def skinSourceApk = "$rootDir/skinpackage/build/outputs/apk/release/skinpackage-release-unsigned.apk"
+
+task syncSkinAsset(type: Copy) {
+    dependsOn ':skinpackage:assembleRelease'
+    from file(skinSourceApk)
+    into skinAssetDir
+    rename { 'skindemo.skin' }
+    doLast {
+        println "[syncSkinAsset] 已同步皮肤包 → ${skinAssetDir}/skindemo.skin"
+    }
+}
+
+// 宿主资源合并前先同步皮肤包（preBuild 最早触发，保证 assets 最新再参与后续合并）
+tasks.whenTaskAdded { task ->
+    if (task.name == 'preBuild') {
+        task.dependsOn 'syncSkinAsset'
+    }
+}

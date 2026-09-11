@@ -1,5 +1,11 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'maven-publish'
+
+// Maven 坐标：发布到 GitHub Packages（https://maven.pkg.github.com/kylin0628/SkinDemo）。
+// 版本号：-PskinVersion 或 SKIN_VERSION 环境变量优先，默认快照版（可覆盖迭代）。
+group = 'com.kylin'
+version = project.findProperty('skinVersion') ?: System.getenv('SKIN_VERSION') ?: '1.0.0-SNAPSHOT'
 
 android {
     namespace 'com.kylin.skinlibrary'
@@ -33,16 +39,23 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.core:core-ktx:1.12.0'
-    implementation 'com.google.android.material:material:1.9.0'
+    // 以下依赖类型出现在本库公开 API 中（SkinActivity : AppCompatActivity、SkinnableButton :
+    // MaterialButton、skinnedColor(): Color、SkinnableViewPager : ViewPager 等），下游编译需可见，
+    // 故必须用 api（publishing 时映射为 compile scope）；若用 implementation 会被标 runtime，
+    // 下游 extends 这些基类时编译失败。
+    api 'androidx.appcompat:appcompat:1.6.1'
+    api 'androidx.constraintlayout:constraintlayout:2.1.4'
+    api 'androidx.core:core-ktx:1.12.0'
+    api 'com.google.android.material:material:1.9.0'
+    // SkinnableViewPager 泄漏 androidx.viewpager.widget.ViewPager；appcompat 1.6.1 已不再传递该依赖，需显式声明。
+    api 'androidx.viewpager:viewpager:1.0.0'
 
     // Compose 换肤支持：LocalSkinVersion + skinnedColor/.../skinnedPainter，
     // 让 Compose 资源读取在皮肤切换时局部重组、不销毁页面状态。
-    implementation platform('androidx.compose:compose-bom:2023.06.01')
-    implementation 'androidx.compose.ui:ui'
-    implementation 'androidx.compose.runtime:runtime'
+    // skinnedColor/skinnedDimension/skinnedPainter 公开签名泄漏 Color/Dp/Painter 等 Compose 类型，故 api。
+    api platform('androidx.compose:compose-bom:2023.06.01')
+    api 'androidx.compose.ui:ui'
+    api 'androidx.compose.runtime:runtime'
 
     // Tencent MMKV：基于 mmap 的高性能键值存储（KvStore 使用），替代 Jetpack DataStore Preferences。
     // 同步 API、极快（纳秒/微秒级），无需协程即可在 UI 线程安全调用；KvStore 完全封装 MMKV，
@@ -50,27 +63,29 @@ dependencies {
     implementation "com.tencent:mmkv:1.3.4"
 }
 
-// ============ 皮肤包自动同步 ============
-// 坑：改了 skinpackage 的资源（colors/strings/dimens/drawable）后若忘记重新构建并拷贝
-//     release APK 到 assets/skin/skindemo.skin，App 切肤时读到的仍是旧皮肤包，表现为
-//     「颜色变了但尺寸/图片/文案没变」。此任务把「构建皮肤包 → 拷贝 assets」自动化，
-//     并挂到本库 preBuild 前，App 构建即自动同步，彻底消除手工拷贝遗漏。
-def skinAssetDir = "$projectDir/src/main/assets/skin"
-def skinSourceApk = "$rootDir/skinpackage/build/outputs/apk/release/skinpackage-release-unsigned.apk"
+// ============ Maven 发布（GitHub Packages） ============
+// 发布到 https://maven.pkg.github.com/kylin0628/SkinDemo，下游依赖坐标 com.kylin:skinlibrary。
+// 凭证 gpr.user / gpr.key 从项目属性或环境变量 GPR_USER / GPR_KEY 读取（建议放 ~/.gradle/gradle.properties，勿提交仓库）。
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
 
-task syncSkinAsset(type: Copy) {
-    dependsOn ':skinpackage:assembleRelease'
-    from file(skinSourceApk)
-    into skinAssetDir
-    rename { 'skindemo.skin' }
-    doLast {
-        println "[syncSkinAsset] 已同步皮肤包 → ${skinAssetDir}/skindemo.skin"
-    }
-}
-
-// 库资源合并前先同步皮肤包（preBuild 最早触发，保证 assets 最新再参与后续合并）
-tasks.whenTaskAdded { task ->
-    if (task.name == 'preBuild') {
-        task.dependsOn 'syncSkinAsset'
+                groupId = 'com.kylin'
+                artifactId = 'skinlibrary'
+                version = project.version
+            }
+        }
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/kylin0628/SkinDemo")
+                credentials {
+                    username = project.findProperty('gpr.user') ?: System.getenv('GPR_USER')
+                    password = project.findProperty('gpr.key') ?: System.getenv('GPR_KEY')
+                }
+            }
+        }
     }
 }
