@@ -349,25 +349,34 @@ abstract class SkinActivity : AppCompatActivity(), SkinnableThemeHost {
     }
 
     /**
-     * 解析当前 Activity 主题色（皮肤感知）：用于状态栏 / 导航栏 / ActionBar 着色。
+     * 解析当前 Activity 状态栏 / 导航栏（dock）背景色（皮肤感知）。
      *
-     * 取值优先级：主题 `colorAccent` → 主题 `colorPrimary` → 主题 `statusBarColor`。
-     * 资源 ID 经 [SkinManager.getColor] 按名映射，默认皮肤取宿主值、动态皮肤取皮肤包
-     * 同名值，因此调用方无需再单独传入主题色。解析失败返回 0，调用方跳过着色。
+     * 取值优先级：`colorPrimaryDark` → `statusBarColor` → `colorPrimary` → `colorAccent`。
+     * 首取 `colorPrimaryDark`——它在 Material 语义里即「状态栏专用色」，皮肤包同名资源注释
+     * 也标注为「状态栏颜色」；而 `colorAccent` 是「控件选中强调色」（宿主青 / 皮肤橙），
+     * 亮度不反映主题深浅，用它当系统栏背景会把状态栏涂成强调色、且文字颜色判定失真。
+     *
+     * 资源 ID 经 [SkinManager.getColor] 按名映射，默认皮肤取宿主值、动态皮肤取皮肤包同名值。
+     * 图标 / 文字深浅由 [StatusBarUtils] / [NavigationUtils] 据**该背景色亮度**自适应
+     * （`ColorUtils.calculateLuminance` > 0.5 → 深色图标，与 ImmersiveStatusBar 方案一致），
+     * 故背景色取对后，状态栏 / dock 文字颜色即随主题深浅自适应。解析失败返回 0，调用方跳过着色。
      */
     private fun resolveThemeColor(): Int {
         val manager = SkinManager.instance ?: return 0
         var themeColorId = 0
         withStyledAttributes(
-            attrs = intArrayOf(R.attr.colorAccent, R.attr.colorPrimary, R.attr.statusBarColor)
+            attrs = intArrayOf(
+                R.attr.colorPrimaryDark, R.attr.statusBarColor, R.attr.colorPrimary, R.attr.colorAccent
+            )
         ) {
             themeColorId = getResourceId(0, 0)
                 .takeIf { it != 0 }
                 ?: getResourceId(1, 0).takeIf { it != 0 }
-                ?: getResourceId(2, 0)
+                ?: getResourceId(2, 0).takeIf { it != 0 }
+                ?: getResourceId(3, 0)
         }
         if (themeColorId == 0) {
-            SkinLog.d(TAG, "resolveThemeColor → 无 colorAccent/colorPrimary/statusBarColor 资源，跳过着色")
+            SkinLog.d(TAG, "resolveThemeColor → 无 colorPrimaryDark/statusBarColor/colorPrimary/colorAccent 资源，跳过着色")
             return 0
         }
         return manager.getColor(themeColorId)

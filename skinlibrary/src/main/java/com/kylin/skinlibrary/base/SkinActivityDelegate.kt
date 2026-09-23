@@ -218,15 +218,18 @@ class SkinActivityDelegate(
         val manager = SkinManager.instance ?: return 0
         var themeColorId = 0
         activity.withStyledAttributes(
-            attrs = intArrayOf(R.attr.colorAccent, R.attr.colorPrimary, R.attr.statusBarColor)
+            attrs = intArrayOf(
+                R.attr.colorPrimaryDark, R.attr.statusBarColor, R.attr.colorPrimary, R.attr.colorAccent
+            )
         ) {
             themeColorId = getResourceId(0, 0)
                 .takeIf { it != 0 }
                 ?: getResourceId(1, 0).takeIf { it != 0 }
-                ?: getResourceId(2, 0)
+                ?: getResourceId(2, 0).takeIf { it != 0 }
+                ?: getResourceId(3, 0)
         }
         if (themeColorId == 0) {
-            SkinLog.d(TAG, "resolveThemeColor → 无 colorAccent/colorPrimary/statusBarColor 资源，跳过着色")
+            SkinLog.d(TAG, "resolveThemeColor → 无 colorPrimaryDark/statusBarColor/colorPrimary/colorAccent 资源，跳过着色")
             return 0
         }
         return manager.getColor(themeColorId)
